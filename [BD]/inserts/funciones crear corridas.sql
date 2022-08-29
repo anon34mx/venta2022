@@ -314,7 +314,6 @@ CREATE OR REPLACE
     FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED, IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
 RETURNS TEXT
 BEGIN
-    -- DECLARE retorno TEXT DEFAULT "" ;
 
     DECLARE v_done INT DEFAULT FALSE; -- continuar o terminar ciclo siguiente
     DECLARE v_nDispo BIGINT UNSIGNED;
@@ -380,3 +379,31 @@ BEGIN
     CLOSE v_recorrido;
     RETURN "ok";
 END;
+
+-- LIBERAR ASIENTOS DESPUES DE 15 minutos
+-- las reservaciones duran 15 minutos
+-- [0] Añadir columna last_update
+ALTER TABLE disponibilidadasientos ADD COLUMN last_update DATETIME NOT NULL DEFAULT NOW();
+-- [1] Hacer un trigger que indique cuando se insertó/modificó el registro
+CREATE OR REPLACE TRIGGER asiento_ultima_actualizacion
+BEFORE UPDATE ON disponibilidadasientos
+FOR EACH ROW
+BEGIN
+    SET NEW.last_update=CURRENT_TIMESTAMP;
+END;
+-- [2] Hacer una consulta que saque los apartados(a) que tengan más de 15 minutos
+SELECT *, MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update)) haceXminutos
+FROM disponibilidadasientos
+WHERE last_update
+AND aEstadoAsiento='a' -- v esta es la parte que sirve
+AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15 
+-- [3] Eliminar los apartados del punto [2]
+CREATE OR REPLACE EVENT liberar_apartados
+ON SCHEDULE
+EVERY 2 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+    DELETE FROM disponibilidadasientos
+    WHERE
+    AND aEstadoAsiento='a'
+    AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;

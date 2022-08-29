@@ -49,7 +49,7 @@ AND dis.hSalida="12:00:00"
 AND dis.nOrigen=8
 
 GROUP BY nCorridaDisponible, dis.nOrigen, dis.nDestino
-
 HAVING COUNT(disa.nAsiento)<dist.nAsientos -- que haya asientos disponibles
-
 ORDER BY dis.fSalida, dis.hSalida
+
+-- [Asientos reservados que deben liberarse]

@@ -1,9 +1,10 @@
 -- sirve para poner un asiento como
 -- ocupado, vendido, bloqueado
 -- por secciones de la corrida
--- select estadoAsientos(26, 8,1,1,'a')
+-- select estadoAsientos(26, 10,1,3,'v')
 CREATE OR REPLACE
-    FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED, IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
+    FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED,
+        IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
 RETURNS TEXT
 BEGIN
     -- DECLARE retorno TEXT DEFAULT "" ;
