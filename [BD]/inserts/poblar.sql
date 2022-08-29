@@ -12,6 +12,8 @@ disponibilidad
     ncorridaprogramada quitar llave unica
 disponibilidadasientos
     quitar llave primaria
+    crear llave unica 
+        ALTER TABLE disponibilidadasientos ADD UNIQUE KEY (nDisponibilidad, nAsiento);
 
 INSERT INTO `distribucionasientos`(`nNumero`,`nAsientos`, `aDistribucion`)
 VALUES

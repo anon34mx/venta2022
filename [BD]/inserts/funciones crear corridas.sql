@@ -165,12 +165,15 @@ BEGIN
             )
         ) MINUTE as hSalidaCorrida,
         TIMESTAMP(cordis.fSalida, cordis.hSalida) + INTERVAL (
-            (SELECT
-            IF( SUM(trSub.nTiempo) is NULL, 0, SUM(trSub.nTiempo))
-            as tiempoTrans
-            FROM `itinerario` itiSub
-            INNER JOIN tramos trSub on itiSub.nTramo=trSub.nNumero
-            WHERE itiSub.`nItinerario`=cordis.nItinerario and itiSub.nConsecutivo<=cadaTramo.nConsecutivo)
+            (
+                SELECT
+                IF( SUM(trSub.nTiempo) is NULL, 0, SUM(trSub.nTiempo))
+                as tiempoTrans
+                FROM `itinerario` itiSub
+                INNER JOIN tramos trSub on itiSub.nTramo=trSub.nNumero
+                WHERE itiSub.`nItinerario`=cordis.nItinerario and itiSub.nConsecutivo<=cadaTramo.nConsecutivo
+                ORDER BY itiSub.nConsecutivo ASC -- si sale mal, quitar esto (no deberia :c )
+            )
             +
             (
                 SELECT
@@ -182,6 +185,7 @@ BEGIN
                     SELECT itiSub2.nConsecutivo FROM itinerario as itiSub2
                     INNER JOIN tramos trSub on trSub.nNumero=itiSub2.nTramo
                     WHERE trSub.nDestino=cadaTramo.nDestino AND  itiSub2.nItinerario=iti.nItinerario -- parametros
+                    ORDER BY itiSub2.nConsecutivo ASC -- si sale mal, quitar esto (no deberia :c )
                 )
             )
         ) MINUTE as hLlegadaCalc,
@@ -304,3 +308,75 @@ BEGIN
     
     RETURN ins;
 END; //
+
+-- [APARTAR ASIENTOS]
+CREATE OR REPLACE
+    FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED, IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
+RETURNS TEXT
+BEGIN
+    -- DECLARE retorno TEXT DEFAULT "" ;
+
+    DECLARE v_done INT DEFAULT FALSE; -- continuar o terminar ciclo siguiente
+    DECLARE v_nDispo BIGINT UNSIGNED;
+    DECLARE v_disp INT UNSIGNED;
+    DECLARE v_origen INT UNSIGNED;
+    DECLARE v_destino INT UNSIGNED;
+    -- [1] seleccionamos los tramos donde se va a apartar
+    DECLARE v_recorrido CURSOR FOR
+        SELECT origenes.origen, destinos.destino
+        FROM (
+            SELECT
+            iti.nItinerario, iti.nConsecutivo, tr.nOrigen "origen" 
+            FROM  `itinerario` iti
+            INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
+            WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) -- parametro 1 (CORRIDA)
+            and nConsecutivo>=(
+                SELECT nConsecutivo FROM  itinerario itiSub
+                INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen -- parametro 2 (ORIGEN)
+            )
+            and nConsecutivo<=(
+                SELECT nConsecutivo FROM  itinerario itiSub
+                INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino -- parametro 3 (destino)
+            )
+        ) as origenes
+        JOIN (
+            SELECT
+            iti.nItinerario, iti.nConsecutivo, tr.nDestino "destino"
+            FROM  `itinerario` iti
+            INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
+            WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) -- parametro 1 (CORRIDA)
+            and nConsecutivo>=(
+                SELECT nConsecutivo FROM  itinerario itiSub
+                INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen -- parametro 2 (ORIGEN)
+            )
+            and nConsecutivo<=(
+                SELECT nConsecutivo FROM  itinerario itiSub
+                INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino -- parametro 3 (destino)
+            )
+        ) as destinos on origenes.nItinerario=destinos.nItinerario
+            and origenes.origen!=destinos.destino
+            and destinos.nConsecutivo>=origenes.nConsecutivo;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+
+    OPEN v_recorrido;
+        read_loop: LOOP
+            FETCH v_recorrido INTO v_origen, v_destino;
+            IF v_done THEN
+                LEAVE read_loop;
+            END IF;
+
+            -- [2] seleccionamos la disponibilidad que va a ocupar
+            SELECT nNumero INTO v_nDispo FROM `disponibilidad`
+            WHERE `nCorridaDisponible`=IN_cordis
+            AND `nOrigen`= v_origen AND nDestino=v_destino;
+
+            INSERT INTO disponibilidadasientos (nDisponibilidad,nAsiento,aEstadoAsiento)
+            VALUES (v_nDispo, IN_nAsiento, IN_estado);
+        END LOOP;
+    CLOSE v_recorrido;
+    RETURN "ok";
+END;
