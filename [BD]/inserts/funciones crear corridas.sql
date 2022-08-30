@@ -311,16 +311,23 @@ END; //
 
 -- [APARTAR ASIENTOS]
 CREATE OR REPLACE
-    FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED, IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
+    FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED,
+        IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
 RETURNS TEXT
 BEGIN
+    -- variables para manejo de errores
+    -- Declare variables to hold diagnostics area information
+    DECLARE code CHAR(5) DEFAULT '00000';
+    DECLARE msg TEXT DEFAULT "";
+    DECLARE nrows INT UNSIGNED DEFAULT 0;
+    DECLARE result TEXT DEFAULT "Corrida no encontrada";
 
     DECLARE v_done INT DEFAULT FALSE; -- continuar o terminar ciclo siguiente
     DECLARE v_nDispo BIGINT UNSIGNED;
     DECLARE v_disp INT UNSIGNED;
     DECLARE v_origen INT UNSIGNED;
     DECLARE v_destino INT UNSIGNED;
-    -- [1] seleccionamos los tramos donde se va a apartar
+    -- primero seleccionamos los tramos donde se va a apartar
     DECLARE v_recorrido CURSOR FOR
         SELECT origenes.origen, destinos.destino
         FROM (
@@ -360,7 +367,11 @@ BEGIN
             and origenes.origen!=destinos.destino
             and destinos.nConsecutivo>=origenes.nConsecutivo;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
-
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+      GET DIAGNOSTICS CONDITION 1
+        code = RETURNED_SQLSTATE, msg = MESSAGE_TEXT;
+    END;
     OPEN v_recorrido;
         read_loop: LOOP
             FETCH v_recorrido INTO v_origen, v_destino;
@@ -368,16 +379,25 @@ BEGIN
                 LEAVE read_loop;
             END IF;
 
-            -- [2] seleccionamos la disponibilidad que va a ocupar
             SELECT nNumero INTO v_nDispo FROM `disponibilidad`
             WHERE `nCorridaDisponible`=IN_cordis
             AND `nOrigen`= v_origen AND nDestino=v_destino;
 
             INSERT INTO disponibilidadasientos (nDisponibilidad,nAsiento,aEstadoAsiento)
             VALUES (v_nDispo, IN_nAsiento, IN_estado);
+
+            -- saber si hubo errores
+            IF code = '00000' THEN
+                GET DIAGNOSTICS @nrows = ROW_COUNT;
+                SET nrows=nrows+1;
+                SET result = CONCAT('insert succeeded, row count = ',nrows);
+            ELSE
+                SET result = CONCAT('insert failed, error = ',code,', message = ',msg);
+                LEAVE read_loop;
+            END IF;
         END LOOP;
     CLOSE v_recorrido;
-    RETURN "ok";
+    RETURN result;
 END;
 
 -- LIBERAR ASIENTOS DESPUES DE 15 minutos
@@ -400,10 +420,12 @@ AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15
 -- [3] Eliminar los apartados del punto [2]
 CREATE OR REPLACE EVENT liberar_apartados
 ON SCHEDULE
-EVERY 2 MINUTE
+EVERY 1 MINUTE
 STARTS CURRENT_TIMESTAMP
 DO
-    DELETE FROM disponibilidadasientos
-    WHERE
-    AND aEstadoAsiento='a'
-    AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;
+    BEGIN
+        DELETE FROM disponibilidadasientos
+        WHERE
+        aEstadoAsiento='a'
+        AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;
+    END;

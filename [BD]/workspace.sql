@@ -1,13 +1,19 @@
 -- sirve para poner un asiento como
 -- ocupado, vendido, bloqueado
 -- por secciones de la corrida
--- select estadoAsientos(26, 10,1,3,'v')
+-- select estadoAsientos(25, 10,5,2,'v')
+
 CREATE OR REPLACE
     FUNCTION estadoAsientos(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED,
         IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2))
 RETURNS TEXT
 BEGIN
-    -- DECLARE retorno TEXT DEFAULT "" ;
+    -- variables para manejo de errores
+    -- Declare variables to hold diagnostics area information
+    DECLARE code CHAR(5) DEFAULT '00000';
+    DECLARE msg TEXT DEFAULT "";
+    DECLARE nrows INT UNSIGNED DEFAULT 0;
+    DECLARE result TEXT DEFAULT "Corrida no encontrada";
 
     DECLARE v_done INT DEFAULT FALSE; -- continuar o terminar ciclo siguiente
     DECLARE v_nDispo BIGINT UNSIGNED;
@@ -54,8 +60,11 @@ BEGIN
             and origenes.origen!=destinos.destino
             and destinos.nConsecutivo>=origenes.nConsecutivo;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
-
-    -- SET retorno=0;
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+      GET DIAGNOSTICS CONDITION 1
+        code = RETURNED_SQLSTATE, msg = MESSAGE_TEXT;
+    END;
     OPEN v_recorrido;
         read_loop: LOOP
             FETCH v_recorrido INTO v_origen, v_destino;
@@ -69,8 +78,17 @@ BEGIN
 
             INSERT INTO disponibilidadasientos (nDisponibilidad,nAsiento,aEstadoAsiento)
             VALUES (v_nDispo, IN_nAsiento, IN_estado);
+
+            -- saber si hubo errores
+            IF code = '00000' THEN
+                GET DIAGNOSTICS @nrows = ROW_COUNT;
+                SET nrows=nrows+1;
+                SET result = CONCAT('insert succeeded, row count = ',nrows);
+            ELSE
+                SET result = CONCAT('insert failed, error = ',code,', message = ',msg);
+                LEAVE read_loop;
+            END IF;
         END LOOP;
-        -- SET retorno = 'insertado';
     CLOSE v_recorrido;
-    RETURN "ok";
+    RETURN result;
 END;
