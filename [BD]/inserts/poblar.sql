@@ -10,11 +10,32 @@ corridasprogramadas
     autobus puede ser nulo
 disponibilidad
     ncorridaprogramada quitar llave unica
+    + añadir ??
 disponibilidadasientos
     quitar llave primaria
     crear llave unica 
         ALTER TABLE disponibilidadasientos ADD UNIQUE KEY (nDisponibilidad, nAsiento);
+venta
+    fCreacion debe tener por DEFAULT el valor
+        ALTER TABLE `venta` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ventapago
+    fCreacion debe tener el valor por defecto
+        ALTER TABLE `ventapago` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+Boletosvendidos
+    ALTER TABLE `boletosvendidos` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+-- CREAR INDICES PARA QUE SEA MÁS RÁPIDO
+    -- ejemplo
+    -- ALTER TABLE pases ADD INDEX pases_IN (id,id_venta)
+ALTER TABLE `itinerario` ADD INDEX itinerario_IN (nItinerario, nTramo);
+ALTER TABLE `tramos` ADD INDEX tramos_IN (nNumero, nOrigen, nDestino);
+ALTER TABLE `corridasdisponibles` ADD INDEX corridasdisponibles_IN
+    (nNumero, nProgramada, nItinerario, nNumeroAutobus);
+ALTER TABLE `oficinas` ADD INDEX oficinas_IN (nNumero, aClave, lDestino);
+ALTER TABLE `disponibilidad` ADD INDEX disponibilidad_IN (nNumero, nCorridaDisponible,nOrigen, nDestino);
+ALTER TABLE `disponibilidadasientos` ADD INDEX disponibilidadasientos_IN (nDisponibilidad, nAsiento);
+ALTER TABLE `corridasprogramadas` ADD INDEX corridasprogramadas_IN (nNumero, nItinerario);
 
+/***/
 INSERT INTO `distribucionasientos`(`nNumero`,`nAsientos`, `aDistribucion`)
 VALUES
 (1,'32',"01T,02T,00,03T,04T|05T,06T,00,07T,08T|09T,10T,00,11T,12T|13T,14T,00,15T,16T|17T,18T,00,19T,20T|21T,22T,00,23T,24T|25T,26T,00,27T,28T|29T,30T,00,31T,32T|BM,00,CA,00,BH"),
@@ -47,8 +68,8 @@ INSERT INTO `tiposervicio`(`nNumero`, `aClave`, `aDescripcion`, `nDistribucionAs
 
 INSERT INTO `autobuses`(`nNumeroEconomico`, nTipoServicio, nDistribucionAsientos) VALUES
 -- business
-('5005', 5, 4),
-('5006', 5, 4),
+('5005', 5, 6),
+('5006', 5, 6),
 ('5401', 5, 3),
 ('5402', 5, 3),
 ('5403', 5, 3),
@@ -97,19 +118,19 @@ INSERT INTO `autobuses`(`nNumeroEconomico`, nTipoServicio, nDistribucionAsientos
 ("7011", 2, 2),
 ("7012", 2, 2),
 -- ultra
-("5412", 3, 6),
-("5413", 1, 6),
-("5414", 1, 6),
-("5415", 1, 6),
-("5416", 1, 6),
-("5417", 1, 6),
-("5418", 1, 6),
-("5419", 1, 6),
-("5420", 1, 6),
-("5421", 1, 6),
-("5422", 1, 6),
-("5423", 1, 6),
-("5424", 1, 6),
+("5412", 3, 3),
+("5413", 1, 1),
+("5414", 1, 1),
+("5415", 1, 1),
+("5416", 1, 1),
+("5417", 1, 1),
+("5418", 1, 1),
+("5419", 1, 1),
+("5420", 1, 1),
+("5421", 1, 1),
+("5422", 1, 1),
+("5423", 1, 1),
+("5424", 1, 1),
 ("8001", 1, 1),
 ("8002", 1, 1),
 ("8003", 1, 1),
@@ -174,3 +195,20 @@ true,true,true,true,true,true,true,'2022-03-01','2022-12-31',false),
 true,false,false,true,true,true,true,'2022-03-01','2022-12-31',false);
 
 -- HASTA AQUI VA BIEN
+INSERT INTO promociones (nNumero, aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin)
+
+INSERT INTO tipopasajero VALUES
+("AD", "Adulto", 0),
+("IN", "Insen", 0.10),
+("NI", "Niño", 0.10),
+("ES", "Estudiante", 0.10),
+("MA", "Maestro", 0.10),
+("SE", "SEDENA", 0.10);
+
+-- insertar forma de pago y subtipos de formas de pago
+INSERT INTO formaspago VALUES ("EF","Efectivo");
+INSERT INTO formaspago VALUES ("TB","Tarjeta bancaria");
+
+INSERT INTO formapagosubtipo (aClave, aDescripcion, lPedirFolio) VALUES
+("TB", "Tarjeta de credito", 0),
+("TB", "Tarjeta de débito", 0);
