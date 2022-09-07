@@ -92,3 +92,4 @@ BEGIN
     CLOSE v_recorrido;
     RETURN result;
 END;
+

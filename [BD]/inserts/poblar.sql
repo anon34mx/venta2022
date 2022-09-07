@@ -194,8 +194,25 @@ true,true,true,true,true,true,true,'2022-03-01','2022-12-31',false),
 (3,3,'23:30:00',
 true,false,false,true,true,true,true,'2022-03-01','2022-12-31',false);
 
--- HASTA AQUI VA BIEN
-INSERT INTO promociones (nNumero, aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin)
+INSERT INTO tiposboletos (nNumero, aTipo, aDescripcion, nCantidad)
+VALUES
+(1, "V", "Venta", 1000), -- 5,000 5,999
+(2, "P", "Paqueteria", 150),
+(3, "E", "Exceso equipaje", 0),
+(4, "G", "Guarda equipaje", 0),
+(5, "M", "Manual", 100);
+INSERT INTO tipoventa (aClave, aDescripcion, ntipoboleto) VALUES
+("CO","Boleto confirmado", 1),
+("AB","Boleto abierto", 1), -- sin fecha ni hora
+("MA","Boleto manual", 5), -- 
+("PC","Paquetería comercial", 2),
+("PI","Paquetería interna", 2),
+("EE","Exceso de Equipaje", 3),
+("GE","Guarda Equipaje", 4),
+("BI","Boleto de internet", 1),
+("BA","Boleto de agencia", 1),
+("BW","Boleto webservice", 1),
+("AP","Abono paquetería", 2);
 
 INSERT INTO tipopasajero VALUES
 ("AD", "Adulto", 0),
@@ -204,11 +221,27 @@ INSERT INTO tipopasajero VALUES
 ("ES", "Estudiante", 0.10),
 ("MA", "Maestro", 0.10),
 ("SE", "SEDENA", 0.10);
+-- HASTA AQUI VA BIEN
+
+
+-- INSERT INTO promociones (nNumero, aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin)
+
+
 
 -- insertar forma de pago y subtipos de formas de pago
 INSERT INTO formaspago VALUES ("EF","Efectivo");
 INSERT INTO formaspago VALUES ("TB","Tarjeta bancaria");
+INSERT INTO formaspago VALUES ("DO","Documento");
+INSERT INTO formaspago VALUES ("CC","Cuenta por cobrar");
 
-INSERT INTO formapagosubtipo (aClave, aDescripcion, lPedirFolio) VALUES
-("TB", "Tarjeta de credito", 0),
-("TB", "Tarjeta de débito", 0);
+INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
+(1, "TB", "Tarjeta de credito", 0),
+(2, "TB", "Tarjeta de débito", 0),
+(3, "AS", "Tarjeta de débito", 0);
+
+/******/
+-- CREAR TERMINAL DE VENTA
+INSERT INTO terminales (aTerminal, nOficina, aDescripcion) VALUES
+("DTI", 12, "para pruebas");
+
+-- INSERT que tipo de venta fue
