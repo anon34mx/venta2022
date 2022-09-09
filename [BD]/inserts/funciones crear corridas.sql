@@ -305,23 +305,3 @@ END;
 
 -- [GUARDAR VENTA]
 
-
--- CREAR SESION DE VENTA
-INSERT INTO sesiones (nNumeroPersona, nOficina, fContable) VALUES (1,8,"2022-08-31");
--- CREAR venta (encabezado o tabla padre donde se agruparían los boletos comprados)
-INSERT INTO venta (nSesion) VALUES(1);
--- INSERTAR información del pago
-INSERT INTO ventapago (nVenta, aFormaPago, nFormaPagoSubtipo, nMonto, aFolioDocumento, aAutorizacionBanco)
-VALUES (1, "TB", 4, 99.99, 0, 0);
--- INSERTAR BoletosVendido (datos de los pasajeros)
-INSERT INTO Boletosvendidos
-(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
-aTipoVenta, nPromocion, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
-(1,37, "2022-08-31", "12:00:00", 8, 1, "AD", "Juan Lopez Perez", 1,
-"CO", null, "500", "15", 30, 
-);
-
--- CONSULTAR VENTA
-select *
-FROM venta
-INNER JOIN

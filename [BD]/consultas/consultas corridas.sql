@@ -85,6 +85,7 @@ DO
     AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;
 
 -- [CANCELAR CORRIDA (y sus disponibilidades)]
+-- PENDIENTE (usar la funcion estadoAsientos() )
 /*
 CREATE OR REPLACE estado_corrida_disponible(IN_cordis INT UNSIGNED, IN_estado VARCHAR(2))
 RETURNS TEXT

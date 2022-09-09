@@ -23,18 +23,24 @@ ventapago
         ALTER TABLE `ventapago` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
 Boletosvendidos
     ALTER TABLE `boletosvendidos` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
--- CREAR INDICES PARA QUE SEA MÁS RÁPIDO
-    -- ejemplo
-    -- ALTER TABLE pases ADD INDEX pases_IN (id,id_venta)
-ALTER TABLE `itinerario` ADD INDEX itinerario_IN (nItinerario, nTramo);
-ALTER TABLE `tramos` ADD INDEX tramos_IN (nNumero, nOrigen, nDestino);
-ALTER TABLE `corridasdisponibles` ADD INDEX corridasdisponibles_IN
-    (nNumero, nProgramada, nItinerario, nNumeroAutobus);
-ALTER TABLE `oficinas` ADD INDEX oficinas_IN (nNumero, aClave, lDestino);
-ALTER TABLE `disponibilidad` ADD INDEX disponibilidad_IN (nNumero, nCorridaDisponible,nOrigen, nDestino);
-ALTER TABLE `disponibilidadasientos` ADD INDEX disponibilidadasientos_IN (nDisponibilidad, nAsiento);
-ALTER TABLE `corridasprogramadas` ADD INDEX corridasprogramadas_IN (nNumero, nItinerario);
-
+    ALTER TABLE `boletosvendidos` CHANGE `nPromocion` `nPromocion` INT(10) UNSIGNED NULL;
+    ALTER TABLE `boletosvendidos` DROP INDEX `nFactorPaqueteria`;
+    ALTER TABLE `descuentos` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_DATE;
+formaspago
+    ALTER TABLE `formaspago` CHANGE `aDescripcion` `aDescripcion` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
+    -- CREAR INDICES PARA QUE SEA MÁS RÁPIDO
+        -- ejemplo
+        -- ALTER TABLE pases ADD INDEX pases_IN (id,id_venta)
+    ALTER TABLE `itinerario` ADD INDEX itinerario_IN (nItinerario, nTramo);
+    ALTER TABLE `tramos` ADD INDEX tramos_IN (nNumero, nOrigen, nDestino);
+    ALTER TABLE `corridasdisponibles` ADD INDEX corridasdisponibles_IN
+        (nNumero, nProgramada, nItinerario, nNumeroAutobus);
+    ALTER TABLE `oficinas` ADD INDEX oficinas_IN (nNumero, aClave, lDestino);
+    ALTER TABLE `disponibilidad` ADD INDEX disponibilidad_IN (nNumero, nCorridaDisponible,nOrigen, nDestino);
+    ALTER TABLE `disponibilidadasientos` ADD INDEX disponibilidadasientos_IN (nDisponibilidad, nAsiento);
+    ALTER TABLE `corridasprogramadas` ADD INDEX corridasprogramadas_IN (nNumero, nItinerario);
+promociones
+    ALTER TABLE `promociones` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP;
 /***/
 INSERT INTO `distribucionasientos`(`nNumero`,`nAsientos`, `aDistribucion`)
 VALUES
@@ -221,11 +227,13 @@ INSERT INTO tipopasajero VALUES
 ("ES", "Estudiante", 0.10),
 ("MA", "Maestro", 0.10),
 ("SE", "SEDENA", 0.10);
+
+INSERT INTO terminales (aTerminal, nOficina, aDescripcion) VALUES
+("DTI", 12, "para pruebas");
+
+INSERT INTO sesiones (nNumeroPersona, nOficina, fContable) VALUES (1,8,"2022-08-31");
+INSERT INTO venta (nSesion) VALUES(1);
 -- HASTA AQUI VA BIEN
-
-
--- INSERT INTO promociones (nNumero, aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin)
-
 
 
 -- insertar forma de pago y subtipos de formas de pago
@@ -239,9 +247,43 @@ INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 (2, "TB", "Tarjeta de débito", 0),
 (3, "AS", "Tarjeta de débito", 0);
 
-/******/
--- CREAR TERMINAL DE VENTA
-INSERT INTO terminales (aTerminal, nOficina, aDescripcion) VALUES
-("DTI", 12, "para pruebas");
 
--- INSERT que tipo de venta fue
+-- para venta al publico
+INSERT INTO promociones (aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin) VALUES
+("ES", "Desc INSEN", 8, 12, "2022-09-01", "2022-12-31");
+
+-- INSERTAR información del pago
+INSERT INTO ventapago (nVenta, aFormaPago, nFormaPagoSubtipo, nMonto, aFolioDocumento, aAutorizacionBanco)
+VALUES (1, "TB", 4, 99.99, 0, 0);
+-- INSERTAR PASAJERO
+-- pasajero normal
+INSERT INTO Boletosvendidos
+(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
+aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
+(1,37, "2022-08-31", "12:00:00", 8, 1, "AD", "Juan Lopez Perez", 1,
+"CO", "500", "15", 30, "VE",1
+);
+-- pasajero con promocion
+INSERT INTO Boletosvendidos
+(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
+aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
+(1,37, "2022-08-31", "12:00:00", 8, 1, "IN", "Hernán Lopez Perez", 2,
+"CO", "500", "15", 30, "VE",1
+);
+INSERT INTO boletosvendidos_promociones (nBoletoVendido, nPromocion) VALUES (9,1);
+-- pasajero con descuento de empleado
+INSERT INTO descuentos(nNumero, aClaveConfirmacion, fInicio, fFin, nOrigen, nDestino,
+    dDescuento, nPasajero, nSolicita, nOtorga) VALUES
+    (1, "ABCD", "2022-09-01", "2024-09-01", 8, 1,
+        100, 6, 5, 1);
+INSERT INTO `boletosvendidos_descuentos`(`nBoletoVendido`, `nDescuento`)
+    VALUES (10,1);
+INSERT INTO Boletosvendidos
+(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
+aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
+(1,37, "2022-08-31", "12:00:00", 8, 1, "AD", "Ana P. Rico", 2,
+"CO", "0", "100", 0, "VE",1);
+
+-- PENDIENTE RESTRICCION NUM ASIENTO Y NUM CORRIDA
+-- ??????????????????????????????????????????????????????????????????????????
+ALTER TABLE boletosvendidos ADD UNIQUE (nCorrida, nOrigen, nDestino, nAsiento);
