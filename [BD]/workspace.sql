@@ -65,3 +65,4 @@ CREATE TABLE boletosvendidos_factorpaqueteria (
     REFERENCES factorpaqueteria(nNumero)
     ON UPDATE CASCADE ON DELETE RESTRICT
 );
+

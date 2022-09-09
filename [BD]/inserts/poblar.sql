@@ -26,6 +26,16 @@ Boletosvendidos
     ALTER TABLE `boletosvendidos` CHANGE `nPromocion` `nPromocion` INT(10) UNSIGNED NULL;
     ALTER TABLE `boletosvendidos` DROP INDEX `nFactorPaqueteria`;
     ALTER TABLE `descuentos` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_DATE;
+    ALTER TABLE `boletosvendidos` CHANGE `nAsiento` `nAsiento` CHAR(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
+    -- ALTER TABLE boletosvendidos
+    --     ADD FOREIGN KEY (nTerminal)
+    --     REFERENCES terminales(nNumero)
+    --     ON UPDATE CASCADE ON DELETE RESTRICT;
+    ALTER TABLE boletosvendidos 
+        ADD CONSTRAINT FK_terminales 
+        FOREIGN KEY (nTerminal) 
+        REFERENCES terminales(nNumero)
+        ON UPDATE CASCADE ON DELETE RESTRICT;
 formaspago
     ALTER TABLE `formaspago` CHANGE `aDescripcion` `aDescripcion` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
     -- CREAR INDICES PARA QUE SEA MÁS RÁPIDO

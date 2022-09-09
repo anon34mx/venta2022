@@ -302,6 +302,3 @@ BEGIN
     aEstadoAsiento='a'
     AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;
 END;
-
--- [GUARDAR VENTA]
-
