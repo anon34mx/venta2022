@@ -147,6 +147,7 @@ BEGIN
 END; //
 
 
+
 -- [CREAR CORRIDAS PROGRAMADAS PARA X DIAS]
 /*
 TRUNCATE corridasdisponibles;
@@ -170,6 +171,15 @@ BEGIN
     
     RETURN ins;
 END; //
+
+-- evento crear corridas cada día
+CREATE OR REPLACE EVENT crear_corridasDia
+ON SCHEDULE
+EVERY 1 DAY
+STARTS "2022-08-12 09:31:00" DO
+BEGIN
+    SELECT corridasPorDia(current_date,10);
+END;
 
 -- [APARTAR ASIENTOS]
 /*

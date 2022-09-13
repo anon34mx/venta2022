@@ -255,7 +255,9 @@ INSERT INTO formaspago VALUES ("CC","Cuenta por cobrar");
 INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 (1, "TB", "Tarjeta de credito", 0),
 (2, "TB", "Tarjeta de débito", 0),
-(3, "AS", "Tarjeta de débito", 0);
+(3, "DO", "Vales IMSSS", 0),
+(3, "DO", "Vales ISSSTE", 0),
+(3, "DO", "Vales SEDENA", 0);
 
 
 -- para venta al publico
@@ -292,7 +294,7 @@ INSERT INTO Boletosvendidos
 (nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
 aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
 (1,37, "2022-08-31", "12:00:00", 8, 1, "AD", "Ana P. Rico", 2,
-"CO", "0", "100", 0, "VE",1);
+"CO", "0", "100", 0, "VE",0);
 
 -- PENDIENTE RESTRICCION NUM ASIENTO Y NUM CORRIDA
 -- ??????????????????????????????????????????????????????????????????????????

@@ -45,7 +45,7 @@ LEFT JOIN autobuses as aut on aut.nNumeroAutobus=cordis.nNumeroAutobus
 INNER JOIN distribucionasientos as dist on aut.nDistribucionAsientos=dist.nNumero
 WHERE
 dis.fSalida=CURRENT_DATE
-AND dis.nOrigen=8
+-- AND dis.nOrigen=8
 -- cordis.aEstado!='C' and
 --  cordis.nNumero=25 AND
 -- dis.fSalida="2022-08-26" -- parametro
