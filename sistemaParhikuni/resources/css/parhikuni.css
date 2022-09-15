@@ -1,0 +1,24 @@
+:root {
+    --parh-bg-color: #e33211;
+    --parh-acc-color1: #ed522d;
+    --parh-bg-navbar: #ccdede;
+}
+* {
+    font-family: 'Open Sans', sans-serif !important;
+}
+html{
+    background-color: #dbe6e7;
+}
+/* .navbar{
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+} */
+
+#app{
+    width: 100%;
+    transition: 0.3s;
+}
+#content{
+    background-color: var(--parh-bg-navbar);
+}

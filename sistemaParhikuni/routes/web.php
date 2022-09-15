@@ -16,3 +16,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+// Login
+Auth::routes();
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Parhikuni
+Route::get('/test', function(){
+    return view('test');
+});
+Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+Route::post('/usuarios/guardar', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+Route::delete('/usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+
+Route::get('/test', function(){
+    return view('test2');
+});
