@@ -15,18 +15,14 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        // var_dump($request->all());exit;
         if ($request->has('search') && $request->search!="") {
-            // $users = User::search($request->input('search'))->get();
             $users = User::where('name', 'like', '%'.$request->input('search').'%')
                 ->orWhere('email', 'like', '%'.$request->input('search').'%')
                 ->orWhere('id', 'like', '%'.$request->input('search').'%')
                 ->cursorPaginate(5);
         } else {
-            // $users = User::query();
-            $users=User::orderBy('id')->cursorPaginate(5);
+            $users=User::orderBy('id')->paginate(5);
         }
-        // $users=User::orderBy('id')->cursorPaginate(5);
         return view('users.index', [
             "users" => $users,
             "search" => $request->search
@@ -83,7 +79,10 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = User::find($id);
+        return view('users.edit',[
+            "user" => $user
+        ]);
     }
 
     /**
@@ -95,7 +94,23 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // $datos = $request->except("_token");
+
+        if($request->except("password") != ""){
+            User::find($id)->update([
+                "name" => $request->name,
+                "email" => $request->email,
+                "password" => bcrypt($request->password)
+
+            ]);
+            return back();
+        }else{
+            User::find($id)->update([
+                "name" => $request->name
+            ]);
+            return back();
+            
+        }
     }
 
     /**

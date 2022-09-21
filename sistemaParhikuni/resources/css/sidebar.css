@@ -67,6 +67,7 @@ a, a:hover, a:focus {
     background: var(--parh-bg-color);
     color: #fff;
     transition: all 0.3s;
+    
     /* Para dejarlo fijo */
     /* height: 100vh;
     position: sticky;
@@ -183,10 +184,12 @@ a, a:hover, a:focus {
 ----------------------------------------------------- */
 @media (max-width: 768px) {
     #sidebar {
-        margin-left: -250px;
+        /* margin-left: -250px; */
+        margin-left: 0;
     }
     #sidebar.active {
-        margin-left: 0;
+        /* margin-left: 0; */
+        margin-left: -250px;
     }
     #sidebarCollapse span {
         display: none;

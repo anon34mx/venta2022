@@ -49,7 +49,9 @@ bl
 .btn-link{
 	box-shadow: none;
 }
-
+.page-item.active .page-link{
+	z-index: 0;
+}
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
 	/* outline: 1px solid tomato; */
@@ -68,6 +70,12 @@ body{
 /* ************************** */
 
 .login .logo-bnco{
+	display: none;
+}
+.btn-collap label span{
+	
+}
+.btn-collap input{
 	display: none;
 }
 /* ************************** */
@@ -113,6 +121,9 @@ footer div{
 
 
 @media (max-width: 768px) {
+	.btn-collap label span {
+		display: none;
+	}
 	.btn-link{
 		color: white;
 	}

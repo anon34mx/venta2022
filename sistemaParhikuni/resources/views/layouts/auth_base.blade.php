@@ -78,7 +78,7 @@
             </div>
         </nav>
 
-        <main class="col-12 centerVert py-1">
+        <main class="col-12 py-1">
             @yield('content')
 <!--             
             <img

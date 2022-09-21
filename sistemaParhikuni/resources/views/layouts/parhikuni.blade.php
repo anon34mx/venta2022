@@ -35,7 +35,7 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar  -->
-        <nav id="sidebar">
+        <nav id="sidebar" class="active">
             <div class="sidebar-header">
 				<img
 					src="{{ Vite::asset('resources/images/logo.png') }}" alt="" style="
@@ -124,7 +124,7 @@
                     </button>
 					<a href="{{ url('/') }}">
 						<img
-							src="{{ Vite::asset('resources/images/logo.png') }}" alt="" style="
+							src="{{ Vite::asset('resources/images/logo_SI_bnco.png') }}" alt="" style="
 							width: 40px;
 							height: 40px;
 							display: block;

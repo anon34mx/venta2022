@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="col-12">
-        <h3>Nueva persona</h3>
+        <h3>Nuevo usuario</h3>
         @if($errors->any())
             <div class="card-body mt-2 mb-2 ">
                 <div class="alert-danger px-3 py-3">
@@ -23,20 +23,29 @@
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <input type="password" name="password" placeholder="password" class="form-control" value="{{old('password')}}">
                 </div>
+                @csrf
                 <div class="col-auto justify-content-center">
-                    <input type="submit" name="submit" placeholder="" class="btn btn-small btn-parhi-primary mx-auto" value="Guardar">
-                    @csrf
+                    <!-- <input type="submit" name="submit" placeholder="" class="btn btn-small btn-parhi-primary mx-auto" value="Guardar"> -->
+                    <span class="btn-collap" title="Guardar">
+                        <label class="btn btn-sm btn-parhi-primary"
+                            for="guardar">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Guardar</span>
+                        </label>
+                        <input id="guardar" type="submit"
+                        class="btn">
+                    </span>
                 </div>
             </div>
         </form>
     </div>
     <div id="personas" class="mt-4"></div>
-    <h3 class="" ><a href="#personas">Personas</a></h3>
+    <h3 class="" ><a href="#personas">Usuarios</a></h3>
     <div>
-        <form method="post" action="/usuarios">
+        <form method="get" action="/usuarios">
             @csrf
             <div class="col-12 row">
-                <div class="col-6">
+                <div class="col-9">
                     <input type="search" placeholder="Search here" name="search"
                     class="form-control" id="search"
                     value="{{$search}}" style="padding-right: 30px;"/>
@@ -51,10 +60,15 @@
                     <i class="fa-solid fa-delete-left"></i>
                 </div>
                 </div>
-                <div class="col-6">
-                    <button class="btn btn-small btn-parhi-primary mx-auto"
-                        type="submit">Buscar</button>
-                </div>
+                <span class="btn-collap col-auto" title="Buscar">
+                    <label class="btn btn-sm btn-parhi-primary"
+                        for="del-">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Buscar</span>
+                    </label>
+                    <input id="del-" type="submit"
+                    class="btn">
+                </span>
             </div>
         </form>
     </div>
@@ -74,13 +88,34 @@
                         <td>{{$user->id}}</td>
                         <td>{{$user->name}}</td>
                         <td>{{$user->email}}</td>
-                        <td><button class="btn btn-primary">editar</button></td>
+                        <td>
+                            <!-- <button class="btn btn-sm btn-primary">editar</button> -->
+                            <a href="{{route('users.edit', $user->id)}}">
+                                <span class="btn-collap" title="Editar">
+                                    <label class="btn btn-sm btn-primary"
+                                        for="edit-{{$user->id}}">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Editar</span>
+                                    </label>
+                                    <input id="edit-{{$user->id}}" type="submit"
+                                    class="btn" onclick="">
+                                </span>
+                            </a>
+                        </td>
                         <td>
                             <form action="{{route('users.destroy',$user)}}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <input type="submit" value="eliminar" class="btn btn-sm btn-danger"
-                                onclick="return confirm('¿Eliminar usuario?')">
+                                <span class="btn-collap" title="Eliminar">
+                                    <label class="btn btn-sm btn-danger"
+                                        for="del-{{$user->id}}">
+                                        <i class="fa-solid fa-circle-minus"></i>
+                                        <span>Eliminar</span>
+                                    </label>
+                                    <input id="del-{{$user->id}}" type="submit"
+                                    class="btn"
+                                    onclick="return confirm('¿Eliminar usuario?')">
+                                </span>
                             </form>
                         </td>
                     </tr>
@@ -88,11 +123,11 @@
             </tbody>
         </table>
     </div>
-    <div class="mt-3">
-        {!! $users->appends(Request::all())->links() !!}
+    <div class="mt-3 d-flex justify-content-center">
+        {!! $users->appends(Request::all())->links("pagination::bootstrap-5") !!}
         <!-- !! $users->appends(['search' => $request->get('search')]); !! -->
         <!-- <br> -->
-        <!-- {!! $users->links() !!} -->
+        <!-- !! $users->links() !! -->
     </div>
     <div class="card mt-3 mb-3">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas! 
