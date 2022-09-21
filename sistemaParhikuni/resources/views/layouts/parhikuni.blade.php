@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    <link rel="icon" type="image/x-icon" href="{{ Vite::asset('resources/images/favicon.ico') }}">
+    <meta name="theme-color" content="#ccdede" >
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -26,6 +28,7 @@
         'resources/js/app.js',
         'resources/js/jquery-3.6.1.min.js',
         'resources/css/sidebar.css',
+        'resources/css/parhikuni.css',
     ])
 </head>
 
@@ -132,8 +135,8 @@
                         <i class="fas fa-align-justify"></i>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-						@guest
                         <ul class="nav navbar-nav ml-auto">
+						@guest
 							@if (Route::has('login'))
 								<li class="nav-item active">
 									<a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -143,8 +146,25 @@
 								<li class="nav-item active">
 									<a class="nav-link" href="{{ route('login') }}">{{ __('Register') }}</a>
 								</li>
-							@endif
-						@else
+                            @endif
+                        @else
+							<li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::user()->name }}
+                                </a>
+
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                        {{ __('Logout') }}
+                                    </a>
+
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </div>
+                            </li>
 
 						@endguest
                         </ul>
@@ -154,7 +174,17 @@
 
 			<main class="py-4 px-4">
                 @yield('content')
+
 	        </main>
+            <footer class="mt-4">
+                <div>
+                    <img alt="" style=""
+                        src="{{ Vite::asset('resources/images/logo_parhikuni.png') }}">
+                </div>
+            </footer>
+            <div class="text-center">
+                Destinos Parhíkuni ©2022-<?=date("Y")?>
+            </div>
         </div>
         <nav id="sidebar" style="display:none;">
             <div class="sidebar-header">

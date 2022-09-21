@@ -8,4 +8,9 @@
 @import 'bootstrap/scss/bootstrap';
 
 //Parhikuni
-@import '../css/parhikuni.css';
+// @import '../css/parhikuni.css';
+@import "@fortawesome/fontawesome-free/css/all.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

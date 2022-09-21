@@ -24,7 +24,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/test', function(){
     return view('test');
 });
-Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index')->middleware('auth');
+Route::post('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index')->middleware('auth');
 Route::post('/usuarios/guardar', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
 Route::delete('/usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 

@@ -16,10 +16,10 @@ body {
     line-height: 1.7em;
     color: #999;
 } */
-.dropdown-toggle::after{
+#sidebar .dropdown-toggle::after{
     display: none;
 }
-.dropdown-toggle:hover{
+#sidebar .dropdown-toggle:hover{
     background-color: red;
 }
 a, a:hover, a:focus {
@@ -100,6 +100,8 @@ a, a:hover, a:focus {
     padding: 10px;
     font-size: 1.1em;
     display: block;
+    /* border-bottom: 2px solid #f35934; */
+    border-bottom: 2px solid transparent;
 }
 #sidebar ul li:hover {
     color: white;
@@ -108,19 +110,20 @@ a, a:hover, a:focus {
 #sidebar ul li a:hover {
     color: white;
     background: var(--parh-acc-navbar);
+    border-bottom: 2px solid #f35934;
 }
 
-#sidebar ul li.active > a, a[aria-expanded="true"] {
+#sidebar ul li.active > a, #sidebar a[aria-expanded="true"] {
     color: #fff;
     background: var(--parh-bg-color);
 }
 
 
-a[data-toggle="collapse"] {
+#sidebar a[data-toggle="collapse"] {
     position: relative;
 }
 
-a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
+#sidebar a[aria-expanded="false"]::before, #sidebar a[aria-expanded="true"]::before {
     /* content: '\e259'; */
     content: '▼';
     display: block;
@@ -129,23 +132,23 @@ a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
     font-family: 'Glyphicons Halflings';
     font-size: 0.6em;
 }
-a[aria-expanded="true"]::before {
+#sidebar a[aria-expanded="true"]::before {
     /* content: '\e260'; */
     content: '▲';
 }
 
 
-ul ul a {
+#sidebar ul ul a {
     font-size: 0.9em !important;
     padding-left: 30px !important;
     background: var(--parh-bg-color);
 }
 
-ul.CTAs {
+#sidebar ul.CTAs {
     padding: 20px;
 }
 
-ul.CTAs a {
+#sidebar ul.CTAs a {
     text-align: center;
     font-size: 0.9em !important;
     display: block;
@@ -153,12 +156,12 @@ ul.CTAs a {
     margin-bottom: 5px;
 }
 
-a.download {
+#sidebar a.download {
     background: #fff;
     color: var(--parh-bg-color);
 }
 
-a.article, a.article:hover {
+#sidebar a.article, a.article:hover {
     background: var(--parh-bg-color) !important;
     color: #fff !important;
 }

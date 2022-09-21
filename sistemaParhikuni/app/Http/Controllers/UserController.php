@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 
+
 class UserController extends Controller
 {
     /**
@@ -12,11 +13,23 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users=User::latest()->get();
+        // var_dump($request->all());exit;
+        if ($request->has('search') && $request->search!="") {
+            // $users = User::search($request->input('search'))->get();
+            $users = User::where('name', 'like', '%'.$request->input('search').'%')
+                ->orWhere('email', 'like', '%'.$request->input('search').'%')
+                ->orWhere('id', 'like', '%'.$request->input('search').'%')
+                ->cursorPaginate(5);
+        } else {
+            // $users = User::query();
+            $users=User::orderBy('id')->cursorPaginate(5);
+        }
+        // $users=User::orderBy('id')->cursorPaginate(5);
         return view('users.index', [
-            "users" => $users
+            "users" => $users,
+            "search" => $request->search
         ]);
     }
 
@@ -38,10 +51,15 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'email' => ['required', 'email', 'unique:users'],
+            'password' => ['required', 'min:8'],
+        ]);
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password
+            'password' => bcrypt($request->password)
         ]);
         return back();
     }
