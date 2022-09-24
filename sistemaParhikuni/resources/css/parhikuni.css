@@ -152,3 +152,9 @@ footer div{
 			drop-shadow(1px 1px 0px white);
 	}
 }
+@media (min-width: 576px) {
+	/* .px-1{
+		padding-right: 0.25rem !important;
+		padding-left: 0.25rem !important;
+	} */
+}

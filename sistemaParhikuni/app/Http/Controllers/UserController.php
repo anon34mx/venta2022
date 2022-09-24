@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-
+use Spatie\Permission\Models\Role;
+use Auth;
 
 class UserController extends Controller
 {
@@ -80,9 +81,14 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::find($id);
-        return view('users.edit',[
-            "user" => $user
-        ]);
+        if(Auth::user()->id!=$id && !Auth::user()->hasRole('Admin')){
+            abort(403);
+        }else{
+            return view('users.edit',[
+                "user" => $user,
+                'roles' => Role::all(),
+            ]);
+        }
     }
 
     /**
@@ -94,21 +100,31 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // $datos = $request->except("_token");
+        // Empleados internos sólo pueden cambiar su contraseña
+        if(Auth::user()->hasRole([
+            'servicios'
+        ])){
+            User::find($id)->update([
+                "password" => bcrypt($request->password)
 
-        if($request->except("password") != ""){
+            ]);
+            return back()->with('status', 'Actualizado con éxito');
+        }
+
+        if($request->password != ""){
             User::find($id)->update([
                 "name" => $request->name,
                 "email" => $request->email,
                 "password" => bcrypt($request->password)
 
             ]);
-            return back();
+            return back()->with('status', 'Actualizado con éxito');
         }else{
             User::find($id)->update([
-                "name" => $request->name
+                "name" => $request->name,
+                "email" => $request->email
             ]);
-            return back();
+            return back()->with('status', 'Actualizado con éxito');
             
         }
     }
@@ -124,5 +140,30 @@ class UserController extends Controller
         $user=User::find($id);
         $user->delete();
         return back()->with('status', 'Eliminado con éxito');
+    }
+
+    public function addRol(Request $request, User $id){
+        try{
+            if(Auth::user()->hasRole('Admin') ){
+                $id->assignRole($request->newRole);
+                return back()->with('status', 'Actualizado con éxito');
+            }else{
+                abort(403);
+            }
+        }catch(Exception $e){
+            return back()->with('status', 'Error<br>'.$e);
+        }
+    }
+    public function removerol(User $id, Role $rol){
+        try{
+            if(Auth::user()->hasRole('Admin') && Auth::user()->id!=$id->id){
+                $id->roles()->detach($rol->id);
+                return back()->with('status', 'Actualizado con éxito');
+            }else{
+                abort(403);
+            }
+        }catch(Exception $e){
+            return back()->with('status', 'Error<br>'.$e);
+        }
     }
 }

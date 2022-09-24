@@ -44,10 +44,10 @@ LEFT JOIN disponibilidadasientos disa on disa.nDisponibilidad=dis.nNumero
 LEFT JOIN autobuses as aut on aut.nNumeroAutobus=cordis.nNumeroAutobus
 INNER JOIN distribucionasientos as dist on aut.nDistribucionAsientos=dist.nNumero
 WHERE
-dis.fSalida=CURRENT_DATE
+-- dis.fSalida=CURRENT_DATE
 -- AND dis.nOrigen=8
 -- cordis.aEstado!='C' and
---  cordis.nNumero=25 AND
+cordis.nNumero=49 
 -- dis.fSalida="2022-08-26" -- parametro
 -- AND dis.hSalida="12:00:00"
 

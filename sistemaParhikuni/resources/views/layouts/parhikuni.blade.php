@@ -154,6 +154,9 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{route('users.edit', Auth::user()->id)}}">
+                                        Mi perfil
+                                    </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -172,7 +175,7 @@
                 </div>
             </nav>
 
-			<main class="py-4 px-4">
+			<main class="py-4 px-1 px-md-4">
                 @yield('content')
 
 	        </main>
@@ -200,6 +203,7 @@
 
             <ul class="list-unstyled components">
                 <p>Dummy Heading</p>
+                @can ('usuarios.index')
                 <li class="active">
                     <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
                     <ul class="collapse list-unstyled" id="homeSubmenu">
@@ -209,11 +213,9 @@
                         <li>
                             <a href="#">Home 2</a>
                         </li>
-                        <li>
-                            <a href="#">Home 3</a>
-                        </li>
                     </ul>
                 </li>
+                @endcan
                 <li>
                     <a href="#">About</a>
                 </li>
@@ -231,12 +233,12 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <!-- <li>
                     <a href="#">Portfolio</a>
                 </li>
                 <li>
                     <a href="#">Contact</a>
-                </li>
+                </li> -->
             </ul>
 
         </nav>
