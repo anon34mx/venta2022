@@ -78,6 +78,14 @@ body{
 .btn-collap input{
 	display: none;
 }
+
+.flow-content{
+
+}
+.flow-content span{
+	display: inline-block;
+	margin: 2px 10px;
+}
 /* ************************** */
 .centerVert {
 	position: absolute;

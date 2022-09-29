@@ -1,0 +1,1 @@
+mysqldump -u "root" -p --no-data --routines --triggers --events venta2022b>venta_vacia.sql

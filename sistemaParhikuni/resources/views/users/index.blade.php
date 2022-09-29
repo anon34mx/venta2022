@@ -46,7 +46,7 @@
             @csrf
             <div class="col-12 row">
                 <div class="col-9">
-                    <input type="search" placeholder="Search here" name="search"
+                    <input type="search" placeholder="Buscar por nombre" name="search"
                     class="form-control" id="search"
                     value="{{$search}}" style="padding-right: 30px;"/>
                     <div onclick="event.preventDefault();$('#search').val('')"
@@ -128,17 +128,5 @@
         <!-- !! $users->appends(['search' => $request->get('search')]); !! -->
         <!-- <br> -->
         <!-- !! $users->links() !! -->
-    </div>
-    <div class="card mt-3 mb-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas! 
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas!
-        <br>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas!
-    </div>
-    <div class="card mt-3 mb-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas! 
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas!
-        <br>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa, deserunt. Suscipit eum quam esse minima, quaerat recusandae. Consequuntur recusandae consectetur eum ullam doloremque voluptate, quas, deserunt autem earum a voluptas!
     </div>
 @endsection

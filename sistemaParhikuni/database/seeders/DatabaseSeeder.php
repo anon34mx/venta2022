@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'users.destroy']);
         Permission::create(['name' => 'users.addrol']);
         Permission::create(['name' => 'users.removerol']);
+        Permission::create(['name' => 'users.editPermissions']);
 
         Permission::create(['name' => 'corridasPermanentes.index']);
         Permission::create(['name' => 'corridasDisponibles.index']);
@@ -71,15 +72,17 @@ class DatabaseSeeder extends Seeder
         $user = User::find(1); 
         $user->assignRole('Admin');
         
-        $usuarioServicios = User::create([
-            'name' => 'servicios',
-            'email' => 'servicios@parhikuni.mx',
+        $usuarioSergio = User::create([
+            'name' => 'Sergio Medrano',
+            'email' => 'sergio.medrano@parhikuni.com.mx',
             'password' => bcrypt('123456'),
             ]);
-        $usuarioServicios = User::find(2); 
-        $usuarioServicios->assignRole('servicios');
+        $usuarioSergio = User::find(2); 
+        $usuarioSergio->assignRole('servicios');
+        $usuarioSergio->givePermissionTo('users.index');
+        // $usuarioSergio->revokePermissionTo('users.index');
         // $usuarioAdmin->assignRole('Admin');
-        \App\Models\User::factory(10)->create();
+        \App\Models\User::factory(25)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',

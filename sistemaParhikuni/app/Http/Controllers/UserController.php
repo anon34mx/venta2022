@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Auth;
+use DB;
 
 class UserController extends Controller
 {
@@ -16,13 +18,15 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $elementsPerPage=15;
         if ($request->has('search') && $request->search!="") {
             $users = User::where('name', 'like', '%'.$request->input('search').'%')
                 ->orWhere('email', 'like', '%'.$request->input('search').'%')
                 ->orWhere('id', 'like', '%'.$request->input('search').'%')
-                ->cursorPaginate(5);
+                ->paginate($elementsPerPage);
+                // ->cursorPaginate($elementsPerPage);
         } else {
-            $users=User::orderBy('id')->paginate(5);
+            $users=User::orderBy('id')->paginate($elementsPerPage);
         }
         return view('users.index', [
             "users" => $users,
@@ -84,9 +88,13 @@ class UserController extends Controller
         if(Auth::user()->id!=$id && !Auth::user()->hasRole('Admin')){
             abort(403);
         }else{
+            // $user->getDirectPermissions() // permisos asignados directamente
+            // $user->getAllPermissions(); // permisos directos y por medio de roles
             return view('users.edit',[
-                "user" => $user,
+                'user' => $user,
                 'roles' => Role::all(),
+                'user_permissions' => $user->getDirectPermissions(),
+                'permissions' => Permission::all()
             ]);
         }
     }
@@ -156,8 +164,11 @@ class UserController extends Controller
     }
     public function removerol(User $id, Role $rol){
         try{
-            if(Auth::user()->hasRole('Admin') && Auth::user()->id!=$id->id){
-                $id->roles()->detach($rol->id);
+            if(Auth::user()->hasRole('Admin') ){
+                // && Auth::user()->id!=$id->id
+                // $id->roles()->detach($rol->id); //removeRole("publicoGeneral");
+                $id->removeRole("publicoGeneral");
+                // dd($rol);
                 return back()->with('status', 'Actualizado con éxito');
             }else{
                 abort(403);
@@ -165,5 +176,26 @@ class UserController extends Controller
         }catch(Exception $e){
             return back()->with('status', 'Error<br>'.$e);
         }
+    }
+    public function addPermissions(User $id, Request $request){
+        // dd($request->permissions);
+        if($request->permissions){
+            foreach($request->permissions as $permission=>$value){
+                // var_dump($permission);
+                // var_dump($value);
+
+                // echo "<br>";exit;
+                $id->givePermissionTo($permission);
+            }
+            return back()->with('status', 'Actualizado con éxito');
+        }else{
+            return back()->with('status', 'Selecciona los permisos');
+        }
+    }
+
+    public function revokePermission(User $id, Request $request){
+        // dd($request->permission);
+        $id->revokePermissionTo($request->permission);
+        return back()->with('status', 'Permiso eliminado');
     }
 }

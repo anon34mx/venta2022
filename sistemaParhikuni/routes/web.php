@@ -27,7 +27,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/test', function(){
     return view('test');
 });
-// Route::post('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index')->middleware('auth');
+
+// USUARIOS
 Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index')
     ->middleware('permission:users.index');
 Route::post('/usuarios/guardar', [App\Http\Controllers\UserController::class, 'store'])->name('users.store')
@@ -38,13 +39,23 @@ Route::post('/usuarios/update/{user}', [App\Http\Controllers\UserController::cla
     ->middleware('permission:users.update');
 Route::delete('/usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy')
     ->middleware('permission:users.destroy');
-
 Route::post('/usuarios/{id}/store/addrol', [App\Http\Controllers\UserController::class, 'addrol'])
     ->name("users.addrol")
     ->middleware('permission:users.addrol');
 Route::post('/usuarios/{id}/store/removerol/{rol}', [App\Http\Controllers\UserController::class, 'removerol'])
     ->name("users.removerol")
     ->middleware('permission:users.removerol');
+Route::post('/usuarios/{id}/store/addPermission', [App\Http\Controllers\UserController::class, 'addPermissions'])
+    ->name("users.addPermission")
+    ->middleware('permission:users.editPermissions');
+Route::post('/usuarios/{id}/store/revokePermission', [App\Http\Controllers\UserController::class, 'revokePermission'])
+    ->name("users.revokePermission")
+    ->middleware('permission:users.editPermissions');
+
+// CORRIDAS PROGRAMADAS
+Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadas::class, 'index'])
+    ->name("corridas.programadas.index");
+    // ->middleware('permission:users.editPermissions');
 
 Route::get('/test', function(){
     return view('test2');
