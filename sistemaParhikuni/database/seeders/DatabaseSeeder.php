@@ -27,7 +27,8 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'users.removerol']);
         Permission::create(['name' => 'users.editPermissions']);
 
-        Permission::create(['name' => 'corridasPermanentes.index']);
+
+        Permission::create(['name' => 'corridasProgramadas.index']);
         Permission::create(['name' => 'corridasDisponibles.index']);
 
 
@@ -60,7 +61,7 @@ class DatabaseSeeder extends Seeder
         */
 
         $servicios->givePermissionTo([
-            'corridasPermanentes.index',
+            'corridasProgramadas.index',
             'corridasDisponibles.index',
         ]);
 

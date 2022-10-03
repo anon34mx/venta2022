@@ -52,6 +52,10 @@ bl
 .page-item.active .page-link{
 	z-index: 0;
 }
+.unstyled-list{
+	list-style: none;
+}
+
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
 	/* outline: 1px solid tomato; */
@@ -68,6 +72,13 @@ body{
 	background-color: var(--parh-bg-cont);
 }
 /* ************************** */
+.titleWithAnchor{
+	/* Es mucho espacio :c */
+	/* padding-top: 70px; */ 
+}
+/* .titleWithAnchor a{
+	margin-top: 100px;
+} */
 
 .login .logo-bnco{
 	display: none;
@@ -79,12 +90,18 @@ body{
 	display: none;
 }
 
-.flow-content{
-
+/* .flow-content{
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	justify-content: space-between;
 }
+*/
 .flow-content span{
+	/* text-align: center; */
 	display: inline-block;
 	margin: 2px 10px;
+	white-space: nowrap;
 }
 /* ************************** */
 .centerVert {
@@ -132,7 +149,7 @@ footer div{
 	.btn-collap label span {
 		display: none;
 	}
-	.btn-link{
+	.login .btn-link{
 		color: white;
 	}
 	.form-control {

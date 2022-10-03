@@ -52,11 +52,33 @@ Route::post('/usuarios/{id}/store/revokePermission', [App\Http\Controllers\UserC
     ->name("users.revokePermission")
     ->middleware('permission:users.editPermissions');
 
+// ROLES
+Route::get('/roles/', [App\Http\Controllers\RolesController::class, 'index'])
+    ->name("roles.index")->middleware('role:Admin');
+Route::get('/roles/{idRole}', [App\Http\Controllers\RolesController::class, 'edit'])
+    ->name("roles.edit")->middleware('role:Admin');
+Route::post('/roles/addNew', [App\Http\Controllers\RolesController::class, 'store'])
+    ->name("roles.store")->middleware('role:Admin');
+Route::post('/roles/{role}/quitarPermiso/{permission}', [App\Http\Controllers\RolesController::class, 'revokePermission'])
+    ->name("roles.revokePermission")->middleware('role:Admin');
+Route::post('/roles/{role}/anadirPermisos', [App\Http\Controllers\RolesController::class, 'addPermissions'])
+    ->name("roles.addPermissions")->middleware('role:Admin');
+Route::delete('/roles/{role}', [App\Http\Controllers\RolesController::class, 'destroy'])
+    ->name("roles.destroy")->middleware('role:Admin');
+    
+    // PERMISOS
+Route::get('/permisos', [App\Http\Controllers\PermissionController::class, 'index'])
+    ->name("permissions.index")->middleware('role:Admin');
+Route::post('/permisos/add', [App\Http\Controllers\PermissionController::class, 'store'])
+    ->name("permission.store")->middleware('role:Admin');
+Route::delete('/permisos/{permission}', [App\Http\Controllers\PermissionController::class, 'destroy'])
+    ->name("permission.destroy")->middleware('role:Admin');
+
 // CORRIDAS PROGRAMADAS
 Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadas::class, 'index'])
-    ->name("corridas.programadas.index");
-    // ->middleware('permission:users.editPermissions');
+    ->name("corridas.programadas.index")
+    ->middleware('permission:corridasPermanentes.index');
 
 Route::get('/test', function(){
     return view('test2');
-});
+})->middleware('permission:test');

@@ -2,7 +2,9 @@
 
 @section('content')
     <div class="col-12">
-        <h3>Nuevo usuario</h3>
+        <h3 class="titleWithAnchor" id="nuevoUsuario">
+            <a href="#nuevoUsuario">Nuevo usuario</a>
+        </h3>
         @if($errors->any())
             <div class="card-body mt-2 mb-2 ">
                 <div class="alert-danger px-3 py-3">
@@ -23,6 +25,14 @@
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <input type="password" name="password" placeholder="password" class="form-control" value="{{old('password')}}">
                 </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <select name="role" id="" class="form-control" required>
+                        <option value="">Rol de usuario</option>
+                        @foreach($roles as $rol)
+                            <option value="{{$rol->id}}">{{$rol->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
                 @csrf
                 <div class="col-auto justify-content-center">
                     <!-- <input type="submit" name="submit" placeholder="" class="btn btn-small btn-parhi-primary mx-auto" value="Guardar"> -->
@@ -40,7 +50,9 @@
         </form>
     </div>
     <div id="personas" class="mt-4"></div>
-    <h3 class="" ><a href="#personas">Usuarios</a></h3>
+    <h3 class="titleWithAnchor">
+        <a href="#personas">Usuarios</a>
+    </h3>
     <div>
         <form method="get" action="/usuarios">
             @csrf
@@ -76,16 +88,30 @@
         <table class="mt-2 table table-striped table-parhi">
             <thead>
                 <tr class="table-parhi">
-                    <th class="col-2">ID</th>
+                    <th class="col-1">ID</th>
+                    <th class="col-1">Rol(es)</th>
                     <th class="col-3">Nombre</th>
                     <th class="col-3">Email</th>
-                    <th class="col-auto" colspan="2"></th>
+                    <th class="col-1" colspan="2"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($users as $user)
                     <tr>
                         <td>{{$user->id}}</td>
+                        <td>
+                            @if(sizeof($user->roles) > 0)
+                                <ul class="px-0">
+                                    @foreach($user->roles as $rol)
+                                        <li>{{$rol->name}}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <ul class="px-0">
+                                    <li>El usuario no tiene permisos.</li>
+                                </ul>
+                            @endif
+                        </td>
                         <td>{{$user->name}}</td>
                         <td>{{$user->email}}</td>
                         <td>

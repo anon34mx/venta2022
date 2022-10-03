@@ -20,17 +20,26 @@ class UserController extends Controller
     {
         $elementsPerPage=15;
         if ($request->has('search') && $request->search!="") {
-            $users = User::where('name', 'like', '%'.$request->input('search').'%')
+            /*
+            with(['roles' => function($q){
+                $q->where('name', 'admin');
+            }])
+            */
+            $users = User::
+                where('users.name', 'like', '%'.$request->input('search').'%')
                 ->orWhere('email', 'like', '%'.$request->input('search').'%')
-                ->orWhere('id', 'like', '%'.$request->input('search').'%')
+                ->orWhere('users.id', 'like', '%'.$request->input('search').'%')
+                
+                // ->toSql();
+                // dd($users);
                 ->paginate($elementsPerPage);
-                // ->cursorPaginate($elementsPerPage);
         } else {
             $users=User::orderBy('id')->paginate($elementsPerPage);
         }
         return view('users.index', [
             "users" => $users,
-            "search" => $request->search
+            "search" => $request->search,
+            'roles' => Role::all()
         ]);
     }
 
@@ -52,17 +61,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->role);
         $request->validate([
             'name' => 'required',
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'min:8'],
         ]);
-        User::create([
+        $user=User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password)
-        ]);
-        return back();
+        ])->assignRole($request->role);
+        // return back();
+        return redirect('usuarios/'.$user->id)->with('status', 'Usuario creado');;
+        // return redirect()->route('venta.finalizar', [
+        //     "transaccion" => $transaccionId,
+        //     "mode" => "preview",
+        //     "email" => $transaccion[0]->email
+        // ]);
     }
 
     /**
@@ -165,10 +181,7 @@ class UserController extends Controller
     public function removerol(User $id, Role $rol){
         try{
             if(Auth::user()->hasRole('Admin') ){
-                // && Auth::user()->id!=$id->id
-                // $id->roles()->detach($rol->id); //removeRole("publicoGeneral");
-                $id->removeRole("publicoGeneral");
-                // dd($rol);
+                $id->removeRole($rol);
                 return back()->with('status', 'Actualizado con éxito');
             }else{
                 abort(403);

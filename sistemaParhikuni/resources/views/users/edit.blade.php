@@ -50,34 +50,39 @@
         @if(Auth::user()->hasRole('Admin'))
         <h3 class="mt-4">Roles</h3>
         <p>Los roles definen qué tipo función tiene el usuario dentro de la plataforma y los permisos dentro de la misma</p>
-        <table class="table table-striped table-parhi">
-            @foreach($user->roles as $rol)
-                <tr>
-                    <td>{{$rol->name}}</td>
-                    <td>
-                        <form action="{{route('users.removerol', [$user->id, $rol->id])}}" method="post">
-                            <span class="btn-collap" title="Eliminar">
-                                <label class="btn btn-sm btn-danger float-right"
-                                    for="del-{{$user->id}}">
-                                    <i class="fa-solid fa-circle-minus"></i>
-                                    <span>Eliminar</span>
-                                </label>
-                                @csrf
-                                <input id="del-{{$user->id}}" type="submit"
-                                class="btn" onclick="confirm('¿Eliminar rol?')"
-                                >
-                            </span>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </table>
+        @if(sizeof($user->roles)>0)
+            <table class="table table-striped table-parhi">
+                @foreach($user->roles as $rol)
+                    <tr>
+                        <td>{{$rol->name}}</td>
+                        <td>
+                            <form action="{{route('users.removerol', [$user->id, $rol->id])}}" method="post">
+                                <span class="btn-collap" title="Eliminar">
+                                    <label class="btn btn-sm btn-danger float-right"
+                                        for="del-{{$rol->id}}">
+                                        <i class="fa-solid fa-circle-minus"></i>
+                                        <span>Eliminar</span>
+                                    </label>
+                                    @csrf
+                                    <input id="del-{{$rol->id}}" type="submit"
+                                    class="btn" onclick="return confirm('¿Eliminar rol {{$rol->name}}?')"
+                                    >
+                                </span>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        @else
+        <p>El usuario no tiene un rol asignado. <b>Necesita un rol</b> para tener acceso a las funciones del sistema.</p>
+        @endif
         <h3 class="mt-4">Añadir rol</h3>
         <form action="{{route('users.addrol', $user->id)}}" class="" method="post">
             @csrf
             <div class="row">
                 <div class="col-12 col-md-10">
-                    <select class="form-control col-12" name="newRole" id="newRole">
+                    <select class="form-control col-12" name="newRole" id="newRole" required>
+                        <option value="" selected disabled>Seleccione un rol</option>
                         @foreach($roles as $rol)
                             @php
                                 $found=false;
@@ -139,7 +144,7 @@
 
         <h3 class="mt-4">Agregar permisos directos</h3>
         <form action="{{ route('users.addPermission', $user->id) }}" method="post">
-            <div class="flow-content">
+            <div class="flow-content col-12">
             @csrf
                 @foreach($permissions as $permission)
                     @php
@@ -153,20 +158,20 @@
                     @endphp
 
                     @if(!$found)
-                    <span class="" style="">
+                    <span class="col-12" style="">
                         <input id="addPerm-{{$permission->id}}" type="checkbox" name="permissions[{{$permission->id}}]">  
                         <label for="addPerm-{{$permission->id}}">{{$permission->name}}</label>
                     </span>
                     @endif
                 @endforeach
             </div>
-            <span class="btn-collap" title="Eliminar">
+            <span class="btn-collap" title="Añadir">
                 <label class="btn btn-sm btn-primary float-right"
-                    for="addRole-{{$user->id}}">
+                    for="addpermission-{{$user->id}}">
                     <i class="fa-solid fa-circle-plus"></i>
                     <span>Añadir</span>
                 </label>
-                <input id="addRole-{{$user->id}}" type="submit"
+                <input id="addpermission-{{$user->id}}" type="submit"
                 class="btn" >
             </span>
             </form>

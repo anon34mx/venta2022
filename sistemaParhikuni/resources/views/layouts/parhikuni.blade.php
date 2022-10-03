@@ -51,16 +51,16 @@
             <ul class="list-unstyled components">
                 <!-- <p>Dummy Heading</p> -->
                 <li class="active">
-                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
+                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Admin</a>
                     <ul class="collapse list-unstyled" id="homeSubmenu">
                         <li>
-                            <a href="#">Home 1</a>
+                            <a href="{{route('users.index')}}">Usuarios</a>
                         </li>
                         <li>
-                            <a href="#">Home 2</a>
+                            <a href="{{route('roles.index')}}">Roles</a>
                         </li>
                         <li>
-                            <a href="#">Home 3</a>
+                            <a href="{{route('permissions.index')}}">Permisos</a>
                         </li>
                     </ul>
                 </li>
@@ -82,7 +82,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="#pageSubmenuTest" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Submenu test</a>
+                    <a href="#pageSubmenuTest" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Submenu test owo</a>
                     <ul class="collapse list-unstyled" id="pageSubmenuTest">
                         <li>
                             <a href="#">Page 1</a>
@@ -217,9 +217,9 @@
                 </li>
                 @endcan
                 <li>
-                    <a href="#">About</a>
+                    <a href="#">Usuarios</a>
                 </li>
-                <li>
+                <!-- <li>
                     <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
                     <ul class="collapse list-unstyled" id="pageSubmenu">
                         <li>
@@ -232,7 +232,7 @@
                             <a href="#">Page 3</a>
                         </li>
                     </ul>
-                </li>
+                </li> -->
                 <!-- <li>
                     <a href="#">Portfolio</a>
                 </li>
