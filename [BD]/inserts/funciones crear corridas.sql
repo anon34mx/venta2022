@@ -135,7 +135,9 @@ BEGIN
             -- falta crear el rol maestro para poner el numero de autobus
             INSERT INTO `corridasdisponibles`(`nProgramada`, `nItinerario`, `nTipoServicio`, `fSalida`, `hSalida`,
                     `aEstado`, `nNumeroAutobus`) VALUES
-                    (curProg_ID,curProg_nIti,curProg_nTipSer,IN_fecha,curProg_hSal,'A',1);
+                    (curProg_ID,curProg_nIti,curProg_nTipSer,IN_fecha,curProg_hSal,'A', 
+                        (SELECT nNumeroAutobus from autobuses where `nTipoServicio`=curProg_nTipSer limit 1)
+                        );
             -- [INICIO] insertar tabla disponibilidad
                 -- SET curCorrAct_nNum=LAST_INSERT_ID(); -- Corrida recien insertada
             SET corridas_insertadas=corridas_insertadas+1;

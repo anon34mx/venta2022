@@ -32,6 +32,9 @@ class CreatePermissionTables extends Migration
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
+
+            $table->charset = 'utf8mb4';
+            $table->collation = 'utf8mb4_general_ci';
         });
 
         Schema::create($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {

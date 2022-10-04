@@ -1,0 +1,1 @@
+C:\xampp\mysql\bin\mysqldump -u "root" -p venta2022b>venta_vacia_test.sql --no-data --routines

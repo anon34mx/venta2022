@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+// use OficinasSeeder;
+use Database\Seeders\tipoServicioSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -89,5 +91,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        
+        // OficinasSeeder::run();
+        $this->call([
+            ventaSeeder::class,
+        ]);
     }
 }

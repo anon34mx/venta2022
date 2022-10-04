@@ -1,0 +1,1 @@
+Para la base de datos hay que ver que todas las tablas usen el mismo atributo "collation"
