@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+
+
     <link rel="icon" type="image/x-icon" href="{{ Vite::asset('resources/images/favicon.ico') }}">
     <meta name="theme-color" content="#ccdede" >
     <meta charset="utf-8">
@@ -29,6 +31,7 @@
         'resources/js/jquery-3.6.1.min.js',
         'resources/css/sidebar.css',
         'resources/css/parhikuni.css',
+        'resources/js/controller.js',
     ])
 </head>
 

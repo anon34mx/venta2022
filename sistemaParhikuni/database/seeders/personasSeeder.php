@@ -45,19 +45,4 @@ class personasSeeder extends Seeder
         'aTipo' => 'EI'
     ]);
     }
-    /*
-    CREATE TABLE persona_has_user(
-        user_id bigint(20) unsigned,
-        persona_nNumero int(10) unsigned,
-
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON UPDATE CASCADE ON DELETE RESTRICT, 
-
-        FOREIGN KEY (persona_nNumero)
-        REFERENCES personas(nNumero)
-        ON UPDATE CASCADE ON DELETE RESTRICT
-
-    );
-    */
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Http\Controllers\OficinasController;
 use Auth;
 use DB;
 
@@ -18,20 +19,13 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        // dd(OficinasController::all());
         $elementsPerPage=15;
         if ($request->has('search') && $request->search!="") {
-            /*
-            with(['roles' => function($q){
-                $q->where('name', 'admin');
-            }])
-            */
             $users = User::
                 where('users.name', 'like', '%'.$request->input('search').'%')
                 ->orWhere('email', 'like', '%'.$request->input('search').'%')
                 ->orWhere('users.id', 'like', '%'.$request->input('search').'%')
-                
-                // ->toSql();
-                // dd($users);
                 ->paginate($elementsPerPage);
         } else {
             $users=User::orderBy('id')->paginate($elementsPerPage);
@@ -39,7 +33,8 @@ class UserController extends Controller
         return view('users.index', [
             "users" => $users,
             "search" => $request->search,
-            'roles' => Role::all()
+            'roles' => Role::all(),
+            'oficinas'  => OficinasController::all(),
         ]);
     }
 
@@ -61,24 +56,33 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->role);
+        // dd($request->all());
         $request->validate([
             'name' => 'required',
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'min:8'],
         ]);
+
         $user=User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ])->assignRole($request->role);
-        // return back();
+
+        if(isset($request->incPers)){
+            $persona = DB::table('personas')->insertGetId([
+                'aNombres' => $request->aNombres,
+                'aApellidos' => $request->aApellidos,
+                'nOficina' => $request->nOficina,
+                'aTipo' => $request->aTipo
+            ]);
+            $phu = DB::table('persona_has_user')->insertGetId([
+                "user_id" => $user->id,
+                "persona" => $persona,
+            ]);
+        }
+
         return redirect('usuarios/'.$user->id)->with('status', 'Usuario creado');;
-        // return redirect()->route('venta.finalizar', [
-        //     "transaccion" => $transaccionId,
-        //     "mode" => "preview",
-        //     "email" => $transaccion[0]->email
-        // ]);
     }
 
     /**
@@ -100,17 +104,16 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::find($id);
+        $user = User::find("$id");
         if(Auth::user()->id!=$id && !Auth::user()->hasRole('Admin')){
             abort(403);
         }else{
-            // $user->getDirectPermissions() // permisos asignados directamente
-            // $user->getAllPermissions(); // permisos directos y por medio de roles
             return view('users.edit',[
                 'user' => $user,
                 'roles' => Role::all(),
                 'user_permissions' => $user->getDirectPermissions(),
-                'permissions' => Permission::all()
+                'permissions' => Permission::all(),
+                'oficinas' => OficinasController::all()
             ]);
         }
     }

@@ -554,12 +554,14 @@ CREATE TABLE `personas` (
   `aNombres` varchar(30) NOT NULL,
   `aApellidos` varchar(30) NOT NULL,
   `nOficina` int(10) unsigned NOT NULL,
-  `aTipo` varchar(2) NOT NULL,
+  `aTipo` varchar(2) DEFAULT NULL,
   PRIMARY KEY (`nNumeroPersona`),
   UNIQUE KEY `nNumeroPersona` (`nNumeroPersona`),
   KEY `nOficina` (`nOficina`),
+  KEY `FK_tipopersona` (`aTipo`),
+  CONSTRAINT `FK_tipopersona` FOREIGN KEY (`aTipo`) REFERENCES `tipospersona` (`aTipo`) ON UPDATE CASCADE,
   CONSTRAINT `personas_ibfk_1` FOREIGN KEY (`nOficina`) REFERENCES `oficinas` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -750,6 +752,20 @@ CREATE TABLE `tiposervicio` (
   KEY `nDistribucionAsientos` (`nDistribucionAsientos`),
   CONSTRAINT `tiposervicio_ibfk_1` FOREIGN KEY (`nDistribucionAsientos`) REFERENCES `distribucionasientos` (`nNumero`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `tipospersona`
+--
+
+DROP TABLE IF EXISTS `tipospersona`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tipospersona` (
+  `aTipo` varchar(2) NOT NULL,
+  `aNombre` varchar(40) NOT NULL,
+  PRIMARY KEY (`aTipo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1287,4 +1303,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-04 13:35:59
+-- Dump completed on 2022-10-06  9:36:54

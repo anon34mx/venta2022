@@ -164,12 +164,20 @@ INSERT INTO `autobuses`(`nNumeroEconomico`, nTipoServicio, nDistribucionAsientos
 ("8011", 1, 1),
 ("8012", 1, 1);
 
+INSERT INTO `tipospersona`(`aTipo`, `aNombre`)
+VALUES
+("EI", "Empleado interno"),
+("PE", "Personal Externo"),
+("FA", "Familiar"),
+("PA", "Personal Agencias de Vaje"),
+("SO", "Socio");
+
 INSERT INTO `personas`(`nNumeroPersona`,`aNombres`, `aApellidos`, `nOficina`, `aTipo`) VALUES
 (1,'Jahaziel Aarón','Aguilera Castillo',12,'EI'),
 (2,'ANGEL','ZAMORA DE JESUS',12,'EI'),
 (3,'FRANCISCO JAVIER','ALVARADO LEMUS',12,'EI'),
 (4,'PASCUAL','ESTEBAN GABRIEL',12,'EI'),
-(5,'JESUS','CORNEJO MAULE',12,'EI');
+(5,'JESUS','CORNEJO MAULE',12,null);
 
 INSERT INTO `conductores`(`nNumeroConductor`, `nNumeroPersona`, `aLicencia`, `fVigenciaLicencia`, `aEstado`, `nNumeroAutobus`)
 VALUES

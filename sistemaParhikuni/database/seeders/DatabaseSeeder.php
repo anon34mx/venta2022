@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 // use OficinasSeeder;
 use Database\Seeders\tipoServicioSeeder;
-
+use DB;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -71,6 +71,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'DTI sistemas',
             'email' => 'dti_parhikuni@parhikuni.com.mx',
             'password' => bcrypt('123456'),
+            'persona_nNumero' => 1,
             ]);
         $user = User::find(1); 
         $user->assignRole('Admin');
@@ -96,5 +97,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ventaSeeder::class,
         ]);
+
+        
     }
 }

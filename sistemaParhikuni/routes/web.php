@@ -82,3 +82,11 @@ Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadas::c
 Route::get('/test', function(){
     return view('test2');
 })->middleware('permission:test');
+
+
+Route::get('/logout', function(Request $request){
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/');
+})->name("logout");

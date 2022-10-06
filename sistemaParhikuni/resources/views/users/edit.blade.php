@@ -31,6 +31,36 @@
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <input type="password" name="password" placeholder="password" class="form-control" value="" required>
                 </div>
+            </div>
+            @if($user->personas!=null)
+            <div class="row mt-3">
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <input type="text" name="aNombre" placeholder="Nombre" class="form-control" value="{!! $user->personas->aNombres !!}" @if(!Auth::user()->hasRole('Admin')) {{"readonly"}} @endif>
+                </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <input type="text" name="aApellidos" placeholder="Nombre" class="form-control" value="{!! $user->personas->aApellidos !!}" @if(!Auth::user()->hasRole('Admin')) {{"readonly"}} @endif>
+                </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <select name="nOficina" id="nClaveOficina" class="form-control">
+                        <option value="">Oficina</option>
+                        @foreach($oficinas as $oficina)
+                        <option value="{{$oficina->nNumero}}" {{ $oficina->nNumero==$user->personas->nOficina ? "selected" : ""}} >{{ $oficina->aNombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <select name="aTipo" id="aTipo" class="form-control">
+                        <option value="">Tipo</option>
+                        <option value="EI">Empleado interno</option>
+                        <option value="PE">Personal Externo</option>
+                        <option value="FA">Familiar</option>
+                        <option value="PA">Personal Agencias de Vaje</option>
+                        <option value="SO">Socio</option>
+                    </select>
+                </div>
+            </div>
+            @endif
+            <div class="row">
                 @csrf
                 <div class="col-auto justify-content-center">
                     <!-- <input type="submit" name="submit" placeholder="" class="btn btn-small btn-parhi-primary mx-auto" value="Guardar"> -->

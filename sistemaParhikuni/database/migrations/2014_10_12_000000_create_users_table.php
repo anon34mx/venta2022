@@ -22,6 +22,10 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
+            $table->unsignedInteger('persona_nNumero')->nullable();
+
+            // $table->foreign('persona_nNumero')->references('nNumeroPersona')->on('personas');
+
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_general_ci';
         });

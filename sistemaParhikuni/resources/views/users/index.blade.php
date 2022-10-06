@@ -15,9 +15,9 @@
             </div>
         @endif
         <form action="{{route('users.store')}}" method="POST">
-            <div class="row">
+            <div class="row form-group">
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
-                    <input type="text" name="name" placeholder="Nombre" class="form-control" value="{{old('name')}}">
+                    <input type="text" name="name" placeholder="Nombre de usuario" class="form-control" value="{{old('name')}}">
                 </div>
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <input type="email" name="email" placeholder="Email" class="form-control" value="{{old('email')}}">
@@ -26,13 +26,57 @@
                     <input type="password" name="password" placeholder="password" class="form-control" value="{{old('password')}}">
                 </div>
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
-                    <select name="role" id="" class="form-control" required>
+                    <select name="role" id="role" class="form-control" required>
                         <option value="">Rol de usuario</option>
                         @foreach($roles as $rol)
                             <option value="{{$rol->id}}">{{$rol->name}}</option>
                         @endforeach
                     </select>
                 </div>
+            </div>
+            <div class="col-12 form-check">
+                <input id="incPers" type="checkbox" class="form-check-input toggler" target="#datosPersona" checked name="incPers">
+                <label for="incPers" class="form-check-label">Incluir datos de persona</label>
+            </div>
+            <div class="row form-group" id="datosPersona">
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <input id="aNombres" name="aNombres" class="form-control" type="text" placeholder="Nombre(s)">
+                </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <input id="aApellidos" name="aApellidos" class="form-control" type="text" placeholder="Apellidos">
+                </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    
+                    <select name="nOficina" id="nClaveOficina" class="form-control">
+                        <option value="">Oficina</option>
+                        @foreach($oficinas as $oficina)
+                        <option value="{{$oficina->nNumero}}">{{ $oficina->aNombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
+                    <select name="aTipo" id="aTipo" class="form-control">
+                        <option value="">Tipo</option>
+                        <option value="EI">Empleado interno</option>
+                        <option value="PE">Personal Externo</option>
+                        <option value="FA">Familiar</option>
+                        <option value="PA">Personal Agencias de Vaje</option>
+                        <option value="SO">Socio</option>
+                    </select>
+                </div>
+            </div>
+            <!-- PERSONA -->
+            <!-- <div class="row form-group">
+                <h3>Datos de persona</h3>
+                <div class="col-12 row">
+                    <div class="col-12 row">
+                        
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- SUBMIT -->
+            <div class="row form-group mt-3">
                 @csrf
                 <div class="col-auto justify-content-center">
                     <!-- <input type="submit" name="submit" placeholder="" class="btn btn-small btn-parhi-primary mx-auto" value="Guardar"> -->
