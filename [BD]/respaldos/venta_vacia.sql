@@ -553,7 +553,7 @@ CREATE TABLE `personas` (
   `nNumeroPersona` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `aNombres` varchar(30) NOT NULL,
   `aApellidos` varchar(30) NOT NULL,
-  `nOficina` int(10) unsigned NOT NULL,
+  `nOficina` int(10) unsigned DEFAULT NULL,
   `aTipo` varchar(2) DEFAULT NULL,
   PRIMARY KEY (`nNumeroPersona`),
   UNIQUE KEY `nNumeroPersona` (`nNumeroPersona`),
@@ -1303,4 +1303,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-06  9:36:54
+-- Dump completed on 2022-10-06 15:10:17

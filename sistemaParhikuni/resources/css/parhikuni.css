@@ -71,6 +71,31 @@ body{
 #content{
 	background-color: var(--parh-bg-cont);
 }
+#sidebar{
+	height: 100vh;
+	position: sticky;
+	top: 0px;
+	overflow-y: scroll;
+}
+#sidebar::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* Track */
+#sidebar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* Handle */
+#sidebar::-webkit-scrollbar-thumb {
+	background: #888;
+}
+
+/* Handle on hover */
+#sidebar::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+/* 5 */
 /* ************************** */
 .titleWithAnchor{
 	/* Es mucho espacio :c */

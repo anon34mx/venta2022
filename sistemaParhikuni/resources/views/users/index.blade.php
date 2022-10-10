@@ -17,13 +17,13 @@
         <form action="{{route('users.store')}}" method="POST">
             <div class="row form-group">
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
-                    <input type="text" name="name" placeholder="Nombre de usuario" class="form-control" value="{{old('name')}}">
+                    <input type="text" name="name" placeholder="Nombre de usuario" class="form-control" value="{{old('name')}}" required>
                 </div>
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
-                    <input type="email" name="email" placeholder="Email" class="form-control" value="{{old('email')}}">
+                    <input type="email" name="email" placeholder="Email" class="form-control" value="{{old('email')}}" required>
                 </div>
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
-                    <input type="password" name="password" placeholder="password" class="form-control" value="{{old('password')}}">
+                    <input type="password" name="password" placeholder="password" class="form-control" value="{{old('password')}}" required>
                 </div>
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <select name="role" id="role" class="form-control" required>
@@ -35,8 +35,13 @@
                 </div>
             </div>
             <div class="col-12 form-check">
-                <input id="incPers" type="checkbox" class="form-check-input toggler" target="#datosPersona" checked name="incPers">
-                <label for="incPers" class="form-check-label">Incluir datos de persona</label>
+                <input checked
+                    id="incPersEditUsr"
+                    type="checkbox"
+                    class="form-check-input toggler"
+                    target="#datosPersona"
+                    name="incPers" targetRequired>
+                <label for="incPersEditUsr" class="form-check-label">Incluir datos de persona</label>
             </div>
             <div class="row form-group" id="datosPersona">
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
@@ -48,7 +53,8 @@
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     
                     <select name="nOficina" id="nClaveOficina" class="form-control">
-                        <option value="">Oficina</option>
+                        <option value="" disabled checked>Oficina</option>
+                        <option value="null">Ninguna</option>
                         @foreach($oficinas as $oficina)
                         <option value="{{$oficina->nNumero}}">{{ $oficina->aNombre }}</option>
                         @endforeach
@@ -57,11 +63,9 @@
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <select name="aTipo" id="aTipo" class="form-control">
                         <option value="">Tipo</option>
-                        <option value="EI">Empleado interno</option>
-                        <option value="PE">Personal Externo</option>
-                        <option value="FA">Familiar</option>
-                        <option value="PA">Personal Agencias de Vaje</option>
-                        <option value="SO">Socio</option>
+                        @foreach($tipospersonas as $tipopersona)
+                        <option value="{{$tipopersona->aTipo}}">{{$tipopersona->aNombre}}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>

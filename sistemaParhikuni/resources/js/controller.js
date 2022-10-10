@@ -1,13 +1,43 @@
-$(document).ready(()=>{
 
-    toggler($(".toggler").prop("checked"), $(".toggler").attr("target"));
+(function () {
+    'use strict'
+    console.log("validaciones activadas");
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+$(document).ready(()=>{
+    toggler($(".toggler"), $(".toggler").attr("target"));
+
     $(".toggler").change(function(){
-        // console.log($(this).prop("checked"));
-        toggler($(this).prop("checked"), $(this).attr("target"));
+        toggler($(this), $(this).attr("target"));
     });
+    
 });
 
-function toggler(in_val, target){
-    // console.log(btn.checked);
-    in_val == true ? $(target).fadeIn(200) : $(target).fadeOut(200);
+function toggler(inpt, target){
+    if($(inpt).prop("checked") == true){
+        $(target).show();
+        if ($(inpt).attr("targetRequired") == "" || $(inpt).attr("targetRequired") == "required") {
+            $(target + " input").attr("required", "required")
+        } else {
+            $(target + " input").removeAttr("required");
+        }
+    }else{
+        $(target).hide();
+        $(target + " input").removeAttr("required");
+    }
 }

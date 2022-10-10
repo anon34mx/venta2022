@@ -53,6 +53,7 @@
 
             <ul class="list-unstyled components">
                 <!-- <p>Dummy Heading</p> -->
+                @if(Auth::user()->hasRole('Admin'))
                 <li class="active">
                     <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Admin</a>
                     <ul class="collapse list-unstyled" id="homeSubmenu">
@@ -67,6 +68,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 <li>
                     <a href="#">About</a>
                 </li>

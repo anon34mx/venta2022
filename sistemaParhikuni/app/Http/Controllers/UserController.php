@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Personas;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\OficinasController;
+use App\Http\Controllers\PersonasController;
 use Auth;
 use DB;
 
@@ -17,24 +19,24 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public $elementsPerPage=15;
     public function index(Request $request)
     {
-        // dd(OficinasController::all());
-        $elementsPerPage=15;
         if ($request->has('search') && $request->search!="") {
             $users = User::
                 where('users.name', 'like', '%'.$request->input('search').'%')
                 ->orWhere('email', 'like', '%'.$request->input('search').'%')
                 ->orWhere('users.id', 'like', '%'.$request->input('search').'%')
-                ->paginate($elementsPerPage);
+                ->paginate($this->elementsPerPage);
         } else {
-            $users=User::orderBy('id')->paginate($elementsPerPage);
+            $users=User::orderBy('id')->paginate($this->elementsPerPage);
         }
         return view('users.index', [
             "users" => $users,
             "search" => $request->search,
             'roles' => Role::all(),
             'oficinas'  => OficinasController::all(),
+            'tipospersonas' => PersonasController::tipos()
         ]);
     }
 
@@ -56,12 +58,12 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        $request->validate([
+        $requestData = $request->validate([
             'name' => 'required',
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'min:8'],
         ]);
+        // dd($requestData);
 
         $user=User::create([
             'name' => $request->name,
@@ -70,15 +72,18 @@ class UserController extends Controller
         ])->assignRole($request->role);
 
         if(isset($request->incPers)){
-            $persona = DB::table('personas')->insertGetId([
-                'aNombres' => $request->aNombres,
-                'aApellidos' => $request->aApellidos,
-                'nOficina' => $request->nOficina,
-                'aTipo' => $request->aTipo
-            ]);
-            $phu = DB::table('persona_has_user')->insertGetId([
-                "user_id" => $user->id,
-                "persona" => $persona,
+            $oficina=$request->nOficina;
+            if($request->nOficina=="null"){
+                $oficina=null;
+            }
+            $persona = PersonasController::store(
+                $request->aNombres,
+                $request->aApellidos,
+                $oficina,
+                $request->aTipo
+            );
+            $user->update([
+                'persona_nNumero' => $persona
             ]);
         }
 
@@ -104,17 +109,40 @@ class UserController extends Controller
      */
     public function edit($id)
     {
+        // dd(Auth::user()->personas);
         $user = User::find("$id");
+        if($user==null){
+            return redirect(route('users.index'))
+                    ->withErrors("Usuario no encontrado");
+        }
         if(Auth::user()->id!=$id && !Auth::user()->hasRole('Admin')){
             abort(403);
         }else{
-            return view('users.edit',[
-                'user' => $user,
-                'roles' => Role::all(),
-                'user_permissions' => $user->getDirectPermissions(),
-                'permissions' => Permission::all(),
-                'oficinas' => OficinasController::all()
-            ]);
+            if(Auth::user()->personas->aTipo=="PG"){
+                
+                return view('users.edit_PG',[
+                    'user' => $user,
+                    'roles' => Role::all(),
+                    'user_permissions' => $user->getDirectPermissions(),
+                    'permissions' => Permission::all(),
+                    'oficinas' => OficinasController::all()
+                ]);
+            }elseif(Auth::user()->personas->aTipo=="EI" && !Auth::user()->hasRole('Admin')){
+                return view('users.edit_EI',[
+                    'user' => $user,
+                    'user_permissions' => $user->getDirectPermissions(),
+                    // 'oficinas' => OficinasController::find($user->personas->nOficina)
+                ]);
+            }else{
+                return view('users.edit',[
+                    'user' => $user,
+                    'roles' => Role::all(),
+                    'user_permissions' => $user->getDirectPermissions(),
+                    'permissions' => Permission::all(),
+                    'oficinas' => OficinasController::all(),
+                    'tipospersonas' => PersonasController::tipos(),
+                ]);
+            }
         }
     }
 
@@ -127,35 +155,109 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Empleados internos sólo pueden cambiar su contraseña
-        if(Auth::user()->hasRole([
-            'servicios'
-        ])){
-            User::find($id)->update([
-                "password" => bcrypt($request->password)
-
-            ]);
-            return back()->with('status', 'Actualizado con éxito');
+        $user = User::find($id);
+        $oficina=$request->nOficina;
+        if($request->nOficina=="null"){
+            $oficina=null;
         }
+        if(Auth::user()->hasRole('Admin')){
+            if(($user->persona_nNumero==null && isset($request->incPers)) || $user->persona_nNumero!=null){
+                $requestData = $request->validate([
+                    'nombreDeUsuario' => ['required', 'regex:/(^([a-zA-Z0-9\.-_]+)(\d+)?$)/'],
+                    'correoElectronico' => ['required', 'email'],
+                    'nombre' => ['required', 'min:3'],
+                    'apellidos' => ['required', 'min:3'],
+                    'nOficina' => ['required'],
+                    'tipoPersona' => ['required'],
+                ]);
+            }else{
+                $requestData = $request->validate([
+                    'nombreDeUsuario' => ['required', 'regex:/(^([a-zA-Z0-9\.-_]+)(\d+)?$)/'],
+                    'correoElectronico' => ['required', 'email'],
+                ]);
+            }
+            if($user->persona_nNumero==null && isset($request->incPers)){
+                $persona = PersonasController::store(
+                    $request->nombre,
+                    $request->apellidos,
+                    $oficina,
+                    $request->tipoPersona
+                );
+                $user->update([
+                    'persona_nNumero' => $persona
+                ]);
+            }elseif($user->persona_nNumero!=null){
+                $persona = Personas::find($user->persona_nNumero);
+                $persona->update([
+                    "aNombres"=> $request->nombre,
+                    "apellidos"=> $request->apellidos,
+                    "nOficina" => $oficina,
+                    "aTipo"=> $request->tipoPersona
+                ]);
+            }
 
-        if($request->password != ""){
-            User::find($id)->update([
-                "name" => $request->name,
-                "email" => $request->email,
-                "password" => bcrypt($request->password)
 
-            ]);
+
+            if($request->contraseña!=null){
+                $requestData = $request->validate([
+                    'contraseña' => ['required', 'min:8', 'max:255'],
+                ]);
+                $user->update([
+                    "name" => $request->nombreDeUsuario,
+                    "email" => $request->correoElectronico,
+                    "password" => bcrypt($request->contraseña)
+                ]);
+            }else{
+                $user->update([
+                    "name" => $request->nombreDeUsuario,
+                    "email" => $request->correoElectronico,
+                ]);
+            }
             return back()->with('status', 'Actualizado con éxito');
-        }else{
-            User::find($id)->update([
-                "name" => $request->name,
-                "email" => $request->email
-            ]);
-            return back()->with('status', 'Actualizado con éxito');
-            
         }
     }
+    public function updateAsUser(Request $request){
+        $persona = Personas::find(Auth::user()->persona_nNumero);
+        // dd($request->all());
+        if(isset($request->contraseña)){
+            // 'correoElectronico' => ['required', 'email', 'max:100'],
+            $requestData = $request->validate([
+                'nombreDeUsuario' => ['required', 'max:30'],
+                'nombre' => ['required', 'min:3', 'max:50'],
+                'apellidos' => ['required', 'min:3', 'max:50'],
+                'contraseña' => ['required', 'min:8', 'max:255'],
+            ]);
+            $persona->update([
+                "aNombres" => $request->nombre,
+                "aApellidos" => $request->apellidos,
+            ]);
+            // "name" => $request->nombreDeUsuario,
+            // "email" => $request->correoElectronico,
+            Auth::user()->update([
+                "password" => bcrypt($request->contraseña),
+            ]);
+        }else{
+            // 'correoElectronico' => ['required', 'email', 'max:100'],
+            $requestData = $request->validate([
+                'nombreDeUsuario' => ['required', 'max:30'],
+                'nombre' => ['required', 'min:3', 'max:50'],
+                'apellidos' => ['required', 'min:3', 'max:50'],
+                
+            ]);
+            $persona->update([
+                "aNombres" => $request->nombre,
+                "aApellidos" => $request->apellidos,
+            ]);
+            // Auth::user()->update([
+            //      "name" => $request->nombreDeUsuario,
+            //      "email" => $request->correoElectronico,
+            //      "password" => bcrypt($request->contraseña),
+            // ]);
+        }
 
+        
+        return back()->with('status', 'Actualizado con éxito');
+    }
     /**
      * Remove the specified resource from storage.
      *
@@ -194,13 +296,8 @@ class UserController extends Controller
         }
     }
     public function addPermissions(User $id, Request $request){
-        // dd($request->permissions);
         if($request->permissions){
             foreach($request->permissions as $permission=>$value){
-                // var_dump($permission);
-                // var_dump($value);
-
-                // echo "<br>";exit;
                 $id->givePermissionTo($permission);
             }
             return back()->with('status', 'Actualizado con éxito');
@@ -210,7 +307,6 @@ class UserController extends Controller
     }
 
     public function revokePermission(User $id, Request $request){
-        // dd($request->permission);
         $id->revokePermissionTo($request->permission);
         return back()->with('status', 'Permiso eliminado');
     }

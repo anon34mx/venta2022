@@ -35,8 +35,12 @@ Route::post('/usuarios/guardar', [App\Http\Controllers\UserController::class, 's
     ->middleware('permission:users.store');
 Route::get('/usuarios/{user}', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit')
     ->middleware('permission:users.edit');
+
 Route::post('/usuarios/update/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update')
     ->middleware('permission:users.update');
+Route::post('/usuarios/updateAsUser', [App\Http\Controllers\UserController::class, 'updateAsUser'])->name('users.updateAsUser')
+    ->middleware('permission:users.update');
+
 Route::delete('/usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy')
     ->middleware('permission:users.destroy');
 Route::post('/usuarios/{id}/store/addrol', [App\Http\Controllers\UserController::class, 'addrol'])

@@ -170,7 +170,8 @@ VALUES
 ("PE", "Personal Externo"),
 ("FA", "Familiar"),
 ("PA", "Personal Agencias de Vaje"),
-("SO", "Socio");
+("SO", "Socio"),
+("PG", "Público general");
 
 INSERT INTO `personas`(`nNumeroPersona`,`aNombres`, `aApellidos`, `nOficina`, `aTipo`) VALUES
 (1,'Jahaziel Aarón','Aguilera Castillo',12,'EI'),

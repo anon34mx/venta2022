@@ -9,6 +9,17 @@ use App\Models\User;
 class Personas extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'nNumeroPersona';
+    protected $hidden = [
+        '_token',
+        'updated_at',
+    ];
+    protected $fillable = [
+        'aNombres',
+        'aApellidos',
+        'nOficina',
+        'aTipo',
+    ];
 
     public function user(){
         return $this->hasOne(User::class);

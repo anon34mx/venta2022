@@ -28,15 +28,7 @@ class ventaSeeder extends Seeder
         $path_poblar = ('C:\\xampp\\htdocs\\venta2022\\[BD]\\inserts\\poblar.sql');
         $sql_poblar = file_get_contents($path_poblar);
         DB::unprepared($sql_poblar);
-        // sobre tabla pivote //se llama así? owo
-        DB::unprepared("
-            ALTER TABLE `laravel`.`persona_has_user` 
-            ADD INDEX `persona_has_user_persona_foreign` (`persona`) USING BTREE,
-            ADD UNIQUE UN_user_id (user_id),
-            ADD UNIQUE UN_persona (persona)
-        ");
-        DB::unprepared("INSERT INTO `persona_has_user` (`user_id`, `persona`) VALUES ('1', '1')");
-
+        
         // sobre la tabla de usuarios
         DB::unprepared("ALTER TABLE users
             ADD FOREIGN KEY FK_p (`persona_nNumero`)
