@@ -39,7 +39,7 @@
                 <td>{{$cp->fInicio}}</td>
                 <td>{{$cp->fFin}}</td>
                 <td>
-                    <a href="#">
+                    <a href="{{ route('corridas.programadas.edit', $cp->nNumero) }}">
                         <span class="btn-collap" title="Editar">
                             <label class="btn btn-sm btn-primary"
                                 for="edit-{{$cp->nNumero}}">

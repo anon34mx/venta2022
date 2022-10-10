@@ -40,6 +40,8 @@ Route::post('/usuarios/update/{user}', [App\Http\Controllers\UserController::cla
     ->middleware('permission:users.update');
 Route::post('/usuarios/updateAsUser', [App\Http\Controllers\UserController::class, 'updateAsUser'])->name('users.updateAsUser')
     ->middleware('permission:users.update');
+Route::post('/usuarios/updateAsEI', [App\Http\Controllers\UserController::class, 'updateAsEI'])->name('users.updateAsEI')
+    ->middleware('permission:users.update');
 
 Route::delete('/usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy')
     ->middleware('permission:users.destroy');
@@ -57,7 +59,7 @@ Route::post('/usuarios/{id}/store/revokePermission', [App\Http\Controllers\UserC
     ->middleware('permission:users.editPermissions');
 
 // ROLES
-Route::get('/roles/', [App\Http\Controllers\RolesController::class, 'index'])
+Route::get('/roles', [App\Http\Controllers\RolesController::class, 'index'])
     ->name("roles.index")->middleware('role:Admin');
 Route::get('/roles/{idRole}', [App\Http\Controllers\RolesController::class, 'edit'])
     ->name("roles.edit")->middleware('role:Admin');
@@ -79,9 +81,16 @@ Route::delete('/permisos/{permission}', [App\Http\Controllers\PermissionControll
     ->name("permission.destroy")->middleware('role:Admin');
 
 // CORRIDAS PROGRAMADAS
-Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadas::class, 'index'])
+Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadasController::class, 'index'])
     ->name("corridas.programadas.index")
-    ->middleware('permission:corridasPermanentes.index');
+    ->middleware('permission:corridasProgramadas.index');
+Route::get('/corridas/programadas/{corridaProgramada}', [App\Http\Controllers\corridasProgramadasController::class, 'edit'])
+    ->name("corridas.programadas.edit")
+    ->middleware('permission:corridasProgramadas.index');
+// CORRIDAS DISPONIBLES
+Route::get('/corridas/disponibles', [App\Http\Controllers\corridasProgramadasController::class, 'index'])
+    ->name("corridas.disponibles.index")
+    ->middleware('permission:corridasDisponibles.index');
 
 Route::get('/test', function(){
     return view('test2');

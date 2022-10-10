@@ -54,20 +54,33 @@
             <ul class="list-unstyled components">
                 <!-- <p>Dummy Heading</p> -->
                 @if(Auth::user()->hasRole('Admin'))
-                <li class="active">
-                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Admin</a>
-                    <ul class="collapse list-unstyled" id="homeSubmenu">
-                        <li>
-                            <a href="{{route('users.index')}}">Usuarios</a>
-                        </li>
-                        <li>
-                            <a href="{{route('roles.index')}}">Roles</a>
-                        </li>
-                        <li>
-                            <a href="{{route('permissions.index')}}">Permisos</a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Admin</a>
+                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                            <li>
+                                <a href="{{route('users.index')}}">Usuarios</a>
+                            </li>
+                            <li>
+                                <a href="{{route('roles.index')}}">Roles</a>
+                            </li>
+                            <li>
+                                <a href="{{route('permissions.index')}}">Permisos</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+                @if(Auth::user()->hasPermissionTo('corridasProgramadas.index') && Auth::user()->hasPermissionTo('corridasDisponibles.index'))
+                    <li class="active">
+                        <a href="#corridasSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Corridas</a>
+                        <ul class="collapse list-unstyled" id="corridasSubmenu">
+                            <li>
+                                <a href="{{route('corridas.programadas.index')}}">Programadas</a>
+                            </li>
+                            <li>
+                                <a href="{{route('corridas.disponibles.index')}}">disponibles</a>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
                 <li>
                     <a href="#">About</a>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Personas;
+use App\Models\Oficinas;
+
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\OficinasController;
@@ -131,7 +133,7 @@ class UserController extends Controller
                 return view('users.edit_EI',[
                     'user' => $user,
                     'user_permissions' => $user->getDirectPermissions(),
-                    // 'oficinas' => OficinasController::find($user->personas->nOficina)
+                    'oficinas' => Oficinas::find($user->personas->nOficina)
                 ]);
             }else{
                 return view('users.edit',[
@@ -195,9 +197,6 @@ class UserController extends Controller
                     "aTipo"=> $request->tipoPersona
                 ]);
             }
-
-
-
             if($request->contraseña!=null){
                 $requestData = $request->validate([
                     'contraseña' => ['required', 'min:8', 'max:255'],
@@ -214,11 +213,12 @@ class UserController extends Controller
                 ]);
             }
             return back()->with('status', 'Actualizado con éxito');
+        }else{
+            echo "no admin";
         }
     }
     public function updateAsUser(Request $request){
         $persona = Personas::find(Auth::user()->persona_nNumero);
-        // dd($request->all());
         if(isset($request->contraseña)){
             // 'correoElectronico' => ['required', 'email', 'max:100'],
             $requestData = $request->validate([
@@ -254,9 +254,18 @@ class UserController extends Controller
             //      "password" => bcrypt($request->contraseña),
             // ]);
         }
-
-        
         return back()->with('status', 'Actualizado con éxito');
+    }
+
+    public function updateAsEI(Request $request){
+        if($request->contraseña!=null){
+            Auth::user()->update([
+                "password" => bcrypt($request->contraseña),
+            ]);
+            return back()->with('status', 'Actualizado con éxito');
+        }else{
+            return back();
+        }
     }
     /**
      * Remove the specified resource from storage.

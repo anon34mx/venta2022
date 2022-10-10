@@ -9,7 +9,7 @@
         </div>
 
 
-        <h3>Editar usuario</h3>
+        <h3>Perfil de usuario</h3>
         @if($errors->any())
             <div class="card-body mt-2 mb-2 ">
                 <div class="alert-danger px-3 py-3">
@@ -20,7 +20,7 @@
             </div>
         @endif
 
-        <form action="{{route('users.update', $user)}}" method="POST" class="row needs-validation" novalidate>
+        <form action="{{route('users.updateAsEI')}}" method="POST" class="row needs-validation" novalidate>
             <div class="col-12 col-lg-6 col-xl-4 row mb-2">
                 <div class="col-12 col-md-4">
                     <label for="nombreDeUsuario" class="float-md-right text-md-right">Nombre de usuario</label>
@@ -74,19 +74,10 @@
                 </div>
                 <div class="col-12 col-lg-6 col-xl-4 row mb-2">
                     <div class="col-12 col-md-4">
-                        <label for="nClaveOficina" class="float-md-right text-md-right">Oficina*</label>
+                        <label for="nClaveOficina" class="float-md-right text-md-right">Oficina</label>
                     </div>
                     <div class="col-12 col-md-8">
-                        <!-- poner oficina -->
-                        {{$user->personas->nOficina}}
-                    </div>
-                </div>
-                <div class="col-12 col-lg-6 col-xl-4 row mb-2">
-                    <div class="col-12 col-md-4">
-                        <label for="tipoPersona" class="float-md-right text-md-right">Tipo de persona*</label>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <!-- poner tipo persona -->
+                        <input id="nClaveOficina" class="form-control" value="{{$oficinas->aNombre}}" readonly>
                     </div>
                 </div>
             </div>

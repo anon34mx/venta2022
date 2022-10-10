@@ -1,9 +1,7 @@
 @extends('layouts.parhikuni')
 @section('content')
     <div class="col-12 col-sm-10 col-md-8 col-lg-10 mx-auto">
-        <h3>Editar usuario</h3>
-        <p>Publico general</p>
-        
+        <h3>Perfil de usuario</h3>
         @if(session()->has('status'))
             <div class="card-body mt-2 mb-2 ">
                 <p class="alert alert-success">{{session('status')}}</p>
