@@ -10,7 +10,7 @@ INNER JOIN corridasdisponibles as cordis on cordis.nNumero=dis.nCorridaDisponibl
 where dis.fSalida="2022-08-13" and dis.nOrigen=10
 order by dis.nCorridaDisponible, cordis.hSalida
 
---                  [consultar itinerario]
+--                  [consultar itinerario cor disponible]
 SELECT
 cordis.nNumero as cordis, cordis.nProgramada, cordis.nItinerario, cordis.fSalida as fInicio, cordis.hSalida as hInicio,
 iti.nConsecutivo, dis.nOrigen, dis.nDestino, dis.fSalida, dis.hSalida, dis.fLlegada, dis.hLlegada
@@ -25,6 +25,31 @@ AND iti.nConsecutivo>=(
     INNER JOIN tramos trm on it.nTramo=trm.nNumero
     where it.nItinerario=3 AND trm.nOrigen=10 -- parametro
 )
+order by iti.nConsecutivo ASC
+--                  [consultar itinerario corr programada]
+SELECT
+iti.nItinerario as 'itinerario', iti.nConsecutivo as 'consecutivo',
+tr.nNumero as 'tramo',
+tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
+tr.nDestino, ofiDes.aClave as 'claveDestino', ofiDes.aNombre as 'destino'
+FROM corridasprogramadas corpro
+INNER JOIN itinerario as iti on iti.nItinerario=corpro.nItinerario
+INNER JOIN tramos as tr on tr.nNumero=iti.nTramo
+INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
+INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
+where corpro.nNumero=15 -- parametro
+order by iti.nConsecutivo ASC
+--                  [consultar itinerario detalle]
+SELECT
+iti.nItinerario as 'itinerario', iti.nConsecutivo as 'consecutivo',
+tr.nNumero as 'tramo',
+tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
+tr.nDestino, ofiDes.aClave as 'claveDestino', ofiDes.aNombre as 'destino'
+FROM itinerario as iti
+INNER JOIN tramos as tr on tr.nNumero=iti.nTramo
+INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
+INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
+-- where corpro.nNumero=15 -- parametro
 order by iti.nConsecutivo ASC
 
 --                  [OBTENER CORRIDAS DE-HASTA CON OCUPACION]

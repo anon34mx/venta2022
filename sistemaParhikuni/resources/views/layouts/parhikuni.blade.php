@@ -82,6 +82,17 @@
                         </ul>
                     </li>
                 @endif
+                <li class="active">
+                    <a href="#PersonalSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Personal</a>
+                    <ul class="collapse list-unstyled" id="PersonalSubmenu">
+                        <li>
+                            <a href="{{route('corridas.programadas.index')}}">Conductores</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">Venta de boletos</a>
+                </li>
                 <li>
                     <a href="#">About</a>
                 </li>

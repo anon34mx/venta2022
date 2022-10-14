@@ -203,6 +203,14 @@ VALUES
 (8,5,7,166,120,0), -- ccam-lazaro
 (9,5,6,200,140,15), -- ccam-ixta
 (10,6,11,9,20,0); -- ixta-zihu
+-- regreso
+INSERT INTO `tramos`(`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`)
+VALUES
+(11, 11, 6, 9, 20, 15),
+(12, 6, 5, 200, 140, 15),
+(13,5,10,58,70,10),
+(14,10,8,112,90,0)
+;
 
 INSERT INTO `itinerario`(`nItinerario`, `nConsecutivo`, `nTramo`) VALUES
 (1,1,1), -- urua
@@ -210,21 +218,32 @@ INSERT INTO `itinerario`(`nItinerario`, `nConsecutivo`, `nTramo`) VALUES
 (2,2,2),
 (3,1,1), -- apat
 (3,2,2),
-(3,3,3);
+(3,3,3),
+
+(4,1,1),
+(4,2,2),
+(4,3,9),
+(4,4,10),
+
+(5, 1, 11),
+(5, 2, 12),
+(5, 3, 13),
+(5, 4, 14)
+;
 
 INSERT INTO `corridasprogramadas`(`nItinerario`, `nTipoServicio`, `hSalida`,
-`lLunes`, `lMartes`, `lMiercoles`, `lJueves`, `lViernes`, `lSabado`, `lDomingo`, `fInicio`, `fFin`, `lBaja`)
+`lLunes`, `lMartes`, `lMiercoles`, `lJueves`, `lViernes`, `lSabado`, `lDomingo`, `fInicio`, `fFin`, `deleted_at`)
 VALUES
 (1,1,'10:00:00',
-true,true,true,true,true,false,false,'2022-01-01','2023-06-30',false),
+true,true,true,true,true,false,false,'2022-01-01','2023-06-30',null),
 (1,1,'10:01:00',
-true,true,true,true,true,false,false,'2022-03-01','2023-06-30',true),
+true,true,true,true,true,false,false,'2022-03-01','2023-06-30', "2022-10-10 12:00:00"),
 (1,1,'10:30:00',
-false,false,false,false,false,true,true,'2022-01-01','2022-06-30',false),
+false,false,false,false,false,true,true,'2022-01-01','2022-06-30',null),
 (3,3,'12:00:00',
-true,true,true,true,true,true,true,'2022-03-01','2022-12-31',false),
+true,true,true,true,true,true,true,'2022-03-01','2022-12-31',null),
 (3,3,'23:30:00',
-true,false,false,true,true,true,true,'2022-03-01','2022-12-31',false);
+true,false,false,true,true,true,true,'2022-03-01','2022-12-31',null);
 
 INSERT INTO tiposboletos (nNumero, aTipo, aDescripcion, nCantidad)
 VALUES

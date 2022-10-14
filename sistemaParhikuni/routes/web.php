@@ -87,9 +87,24 @@ Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadasCon
 Route::get('/corridas/programadas/{corridaProgramada}', [App\Http\Controllers\corridasProgramadasController::class, 'edit'])
     ->name("corridas.programadas.edit")
     ->middleware('permission:corridasProgramadas.index');
+Route::delete('/corridas/programadas/{corridaProgramada}/delete', [App\Http\Controllers\corridasProgramadasController::class, 'destroy'])
+    ->name("corridas.programadas.destroy")
+    ->middleware('permission:corridasProgramadas.index');
+Route::post('/corridas/programadas/store', [App\Http\Controllers\corridasProgramadasController::class, 'store'])
+    ->name("corridas.programadas.store")
+    ->middleware('permission:corridasProgramadas.index');
+
 // CORRIDAS DISPONIBLES
-Route::get('/corridas/disponibles', [App\Http\Controllers\corridasProgramadasController::class, 'index'])
+Route::get('/corridas/disponibles', [App\Http\Controllers\CorridasDisponiblesController::class, 'index'])
     ->name("corridas.disponibles.index")
+    ->middleware('permission:corridasDisponibles.index');
+Route::get('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'edit'])
+    ->name("corridas.disponibles.edit")
+    ->middleware('permission:corridasDisponibles.index');
+
+//  VENTA
+Route::get('/venta/01', [App\Http\Controllers\CorridasDisponiblesController::class, 'venta'])
+    ->name("corridas.disponibles.venta")
     ->middleware('permission:corridasDisponibles.index');
 
 Route::get('/test', function(){

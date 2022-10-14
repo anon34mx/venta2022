@@ -1,1 +1,1 @@
-C:\xampp\mysql\bin\mysqldump -u "root" -p venta2022b>venta_vacia.sql --no-data --routines
+C:\xampp\mysql\bin\mysqldump -u "root" -p venta2022c>venta_vacia.sql --no-data --routines

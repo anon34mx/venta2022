@@ -11,6 +11,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\OficinasController;
 use App\Http\Controllers\PersonasController;
+use illuminate\Database\Eloquent\SoftDeletes;
 use Auth;
 use DB;
 
@@ -174,7 +175,7 @@ class UserController extends Controller
                 ]);
             }else{
                 $requestData = $request->validate([
-                    'nombreDeUsuario' => ['required', 'regex:/(^([a-zA-Z0-9\.-_]+)(\d+)?$)/'],
+                    'nombreDeUsuario' => ['required', 'regex:/(^([a-zA-Z0-9\.-_]+)(\d+)?$)/', 'unique:users,name'],
                     'correoElectronico' => ['required', 'email'],
                 ]);
             }

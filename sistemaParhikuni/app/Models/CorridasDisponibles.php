@@ -4,38 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\TiposServicios;
-use App\Models\Itinerario;
-use App\Models\Tramos;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+
+// use App\Models\Personas;
+use App\Models\conductores;
+use App\Models\Autobus;
+use App\Models\CorridasEstados;
 use DB;
 
-class Corridasprogramadas extends Model
+class CorridasDisponibles extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory; //, SoftDeletes
+    protected $table = 'corridasdisponibles';
     protected $primaryKey = 'nNumero';
     protected $hidden = [
-        'lBaja',
+        'nProgramada',
     ];
     protected $fillable = [
-        'nItinerario',
-        'nTipoServicio',
-        'hSalida',
-        'lLunes',
-        'lMartes',
-        'lMiercoles',
-        'lJueves',
-        'lViernes',
-        'lSabado',
-        'lDomingo',
-        'fInicio',
-        'fFin',
+        'aEstado',
+        'nNumeroAutobus',
+        'nNumeroConductor',
     ];
+
     public function servicio(){
         return $this->hasOne(TiposServicios::class, 'nNumero', 'nTipoServicio');
     }
-    public function itinerario(){
-        return $this->hasMany(Itinerario::class, 'nItinerario', 'nItinerario');
+    public function conductor(){
+        return $this->hasOne(conductores::class, 'nNumeroConductor', 'nNumeroConductor');
+    }
+    public function autobus(){
+        return $this->hasOne(Autobus::class, 'nNumeroAutobus', 'nNumeroAutobus');
+    }
+    public function estado(){
+        return $this->hasOne(CorridasEstados::class, 'id', 'aEstado');
     }
     public function getItinerario(){
         // return "Aquí va el itinerario.<br>".$this->nNumero;
@@ -44,15 +45,14 @@ class Corridasprogramadas extends Model
             tr.nNumero as 'tramo',
             tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
             tr.nDestino, ofiDes.aClave as 'claveDestino', ofiDes.aNombre as 'destino'
-            FROM corridasprogramadas corpro
-            INNER JOIN itinerario as iti on iti.nItinerario=corpro.nItinerario
+            FROM corridasdisponibles cordis
+            INNER JOIN itinerario as iti on iti.nItinerario=cordis.nItinerario
             INNER JOIN tramos as tr on tr.nNumero=iti.nTramo
             INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
             INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
-            where corpro.nNumero=:id -- parametro
+            where cordis.nNumero=:id -- parametro
             order by iti.nConsecutivo ASC", [
                 'id' => $this->nNumero
             ]);
     }
 }
-

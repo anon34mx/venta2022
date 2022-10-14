@@ -1,6 +1,6 @@
 -- MariaDB dump 10.19  Distrib 10.4.21-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: venta2022b
+-- Host: localhost    Database: laravel
 -- ------------------------------------------------------
 -- Server version	10.4.21-MariaDB
 
@@ -52,7 +52,7 @@ CREATE TABLE `autobuses` (
   KEY `nDistribucionAsientos` (`nDistribucionAsientos`),
   CONSTRAINT `autobuses_ibfk_1` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`),
   CONSTRAINT `autobuses_ibfk_2` FOREIGN KEY (`nDistribucionAsientos`) REFERENCES `distribucionasientos` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,6 +134,8 @@ CREATE TABLE `boletosvendidos` (
   KEY `nCorrida` (`nCorrida`),
   KEY `aTipoVenta` (`aTipoVenta`),
   KEY `aTipoPasajero` (`aTipoPasajero`),
+  KEY `boletosvendidos_ibfk_4` (`nVenta`),
+  KEY `boletosvendidos_ibfk_9` (`nTerminal`),
   CONSTRAINT `boletosvendidos_ibfk_1` FOREIGN KEY (`nOrigen`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `boletosvendidos_ibfk_2` FOREIGN KEY (`nDestino`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `boletosvendidos_ibfk_3` FOREIGN KEY (`nCorrida`) REFERENCES `corridasdisponibles` (`nNumero`),
@@ -256,6 +258,20 @@ CREATE TABLE `conductores` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `corridas_estados`
+--
+
+DROP TABLE IF EXISTS `corridas_estados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corridas_estados` (
+  `id` varchar(1) NOT NULL,
+  `aEstado` varchar(15) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `corridasdisponibles`
 --
 
@@ -277,12 +293,17 @@ CREATE TABLE `corridasdisponibles` (
   KEY `nNumeroAutobus` (`nNumeroAutobus`),
   KEY `nTipoServicio` (`nTipoServicio`),
   KEY `corridasdisponibles_IN` (`nNumero`,`nProgramada`,`nItinerario`,`nNumeroAutobus`),
+  KEY `corridasdisponibles_ibfk_1` (`nNumeroConductor`),
+  KEY `corridasdisponibles_ibfk_3` (`nProgramada`),
+  KEY `corridasdisponibles_ibfk_5` (`nItinerario`),
+  KEY `FK_corridaestado` (`aEstado`),
+  CONSTRAINT `FK_corridaestado` FOREIGN KEY (`aEstado`) REFERENCES `corridas_estados` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `corridasdisponibles_ibfk_1` FOREIGN KEY (`nNumeroConductor`) REFERENCES `conductores` (`nNumeroConductor`),
   CONSTRAINT `corridasdisponibles_ibfk_2` FOREIGN KEY (`nNumeroAutobus`) REFERENCES `autobuses` (`nNumeroAutobus`),
   CONSTRAINT `corridasdisponibles_ibfk_3` FOREIGN KEY (`nProgramada`) REFERENCES `corridasprogramadas` (`nNumero`),
   CONSTRAINT `corridasdisponibles_ibfk_4` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`),
   CONSTRAINT `corridasdisponibles_ibfk_5` FOREIGN KEY (`nItinerario`) REFERENCES `itinerario` (`nItinerario`)
-) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=147303 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -306,14 +327,15 @@ CREATE TABLE `corridasprogramadas` (
   `lDomingo` tinyint(1) NOT NULL,
   `fInicio` date NOT NULL,
   `fFin` date NOT NULL,
-  `lBaja` tinyint(1) NOT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`nNumero`),
   UNIQUE KEY `nNumero` (`nNumero`),
   KEY `nTipoServicio` (`nTipoServicio`),
   KEY `corridasprogramadas_IN` (`nNumero`,`nItinerario`),
-  CONSTRAINT `corridasprogramadas_ibfk_1` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`),
-  CONSTRAINT `corridasprogramadas_ibfk_2` FOREIGN KEY (`nItinerario`) REFERENCES `itinerario` (`nItinerario`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;
+  CONSTRAINT `corridasprogramadas_ibfk_1` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -371,10 +393,11 @@ CREATE TABLE `disponibilidad` (
   KEY `nOrigen` (`nOrigen`),
   KEY `nDestino` (`nDestino`),
   KEY `disponibilidad_IN` (`nNumero`,`nCorridaDisponible`,`nOrigen`,`nDestino`),
+  KEY `disponibilidad_ibfk_3` (`nCorridaDisponible`),
   CONSTRAINT `disponibilidad_ibfk_1` FOREIGN KEY (`nOrigen`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `disponibilidad_ibfk_2` FOREIGN KEY (`nDestino`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `disponibilidad_ibfk_3` FOREIGN KEY (`nCorridaDisponible`) REFERENCES `corridasdisponibles` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=465 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=480357 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -451,6 +474,26 @@ CREATE TABLE `factorpaqueteria` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `failed_jobs`
+--
+
+DROP TABLE IF EXISTS `failed_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `failed_jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) NOT NULL,
+  `connection` text NOT NULL,
+  `queue` text NOT NULL,
+  `payload` longtext NOT NULL,
+  `exception` longtext NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `familiares`
 --
 
@@ -486,7 +529,7 @@ CREATE TABLE `formapagosubtipo` (
   UNIQUE KEY `nNumero` (`nNumero`),
   KEY `aClave` (`aClave`),
   CONSTRAINT `formapagosubtipo_ibfk_1` FOREIGN KEY (`aClave`) REFERENCES `formaspago` (`aClave`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -517,8 +560,58 @@ CREATE TABLE `itinerario` (
   `nTramo` int(10) unsigned NOT NULL,
   PRIMARY KEY (`nItinerario`,`nConsecutivo`) USING BTREE,
   KEY `itinerario_IN` (`nItinerario`,`nTramo`),
+  KEY `itinerario_ibfk_1` (`nTramo`),
   CONSTRAINT `itinerario_ibfk_1` FOREIGN KEY (`nTramo`) REFERENCES `tramos` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `migrations`
+--
+
+DROP TABLE IF EXISTS `migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `model_has_permissions`
+--
+
+DROP TABLE IF EXISTS `model_has_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `model_has_permissions` (
+  `permission_id` bigint(20) unsigned NOT NULL,
+  `model_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
+  KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`),
+  CONSTRAINT `model_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `model_has_roles`
+--
+
+DROP TABLE IF EXISTS `model_has_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `model_has_roles` (
+  `role_id` bigint(20) unsigned NOT NULL,
+  `model_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`role_id`,`model_id`,`model_type`),
+  KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`),
+  CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -543,6 +636,63 @@ CREATE TABLE `oficinas` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `password_resets`
+--
+
+DROP TABLE IF EXISTS `password_resets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `password_resets` (
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `permissions`
+--
+
+DROP TABLE IF EXISTS `permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `permissions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `personal_access_tokens`
+--
+
+DROP TABLE IF EXISTS `personal_access_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tokenable_type` varchar(255) NOT NULL,
+  `tokenable_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `abilities` text DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `personas`
 --
 
@@ -555,6 +705,7 @@ CREATE TABLE `personas` (
   `aApellidos` varchar(30) NOT NULL,
   `nOficina` int(10) unsigned DEFAULT NULL,
   `aTipo` varchar(2) DEFAULT NULL,
+  `updated_at` date NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`nNumeroPersona`),
   UNIQUE KEY `nNumeroPersona` (`nNumeroPersona`),
   KEY `nOficina` (`nOficina`),
@@ -631,6 +782,41 @@ CREATE TABLE `registropasopuntos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `role_has_permissions`
+--
+
+DROP TABLE IF EXISTS `role_has_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role_has_permissions` (
+  `permission_id` bigint(20) unsigned NOT NULL,
+  `role_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`permission_id`,`role_id`),
+  KEY `role_has_permissions_role_id_foreign` (`role_id`),
+  CONSTRAINT `role_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `role_has_permissions_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roles` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `sesiones`
 --
 
@@ -682,7 +868,7 @@ CREATE TABLE `terminales` (
   UNIQUE KEY `nNumero` (`nNumero`),
   KEY `nOficina` (`nOficina`),
   CONSTRAINT `terminales_ibfk_1` FOREIGN KEY (`nOficina`) REFERENCES `oficinas` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -807,7 +993,7 @@ CREATE TABLE `tramos` (
   KEY `tramos_IN` (`nNumero`,`nOrigen`,`nDestino`),
   CONSTRAINT `tramos_ibfk_1` FOREIGN KEY (`nOrigen`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `tramos_ibfk_2` FOREIGN KEY (`nDestino`) REFERENCES `oficinas` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -835,6 +1021,31 @@ CREATE TABLE `trarifastramos` (
   CONSTRAINT `trarifastramos_ibfk_2` FOREIGN KEY (`nDestino`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `trarifastramos_ibfk_3` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `persona_nNumero` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`),
+  UNIQUE KEY `persona_nNumero` (`persona_nNumero`),
+  CONSTRAINT `FK_p` FOREIGN KEY (`persona_nNumero`) REFERENCES `personas` (`nNumeroPersona`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -900,7 +1111,7 @@ CREATE TABLE `ventascliente` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'venta2022b'
+-- Dumping routines for database 'laravel'
 --
 /*!50003 DROP FUNCTION IF EXISTS `corridasPorDia` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -908,19 +1119,21 @@ CREATE TABLE `ventascliente` (
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `corridasPorDia`(IN_fIni DATE, IN_dias SMALLINT) RETURNS int(11)
 BEGIN
     DECLARE fFin DATE;
+    DECLARE fMax DATE;
     DECLARE ins INT;
     
     SET fFin=IN_fIni + INTERVAL IN_dias DAY;
     SET ins=0;
+    SET fMax=(SELECT max(`fFin`) FROM `corridasprogramadas`);
 
-    WHILE IN_fIni<=fFin DO
+    WHILE IN_fIni<=fFin AND IN_fIni<=fMax DO
         SET ins=ins+crear_corridas_disponibles(IN_fIni);
         SET IN_fIni = IN_fIni + INTERVAL 1 DAY;
     END WHILE;
@@ -958,7 +1171,7 @@ BEGIN
         cop.nNumero, cop.nItinerario, cop.nTipoServicio, cop.hSalida
         FROM corridasprogramadas cop
         LEFT JOIN corridasdisponibles cod on cop.nNumero=cod.nProgramada and cod.fSalida=IN_fecha
-        WHERE IN_fecha>=cop.fInicio and IN_fecha<=cop.fFin and cop.lBaja=0
+        WHERE IN_fecha>=cop.fInicio and IN_fecha<=cop.fFin and cop.deleted_at IS NULL
         and cod.nNumero IS NULL
         AND (CASE -- ver si se inserta este dia de la semana
             WHEN (cop.lDomingo  AND (SELECT DAYOFWEEK(IN_fecha)=1)) THEN true
@@ -1021,7 +1234,7 @@ BEGIN
     DECLARE curDisp_hSale DATETIME;
     DECLARE curDisp_inserted BOOLEAN;
     
-    DECLARE done INT DEFAULT FALSE; -- continuar o terminar ciclo
+    DECLARE done INT DEFAULT FALSE; 
     DECLARE cursor_Disp CURSOR FOR SELECT
         TIMESTAMP(cordis.fSalida, cordis.hSalida) + INTERVAL (
             SELECT
@@ -1043,7 +1256,7 @@ BEGIN
                 FROM `itinerario` itiSub
                 INNER JOIN tramos trSub on itiSub.nTramo=trSub.nNumero
                 WHERE itiSub.`nItinerario`=cordis.nItinerario and itiSub.nConsecutivo<=cadaTramo.nConsecutivo
-                ORDER BY itiSub.nConsecutivo ASC -- si sale mal, quitar esto (no deberia :c )
+                ORDER BY itiSub.nConsecutivo ASC 
             )
             +
             (
@@ -1051,12 +1264,12 @@ BEGIN
                 IF( SUM(tr.nEstancia) IS NULL, 0, SUM(tr.nEstancia))
                 FROM  itinerario as itiSub
                 INNER JOIN tramos tr on tr.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=3 -- parametro
+                WHERE itiSub.nItinerario=3 
                 AND itiSub.nConsecutivo<(
                     SELECT itiSub2.nConsecutivo FROM itinerario as itiSub2
                     INNER JOIN tramos trSub on trSub.nNumero=itiSub2.nTramo
-                    WHERE trSub.nDestino=cadaTramo.nDestino AND  itiSub2.nItinerario=iti.nItinerario -- parametros
-                    ORDER BY itiSub2.nConsecutivo ASC -- si sale mal, quitar esto (no deberia :c )
+                    WHERE trSub.nDestino=cadaTramo.nDestino AND  itiSub2.nItinerario=iti.nItinerario 
+                    ORDER BY itiSub2.nConsecutivo ASC 
                 )
             )
         ) MINUTE as hLlegadaCalc,
@@ -1066,7 +1279,7 @@ BEGIN
         join tramos tra on tra.nNumero=iti.nTramo
         JOIN (
             SELECT itiSub.nItinerario, itiSub.nConsecutivo, tramSub.nOrigen, tramSub.nDestino  from itinerario as itiSub
-                INNER JOIN tramos as tramSub on tramSub.nNumero=itiSub.nTramo -- and itiSub.nConsecutivo>iti.nConsecutivo
+                INNER JOIN tramos as tramSub on tramSub.nNumero=itiSub.nTramo 
         ) as cadaTramo on cadaTramo.nItinerario=iti.nItinerario and cadaTramo.nConsecutivo>=iti.nConsecutivo
         INNER JOIN oficinas as ofiOri on ofiOri.nNumero=tra.nOrigen
         INNER JOIN oficinas as ofiDes on ofiDes.nNumero=cadaTramo.nDestino
@@ -1081,7 +1294,7 @@ BEGIN
 
     OPEN cursor_Disp;
         read_loop: LOOP
-            FETCH cursor_Disp INTO curDisp_hSale, curDisp_hLlega, curDisp_nOrigen, curDisp_nDestino; -- curDisp_nTramo, 
+            FETCH cursor_Disp INTO curDisp_hSale, curDisp_hLlega, curDisp_nOrigen, curDisp_nDestino; 
             IF done THEN
                 LEAVE read_loop;
             END IF;
@@ -1112,19 +1325,19 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `estadoAsientos`(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED,
         IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2)) RETURNS text CHARSET utf8mb4
 BEGIN
-    -- variables para manejo de errores
-    -- Declare variables to hold diagnostics area information
+    
+    
     DECLARE code CHAR(5) DEFAULT '00000';
     DECLARE msg TEXT DEFAULT "";
     DECLARE nrows INT UNSIGNED DEFAULT 0;
     DECLARE result TEXT DEFAULT "Corrida no encontrada";
 
-    DECLARE v_done INT DEFAULT FALSE; -- continuar o terminar ciclo siguiente
+    DECLARE v_done INT DEFAULT FALSE; 
     DECLARE v_nDispo BIGINT UNSIGNED;
     DECLARE v_disp INT UNSIGNED;
     DECLARE v_origen INT UNSIGNED;
     DECLARE v_destino INT UNSIGNED;
-    -- primero seleccionamos los tramos donde se va a apartar
+    
     DECLARE v_recorrido CURSOR FOR
         SELECT origenes.origen, destinos.destino
         FROM (
@@ -1132,16 +1345,16 @@ BEGIN
             iti.nItinerario, iti.nConsecutivo, tr.nOrigen "origen" 
             FROM  `itinerario` iti
             INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
-            WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) -- parametro 1 (CORRIDA)
+            WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) 
             and nConsecutivo>=(
                 SELECT nConsecutivo FROM  itinerario itiSub
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen -- parametro 2 (ORIGEN)
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen 
             )
             and nConsecutivo<=(
                 SELECT nConsecutivo FROM  itinerario itiSub
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino -- parametro 3 (destino)
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino 
             )
         ) as origenes
         JOIN (
@@ -1149,16 +1362,16 @@ BEGIN
             iti.nItinerario, iti.nConsecutivo, tr.nDestino "destino"
             FROM  `itinerario` iti
             INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
-            WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) -- parametro 1 (CORRIDA)
+            WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) 
             and nConsecutivo>=(
                 SELECT nConsecutivo FROM  itinerario itiSub
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen -- parametro 2 (ORIGEN)
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen 
             )
             and nConsecutivo<=(
                 SELECT nConsecutivo FROM  itinerario itiSub
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino -- parametro 3 (destino)
+                WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino 
             )
         ) as destinos on origenes.nItinerario=destinos.nItinerario
             and origenes.origen!=destinos.destino
@@ -1183,7 +1396,7 @@ BEGIN
             INSERT INTO disponibilidadasientos (nDisponibilidad,nAsiento,aEstadoAsiento)
             VALUES (v_nDispo, IN_nAsiento, IN_estado);
 
-            -- saber si hubo errores
+            
             IF code = '00000' THEN
                 GET DIAGNOSTICS @nrows = ROW_COUNT;
                 SET nrows=nrows+1;
@@ -1213,11 +1426,11 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `exceptionTest`(IN_val BOOLEAN) RETURNS text CHARSET utf8mb4
 BEGIN
-    DECLARE specialty CONDITION FOR SQLSTATE '45000'; -- es como declarar una excepcion
+    DECLARE specialty CONDITION FOR SQLSTATE '45000'; 
 
     IF IN_val = 1 THEN
-        SIGNAL SQLSTATE '45000' -- declarar el codigo de error
-        SET MESSAGE_TEXT = 'this is fucked up', -- declarar mensaje de error
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'this is fucked up', 
             MYSQL_ERRNO  = 1000;
     END IF;
     RETURN "success";
@@ -1250,14 +1463,14 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `insert_pasajero`(IN_nVenta INT,
     IN_nMontoBase DECIMAL(6,2),
     IN_nMontoDescuento DECIMAL(6,2),
     IN_nIva DECIMAL(6,2),
-    IN_aEstado CHAR(20), -- porque este tipo de dato?
+    IN_aEstado CHAR(20), 
     IN_nTerminal INT,
     IN_nPromocion INT,
     IN_nDescuento INT
     ) RETURNS text CHARSET utf8mb4
 BEGIN
-    DECLARE specialty CONDITION FOR SQLSTATE '45000'; -- es como declarar una excepcion
-    DECLARE retorno TEXT DEFAULT ""; -- mi respuesta
+    DECLARE specialty CONDITION FOR SQLSTATE '45000'; 
+    DECLARE retorno TEXT DEFAULT ""; 
     DECLARE var_idBoletoVendido INT DEFAULT 0;
 
 
@@ -1278,8 +1491,8 @@ BEGIN
 		OR IN_nAsiento=0 OR IN_aTipoVenta="" OR IN_nMontoBase=0 OR IN_nIva=0 or IN_aEstado="" 
 		OR IN_nTerminal=0
 		THEN
-			SIGNAL SQLSTATE '45000' -- declarar el codigo de error
-			SET MESSAGE_TEXT = 'ESCRIBA TODOS LOS DATOS DEL PASAJERO', -- declarar mensaje de error
+			SIGNAL SQLSTATE '45000' 
+			SET MESSAGE_TEXT = 'ESCRIBA TODOS LOS DATOS DEL PASAJERO', 
 				MYSQL_ERRNO  = 1000;
 	END IF;
 
@@ -1303,4 +1516,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-06 15:10:17
+-- Dump completed on 2022-10-13 16:36:01

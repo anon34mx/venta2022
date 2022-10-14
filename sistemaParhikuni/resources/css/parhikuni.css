@@ -55,10 +55,16 @@ bl
 .unstyled-list{
 	list-style: none;
 }
+.nobreak{
+	white-space: nowrap;
+}
+.hidden{
+	display: none;
+}
 
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
-	/* outline: 1px solid tomato; */
+	outline: 1px solid tomato;
 }
 html{
 	/* background-color: #dbe6e7; */

@@ -107,7 +107,7 @@ BEGIN
         cop.nNumero, cop.nItinerario, cop.nTipoServicio, cop.hSalida
         FROM corridasprogramadas cop
         LEFT JOIN corridasdisponibles cod on cop.nNumero=cod.nProgramada and cod.fSalida=IN_fecha
-        WHERE IN_fecha>=cop.fInicio and IN_fecha<=cop.fFin and cop.lBaja=0
+        WHERE IN_fecha>=cop.fInicio and IN_fecha<=cop.fFin and cop.deleted_at IS NULL
         and cod.nNumero IS NULL
         AND (CASE -- ver si se inserta este dia de la semana
             WHEN (cop.lDomingo  AND (SELECT DAYOFWEEK(IN_fecha)=1)) THEN true
@@ -161,12 +161,14 @@ CREATE OR REPLACE FUNCTION corridasPorDia(IN_fIni DATE, IN_dias SMALLINT)
 RETURNS INT
 BEGIN
     DECLARE fFin DATE;
+    DECLARE fMax DATE;
     DECLARE ins INT;
     
     SET fFin=IN_fIni + INTERVAL IN_dias DAY;
     SET ins=0;
+    SET fMax=(SELECT max(`fFin`) FROM `corridasprogramadas`);
 
-    WHILE IN_fIni<=fFin DO
+    WHILE IN_fIni<=fFin AND IN_fIni<=fMax DO
         SET ins=ins+crear_corridas_disponibles(IN_fIni);
         SET IN_fIni = IN_fIni + INTERVAL 1 DAY;
     END WHILE;
@@ -174,7 +176,7 @@ BEGIN
     RETURN ins;
 END; //
 
--- evento crear corridas cada día
+-- evento crear corridas automaticamente cada dia
 CREATE OR REPLACE EVENT crear_corridasDia
 ON SCHEDULE
 EVERY 1 DAY
