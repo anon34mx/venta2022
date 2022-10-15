@@ -54,5 +54,17 @@ class Corridasprogramadas extends Model
                 'id' => $this->nNumero
             ]);
     }
+    public function cancelar(){
+        return DB::select("UPDATE corridasprogramadas corpro
+            INNER JOIN corridasdisponibles cordis
+                ON cordis.nProgramada=corpro.nNumero
+            SET corpro.deleted_at=now(),
+                cordis.deleted_at=now(),
+                cordis.aEstado='C'
+            where corpro.nNumero=:id",
+            [
+            'id' => $this->nNumero,
+        ]);
+    }
 }
 

@@ -18,6 +18,8 @@
         <br>
         autobus
         <br>
+        por corrida programada
+        <br>
     </p>
 
     <div style="overflow-x:auto;overflow-y: hidden;">

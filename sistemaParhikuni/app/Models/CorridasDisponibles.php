@@ -55,4 +55,5 @@ class CorridasDisponibles extends Model
                 'id' => $this->nNumero
             ]);
     }
+
 }

@@ -6,17 +6,6 @@
     --parh-acc-navbar: #ff6239;
     --parh-btn-primary: #ff7f21;
 }
-/* 
-tr
-#d7e4e4
-bl
-#e1e5e2
-
-tr
-#da1b12
-bl
-#e34d0f
-*/
 .btn{
 	box-shadow: 3px 3px 2px #000000a6;
 	border-radius: 0.5rem;
@@ -61,10 +50,14 @@ bl
 .hidden{
 	display: none;
 }
+.form-control option:disabled{
+	background-color: lightgrey;
+}
+
 
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
-	outline: 1px solid tomato;
+	/* outline: 1px solid tomato; */
 }
 html{
 	/* background-color: #dbe6e7; */

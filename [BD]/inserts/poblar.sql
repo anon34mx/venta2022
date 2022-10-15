@@ -56,6 +56,13 @@ formaspago
 promociones
     ALTER TABLE `promociones` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP;
 */
+INSERT INTO `corridas_estados` (`id`, `aEstado`, `orden`, `elegible`) VALUES
+('B', 'Bloqueada', 99, 1),
+('C', 'Cancelada', 99, 1),
+('D', 'Disponible', 1, 0),
+('A', 'Asignada', 2, 0),
+('T', 'Terminada', 3, 0);
+('L', 'Liquidada', 4, 0),
 INSERT INTO `distribucionasientos`(`nNumero`,`nAsientos`, `aDistribucion`)
 VALUES
 (1,'32',"01T,02T,00,03T,04T|05T,06T,00,07T,08T|09T,10T,00,11T,12T|13T,14T,00,15T,16T|17T,18T,00,19T,20T|21T,22T,00,23T,24T|25T,26T,00,27T,28T|29T,30T,00,31T,32T|BM,00,CA,00,BH"),

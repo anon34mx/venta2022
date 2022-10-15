@@ -41,10 +41,28 @@ class CorridasDisponiblesController extends Controller
             "corridaDisponible" => $corridaDisponible,
             "itinerarios" => Itinerario::unicosDetallado(),
             "servicios" => TiposServicios::all(),
-            "estados" => CorridasEstados::all(),
+            "estados" => CorridasEstados::orderBy("orden", "ASC")->get(),
             "autobuses" => Autobus::orderBy("nNumeroEconomico", "ASC")->get(),
             "conductores" => conductores::orderBy("nNumeroPersona", "ASC")->get()
         ]);
+    }
+
+    public function update(CorridasDisponibles $corridaDisponible, Request $request){
+        // dd($request->all());
+        if(isset($request->estado)){
+            $corridaDisponible->update([
+                "aEstado"=> $request->estado,
+                "nNumeroAutobus"=> $request->autobus,
+                "nNumeroConductor"=> $request->conductor,
+            ]);
+        }else{
+            $corridaDisponible->update([
+                "nNumeroAutobus"=> $request->autobus,
+                "nNumeroConductor"=> $request->conductor,
+            ]);
+        }
+
+        return back()->with('status',"Actualizado con éxito");
     }
 
     public function venta(){

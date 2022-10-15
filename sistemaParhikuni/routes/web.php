@@ -84,14 +84,20 @@ Route::delete('/permisos/{permission}', [App\Http\Controllers\PermissionControll
 Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadasController::class, 'index'])
     ->name("corridas.programadas.index")
     ->middleware('permission:corridasProgramadas.index');
-Route::get('/corridas/programadas/{corridaProgramada}', [App\Http\Controllers\corridasProgramadasController::class, 'edit'])
-    ->name("corridas.programadas.edit")
+Route::get('/corridas/programadas/{corridaProgramada}/detalle', [App\Http\Controllers\corridasProgramadasController::class, 'show'])
+    ->name("corridas.programadas.show")
     ->middleware('permission:corridasProgramadas.index');
 Route::delete('/corridas/programadas/{corridaProgramada}/delete', [App\Http\Controllers\corridasProgramadasController::class, 'destroy'])
     ->name("corridas.programadas.destroy")
     ->middleware('permission:corridasProgramadas.index');
 Route::post('/corridas/programadas/store', [App\Http\Controllers\corridasProgramadasController::class, 'store'])
     ->name("corridas.programadas.store")
+    ->middleware('permission:corridasProgramadas.index');
+Route::post('/corridas/programadas/{corridaProgramada}/transfer', [App\Http\Controllers\corridasProgramadasController::class, 'transfer'])
+    ->name('corridas.programadas.transfer')
+    ->middleware('permission:corridasProgramadas.index');
+Route::post('/corridas/programadas/{corridaProgramada}/transfer/store', [App\Http\Controllers\corridasProgramadasController::class, 'storeTransfer'])
+    ->name('corridas.programadas.storeTransfer')
     ->middleware('permission:corridasProgramadas.index');
 
 // CORRIDAS DISPONIBLES
@@ -101,6 +107,10 @@ Route::get('/corridas/disponibles', [App\Http\Controllers\CorridasDisponiblesCon
 Route::get('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'edit'])
     ->name("corridas.disponibles.edit")
     ->middleware('permission:corridasDisponibles.index');
+Route::post('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'update'])
+    ->name('corridas.disponibles.update')
+    ->middleware('permission:users.update');
+
 
 //  VENTA
 Route::get('/venta/01', [App\Http\Controllers\CorridasDisponiblesController::class, 'venta'])

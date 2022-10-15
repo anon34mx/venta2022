@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Oficinas;
 use App\Models\Corridasprogramadas;
+use App\Models\CorridasVersiones;
 use App\Models\TiposServicios;
 use App\Models\Itinerario;
 use DB;
+use Auth;
 
 class corridasProgramadasController extends Controller
 {
@@ -52,21 +54,58 @@ class corridasProgramadasController extends Controller
         return back()->with('status', 'La corrida y su información relacionada se registró con éxito.');
     }
 
-    public function edit($corridaProgramada){
+    public function show($corridaProgramada){
         $corrida = Corridasprogramadas::find($corridaProgramada);
         // dd($corrida);
         // dd($corrida->getItinerario());
         // dd(Itinerario::unicosDetallado());
         
-        return view('corridasProgramadas.edit',[
+        return view('corridasProgramadas.show',[
             "corridaProgramada" => Corridasprogramadas::find($corridaProgramada),
             "itinerarios" => Itinerario::unicosDetallado(),
             "servicios" => TiposServicios::all(),
         ]);
     }
 
+    public function update(Request $request){
+        dd($request);
+    }
+
     public function destroy(Corridasprogramadas $corridaProgramada, Request $request){
-        $corridaProgramada->delete();
+        $corridaProgramada->cancelar();
+        // $corridaProgramada->delete();
         return back()->with('status', 'Eliminado con éxito');
+    }
+
+    public function transfer(Corridasprogramadas $corridaProgramada){
+        return view('corridasProgramadas.transfer',[
+            "corridaProgramada" => $corridaProgramada,
+            "itinerarios" => Itinerario::unicosDetallado(),
+            "servicios" => TiposServicios::all(),
+        ]);
+    }
+    public function storeTransfer(Corridasprogramadas $corridaProgramada, Request $request){
+        // dd($corridaProgramada);
+        // dd(Auth::user()->id);
+
+        // VALIDAR
+        $version = CorridasVersiones::create([
+            'nNumero' => $corridaProgramada->nNumero,
+            'nItinerario' => $corridaProgramada->nItinerario,
+            'nTipoServicio' => $corridaProgramada->nTipoServicio,
+            'hSalida' => $corridaProgramada->hSalida,
+            'lLunes' => $corridaProgramada->lLunes,
+            'lMartes' => $corridaProgramada->lMartes,
+            'lMiercoles' => $corridaProgramada->lMiercoles,
+            'lJueves' => $corridaProgramada->lJueves,
+            'lViernes' => $corridaProgramada->lViernes,
+            'lSabado' => $corridaProgramada->lSabado,
+            'lDomingo' => $corridaProgramada->lDomingo,
+            'fInicio' => $corridaProgramada->fInicio,
+            'fFin' => $corridaProgramada->fFin,
+            'user_id' => Auth::user()->id
+        ]);
+
+        // GUARDAR NUEVA CORRIDA PROGRAMADA Y SUMAR SU VERSION
     }
 }

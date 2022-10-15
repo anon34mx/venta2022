@@ -24,7 +24,7 @@
                 </div>
                 <div class="col-12 col-md-8 col-lg-9">
                     <select name="itinerario" id="itinerario" class="form-control" required>
-                        <option value="" disabled selected>seleccione</option>
+                        <option value="" disabled selected>Seleccione</option>
                         @foreach($itinerarios as $itinerario=>$tramos)
                             <option value="{{ $itinerario }}">
                                 @php
@@ -209,17 +209,31 @@
                     <td>{{ ($cp->lSabado == 1 ? "🟢" :"🔘") }}</td>
                     <td>{{ ($cp->lDomingo == 1 ? "🟢" :"🔘") }}</td>
                     <td>
-                        <a href="{{ route('corridas.programadas.edit', $cp->nNumero) }}">
-                            <span class="btn-collap" title="Editar">
+                        <a href="{{ route('corridas.programadas.show', $cp->nNumero) }}">
+                            <span class="btn-collap" title="Detalles">
                                 <label class="btn btn-sm btn-primary"
                                     for="edit-{{$cp->nNumero}}">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    <span>Editar</span>
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>Detalles</span>
                                 </label>
                                 <input id="edit-{{$cp->nNumero}}" type="submit"
                                 class="btn" onclick="">
                             </span>
                         </a>
+                    </td>
+                    <td>
+                        <form action="{{ route('corridas.programadas.transfer', $cp->nNumero) }}" method="post">
+                            @csrf
+                            <span class="btn-collap" title="Transferir">
+                                <label class="btn btn-sm btn-primary"
+                                    for="transfer-{{$cp->nNumero}}">
+                                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                    <span>Transferir</span>
+                                </label>
+                                <input id="transfer-{{$cp->nNumero}}" type="submit"
+                                class="btn" onclick="">
+                            </span>
+                        </form>
                     </td>
                     <td>
                         <form action="{{route('corridas.programadas.destroy',$cp)}}" method="POST">
@@ -233,7 +247,7 @@
                                 </label>
                                 <input id="del-{{ $cp->nNumero }}" type="submit"
                                 class="btn"
-                                onclick="return confirm('¿Eliminar corrida programada?')">
+                                onclick="return confirm('¿Eliminar corrida programada?\n⚠Esto eliminará sus corridas disponibles')">
                             </span>
                         </form>
                     </td>

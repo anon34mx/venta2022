@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="col-12 col-sm-10 col-md-8 col-lg-10 mx-auto">
-    <h3>Corrida programada {{ @$corridaDisponible->nNumero }}</h3>
+    <h3>Corrida disponible {{ @$corridaDisponible->nNumero }}</h3>
 
     <div>
         @if(session()->has('status'))
@@ -19,7 +19,8 @@
         </div>
     @endif
 
-    <form action="" class="row needs-validation">
+    <form action="{{route('corridas.disponibles.update', $corridaDisponible)}}" class="row needs-validation" method="post">
+        @csrf
         <div class="col-12 row mb-2">
             <div class="col-12 col-md-4 col-lg-3">
                 <label for="itinerario" class="float-md-right text-md-right">Itinerario*</label>
@@ -44,11 +45,8 @@
                 <label for="tipoDeServicio" class="float-md-right text-md-right">Tipo de servicio*</label>
             </div>
             <div class="col-12 col-md-8">
-                <select name="tipoDeServicio" id="tipoDeServicio" class="form-control">
-                    <option value="" disabled>Seleccione</option>
-                    @foreach($servicios as $servicio)
-                        <option value="{{($servicio->nNumero)}}">{{($servicio->aDescripcion)}}</option>
-                    @endforeach
+                <select id="tipoDeServicio" class="form-control" disabled>
+                        <option selected>{{$corridaDisponible->servicio->aDescripcion}}</option>
                 </select>
             </div>
         </div>
@@ -57,8 +55,8 @@
                 <label for="fechaDeSalida" class="float-md-right text-md-right">Fecha de salida*</label>
             </div>
             <div class="col-12 col-md-8">
-                <input id="fechaDeSalida" type="date" name="fechaDeSalida" class="form-control"
-                    value="{{@$corridaDisponible->fSalida}}" min="{{$corridaDisponible->fSalida}}">
+                <input id="fechaDeSalida" disabled type="date" class="form-control"
+                    value="{{@$corridaDisponible->fSalida}}" >
             </div>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 row mb-2">
@@ -66,7 +64,7 @@
                 <label for="HoraDeSalida" class="float-md-right text-md-right">Hora de salida*</label>
             </div>
             <div class="col-12 col-md-8">
-                <input id="HoraDeSalida" type="date" name="HoraDeSalida" class="form-control"
+                <input id="HoraDeSalida" disabled type="time" class="form-control"
                     value="{{$corridaDisponible->hSalida}}" >
             </div>
         </div>
@@ -76,12 +74,12 @@
             </div>
             <div class="col-12 col-md-8">
                 <select name="estado" id="estado" class="form-control">
-                    <option value="">Seleccione</option>
+                    <option value="" disabled>Seleccione</option>
                     @foreach($estados as $estado)
                         @if($corridaDisponible->aEstado == $estado->id)
-                        <option value="{{$estado->id}}" selected>{{$estado->aEstado}}</option>
+                        <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} selected>{{$estado->aEstado}}</option>
                         @else
-                        <option value="{{$estado->id}}">{{$estado->aEstado}}</option>
+                        <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} >{{$estado->aEstado}}</option>
                         @endif
                     @endforeach
                 </select>
@@ -93,12 +91,12 @@
             </div>
             <div class="col-12 col-md-8">
                 <select name="autobus" id="autobus" class="form-control">
-                    <option value="">Seleccione</option>
+                    <option value="" {{($corridaDisponible->nNumeroAutobus!=null) ? "disabled": ""}} >Seleccione</option>
                     @foreach($autobuses as $autobus)
                         @if($corridaDisponible->nNumeroAutobus == $autobus->nNumeroAutobus)
-                        <option value="{{$estado->id}}" selected>{{$autobus->nNumeroEconomico}}</option>
+                        <option value="{{$autobus->nNumeroAutobus}}" selected>{{$autobus->nNumeroEconomico}}</option>
                         @else
-                        <option value="{{$estado->id}}">{{$autobus->nNumeroEconomico}}</option>
+                        <option value="{{$autobus->nNumeroAutobus}}">{{$autobus->nNumeroEconomico}}</option>
                         @endif
                     @endforeach
                 </select>
@@ -110,7 +108,7 @@
             </div>
             <div class="col-12 col-md-8">
                 <select name="conductor" id="conductor" class="form-control">
-                    <option value="">Seleccione</option>
+                    <option value="" {{($corridaDisponible->nNumeroAutobus==null) ? "selected":"disabled"}}>Seleccione</option>
                     @foreach($conductores as $conductor)
                         @if($conductor->nNumeroConductor == $corridaDisponible->nNumeroConductor)
                         <option value="{{$conductor->nNumeroConductor}}" selected>{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
@@ -120,6 +118,17 @@
                     @endforeach
                 </select>
             </div>
+        </div>
+        <div class="col-12 justify-content-center">
+            <span class="btn-collap float-right" title="Guardar">
+                <label class="btn btn-sm btn-parhi-primary"
+                    for="guardar">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Guardar</span>
+                </label>
+                <input id="guardar" type="submit"
+                class="btn">
+            </span>
         </div>
     </form>
 </div>
