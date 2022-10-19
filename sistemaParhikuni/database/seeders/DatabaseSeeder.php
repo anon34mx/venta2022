@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call([
+            ventaSeeder::class,
+        ]);
         // PERMISOS
         Permission::create(['name' => 'users.index']);
         Permission::create(['name' => 'users.store']);
@@ -94,10 +97,8 @@ class DatabaseSeeder extends Seeder
         // ]);
         
         // OficinasSeeder::run();
-        $this->call([
-            ventaSeeder::class,
-        ]);
 
-        
+
+        DB::unprepared('SELECT corridasPorDia("2022-08-01", 60);');
     }
 }

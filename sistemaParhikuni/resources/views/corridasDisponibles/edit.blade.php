@@ -73,16 +73,28 @@
                 <label for="estado" class="float-md-right text-md-right">Estado*</label>
             </div>
             <div class="col-12 col-md-8">
-                <select name="estado" id="estado" class="form-control">
-                    <option value="" disabled>Seleccione</option>
-                    @foreach($estados as $estado)
-                        @if($corridaDisponible->aEstado == $estado->id)
-                        <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} selected>{{$estado->aEstado}}</option>
-                        @else
-                        <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} >{{$estado->aEstado}}</option>
-                        @endif
-                    @endforeach
-                </select>
+                @if($corridaDisponible->aEstado=="B")
+                    <select name="estado" id="estado" class="form-control">
+                        <option value="B" selected>Bloqueada</option>
+                        <option value="DB" >Desbloquear</option>
+                        <option value="C" >Cancelar</option>
+                    </select>
+                @elseif($corridaDisponible->aEstado=="C")
+                    <select class="form-control" disabled>
+                        <option>Cancelada</option>
+                    </select>
+                @else
+                    <select name="estado" id="estado" class="form-control">
+                        <option value="" disabled>Seleccione</option>
+                        @foreach($estados as $estado)
+                            @if($corridaDisponible->aEstado == $estado->id)
+                            <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} selected>{{$estado->aEstado}}</option>
+                            @else
+                            <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} >{{$estado->aEstado}}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                @endif
             </div>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 row mb-2">
@@ -90,16 +102,22 @@
                 <label for="autobus" class="float-md-right text-md-right">Autobus*</label>
             </div>
             <div class="col-12 col-md-8">
-                <select name="autobus" id="autobus" class="form-control">
-                    <option value="" {{($corridaDisponible->nNumeroAutobus!=null) ? "disabled": ""}} >Seleccione</option>
-                    @foreach($autobuses as $autobus)
-                        @if($corridaDisponible->nNumeroAutobus == $autobus->nNumeroAutobus)
-                        <option value="{{$autobus->nNumeroAutobus}}" selected>{{$autobus->nNumeroEconomico}}</option>
-                        @else
-                        <option value="{{$autobus->nNumeroAutobus}}">{{$autobus->nNumeroEconomico}}</option>
-                        @endif
-                    @endforeach
-                </select>
+                    @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C")
+                    <select name="" id="autobus" class="form-control" disabled>
+                        <option value="">{{$corridaDisponible->autobus->nNumeroEconomico}}</option>
+                    </select>
+                    @else
+                    <select name="autobus" id="autobus" class="form-control">
+                        <option value="" {{($corridaDisponible->nNumeroAutobus!=null) ? "disabled": ""}} >Seleccione</option>
+                        @foreach($autobuses as $autobus)
+                            @if($corridaDisponible->nNumeroAutobus == $autobus->nNumeroAutobus)
+                            <option value="{{$autobus->nNumeroAutobus}}" selected>{{$autobus->nNumeroEconomico}}</option>
+                            @else
+                            <option value="{{$autobus->nNumeroAutobus}}">{{$autobus->nNumeroEconomico}}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @endif
             </div>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 row mb-2">
@@ -107,19 +125,38 @@
                 <label for="conductor" class="float-md-right text-md-right">Conductor*</label>
             </div>
             <div class="col-12 col-md-8">
-                <select name="conductor" id="conductor" class="form-control">
-                    <option value="" {{($corridaDisponible->nNumeroAutobus==null) ? "selected":"disabled"}}>Seleccione</option>
-                    @foreach($conductores as $conductor)
-                        @if($conductor->nNumeroConductor == $corridaDisponible->nNumeroConductor)
-                        <option value="{{$conductor->nNumeroConductor}}" selected>{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
-                        @else
-                        <option value="{{$conductor->nNumeroConductor}}">{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
-                        @endif
-                    @endforeach
-                </select>
+                @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C")
+                    <select name="" id="autobus" class="form-control" disabled>
+                        <option value="">{{@$corridaDisponible->conductor->persona->aApellidos." - ".@$corridaDisponible->conductor->persona->aNombres}}</option>
+                    </select>
+                @else
+                    <select name="conductor" id="conductor" class="form-control">
+                        <option value="" {{($corridaDisponible->nNumeroAutobus==null) ? "selected":""}}>Seleccione</option>
+                        @foreach($conductores as $conductor)
+                            @if($conductor->nNumeroConductor == $corridaDisponible->nNumeroConductor)
+                            <option value="{{$conductor->nNumeroConductor}}" selected>{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
+                            @else
+                            <option value="{{$conductor->nNumeroConductor}}">{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                @endif
             </div>
         </div>
         <div class="col-12 justify-content-center">
+            @if($corridaDisponible->aEstado=="C")
+            <a href="{{route('corridas.disponibles.index')}}">
+                <span class="btn-collap float-right" title="volver">
+                    <label class="btn btn-sm btn-parhi-primary"
+                        >
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Volver</span>
+                    </label>
+                    <input id="volver"
+                    class="btn">
+                </span>
+            </a>
+            @else
             <span class="btn-collap float-right" title="Guardar">
                 <label class="btn btn-sm btn-parhi-primary"
                     for="guardar">
@@ -129,6 +166,8 @@
                 <input id="guardar" type="submit"
                 class="btn">
             </span>
+
+            @endif
         </div>
     </form>
 </div>

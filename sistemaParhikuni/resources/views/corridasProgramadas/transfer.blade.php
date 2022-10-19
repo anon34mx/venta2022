@@ -52,7 +52,7 @@
                 <label for="horaDeSalida" class="float-md-right text-md-right">Hora de salida*</label>
             </div>
             <div class="col-12 col-md-8">
-                <input id="horaDeSalida"class="form-control" readonly
+                <input id="horaDeSalida" class="form-control" readonly type="time"
                     value="{{@$corridaProgramada->hSalida}}">
             </div>
         </div>
@@ -77,39 +77,39 @@
         <table class="table mb-2 mx-4">
             <tr>
                 <td>
-                    <input id="lunes" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lLunes==true) ? "checked" : ""}}>
-                    <label for="lunes" class="px-2">L</label>
+                    <label class="px-2">L</label>
                 </td>
                 <td>
-                    <input id="martes" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lMartes==true) ? "checked" : ""}}>
-                    <label for="martes" class="px-2">M</label>
+                    <label class="px-2">M</label>
                 </td>
                 <td>
-                    <input id="miercoles" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lMiercoles==true) ? "checked" : ""}}>
-                    <label for="miercoles" class="px-2">I</label>
+                    <label class="px-2">I</label>
                 </td>
                 <td>
-                    <input id="jueves" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lJueves==true) ? "checked" : ""}}>
-                    <label for="jueves" class="px-2">J</label>
+                    <label class="px-2">J</label>
                 </td>
                 <td>
-                    <input id="viernes" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lViernes==true) ? "checked" : ""}}>
-                    <label for="viernes" class="px-2">V</label>
+                    <label class="px-2">V</label>
                 </td>
                 <td>
-                    <input id="sabado" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lSabado==true) ? "checked" : ""}}>
-                    <label for="sabado" class="px-2">S</label>
+                    <label class="px-2">S</label>
                 </td>
                 <td>
-                    <input id="domingo" type="checkbox" class="form-check-input" disabled
+                    <input type="checkbox" class="form-check-input" disabled
                         {{ (@$corridaProgramada->lDomingo==true) ? "checked" : ""}}>
-                    <label for="domingo" class="px-2">D</label>
+                    <label class="px-2">D</label>
                 </td>
             </tr>
         </table>
@@ -130,7 +130,8 @@
 
     
     <form action="{{route('corridas.programadas.storeTransfer', $corridaProgramada)}}" class="row needs-validation mt-4"
-        novalidate method="post">
+        novalidate method="POST">
+        @csrf
         <div class="col-12 row mb-2">
             <div class="col-12 col-md-4 col-lg-3">
                 <label for="itinerario" class="float-md-right text-md-right">Itinerario*</label>
@@ -139,7 +140,8 @@
                 <select name="itinerario" id="itinerario" class="form-control" required>
                     <option value="" disabled selected>seleccione</option>
                     @foreach($itinerarios as $itinerario=>$tramos)
-                        <option value="{{ $itinerario }}" >
+                        <option value="{{ $itinerario }}"
+                        <?= ($errors->any() && $itinerario==old("itinerario")) ? "selected >" : ">" ?>
                             @for($i=0; $i<sizeof($tramos);$i++)
                                 @if($i==sizeof($tramos)-1)
                                     {{($tramos[$i]->claveOrigen)}} ➡ {{($tramos[$i]->claveDestino)}}
@@ -161,7 +163,9 @@
                 <select name="tipoDeServicio" id="tipoDeServicio" class="form-control" required>
                     <option value="" disabled selected>Seleccione</option>
                     @foreach($servicios as $servicio)
-                        <option value="{{($servicio->nNumero)}}">{{($servicio->aDescripcion)}}</option>
+                        <option value="{{($servicio->nNumero)}}"
+                        <?= ($errors->any() && $servicio->nNumero==old("tipoDeServicio")) ? "selected >" : " >" ?>
+                        {{($servicio->aDescripcion)}}</option>
                     @endforeach
                 </select>
             </div>
@@ -172,7 +176,7 @@
             </div>
             <div class="col-12 col-md-8">
                 <input id="horaDeSalida" type="time" name="horaDeSalida" placeholder="Apellidos" class="form-control"
-                    value="">
+                    value="{{old('horaDeSalida')}}" required>
             </div>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 row mb-2">
@@ -182,8 +186,8 @@
             </div>
             <div class="col-12 col-md-8">
                 <input id="fechaDeInicio" type="date" name="fechaDeInicio" placeholder="Apellidos" class="form-control"
-                    value=""
-                    min="{{ date('Y-m-d', strtotime($corridaProgramada->fFin. ' + 1 days')) }}">
+                    value="{{old('fechaDeInicio')}}"
+                    min="{{ date('Y-m-d', strtotime($corridaProgramada->fFin. ' + 1 days')) }}" required>
             </div>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 row mb-2">
@@ -192,38 +196,52 @@
             </div>
             <div class="col-12 col-md-8">
                 <input id="fechaDeFin" type="date" name="fechaDeFin" placeholder="Apellidos" class="form-control"
-                    value=""
-                    min="{{ date('Y-m-d', strtotime($corridaProgramada->fFin. ' + 1 days')) }}">
+                    value="{{old('fechaDeFin')}}"
+                    min="{{ date('Y-m-d', strtotime($corridaProgramada->fFin. ' + 1 days')) }}" required>
             </div>
         </div>
         <table class="table mb-2 mx-4">
             <tr>
                 <td>
-                    <input id="lunes" type="checkbox" class="form-check-input" name="lunes">
+                    <input id="lunes" type="checkbox" class="form-check-input" name="dias[lLunes]"
+                        {{ isset(old("dias")["lLunes"]) ? "checked" : "" }}
+                    >
                     <label for="lunes" class="px-2">L</label>
                 </td>
                 <td>
-                    <input id="martes" type="checkbox" class="form-check-input" name="martes">
+                    <input id="martes" type="checkbox" class="form-check-input" name="dias[lMartes]"
+                        {{ isset(old("dias")["lMartes"]) ? "checked" : "" }}
+                    >
                     <label for="martes" class="px-2">M</label>
                 </td>
                 <td>
-                    <input id="miercoles" type="checkbox" class="form-check-input" name="miercoles">
+                    <input id="miercoles" type="checkbox" class="form-check-input" name="dias[lMiercoles]"
+                        {{ isset(old("dias")["lMiercoles"]) ? "checked" : "" }}
+                    >
                     <label for="miercoles" class="px-2">I</label>
                 </td>
                 <td>
-                    <input id="jueves" type="checkbox" class="form-check-input" name="jueves">
+                    <input id="jueves" type="checkbox" class="form-check-input" name="dias[Jueves]"
+                        {{ isset(old("dias")["Jueves"]) ? "checked" : "" }}
+                    >
                     <label for="jueves" class="px-2">J</label>
                 </td>
                 <td>
-                    <input id="viernes" type="checkbox" class="form-check-input" name="viernes">
+                    <input id="viernes" type="checkbox" class="form-check-input" name="dias[lViernes]"
+                        {{ isset(old("dias")["lViernes"]) ? "checked" : "" }}
+                    >
                     <label for="viernes" class="px-2">V</label>
                 </td>
                 <td>
-                    <input id="sabado" type="checkbox" class="form-check-input" name="sabado">
+                    <input id="sabado" type="checkbox" class="form-check-input" name="dias[lSabado]"
+                        {{ isset(old("dias")["lSabado"]) ? "checked" : "" }}
+                    >
                     <label for="sabado" class="px-2">S</label>
                 </td>
                 <td>
-                    <input id="domingo" type="checkbox" class="form-check-input" name="domingo">
+                    <input id="domingo" type="checkbox" class="form-check-input" name="dias[lDomingo]"
+                        {{ isset(old("dias")["lDomingo"]) ? "checked" : "" }}
+                    >
                     <label for="domingo" class="px-2">D</label>
                 </td>
             </tr>

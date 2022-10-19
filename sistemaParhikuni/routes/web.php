@@ -93,7 +93,7 @@ Route::delete('/corridas/programadas/{corridaProgramada}/delete', [App\Http\Cont
 Route::post('/corridas/programadas/store', [App\Http\Controllers\corridasProgramadasController::class, 'store'])
     ->name("corridas.programadas.store")
     ->middleware('permission:corridasProgramadas.index');
-Route::post('/corridas/programadas/{corridaProgramada}/transfer', [App\Http\Controllers\corridasProgramadasController::class, 'transfer'])
+Route::get('/corridas/programadas/{corridaProgramada}/transfer', [App\Http\Controllers\corridasProgramadasController::class, 'transfer'])
     ->name('corridas.programadas.transfer')
     ->middleware('permission:corridasProgramadas.index');
 Route::post('/corridas/programadas/{corridaProgramada}/transfer/store', [App\Http\Controllers\corridasProgramadasController::class, 'storeTransfer'])

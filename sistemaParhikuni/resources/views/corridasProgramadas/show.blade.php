@@ -53,7 +53,7 @@
                 <label for="horaDeSalida" class="float-md-right text-md-right">Hora de salida*</label>
             </div>
             <div class="col-12 col-md-8">
-                <input id="horaDeSalida"class="form-control" readonly
+                <input id="horaDeSalida"class="form-control" readonly type="time"
                     value="{{$corridaProgramada->hSalida}}">
             </div>
         </div>
@@ -62,7 +62,7 @@
                 <label for="fechaDeInicio" class="float-md-right text-md-right">Fecha de inicio*</label>
             </div>
             <div class="col-12 col-md-8">
-                <input id="horaDeSalida"class="form-control" readonly
+                <input id="horaDeSalida"class="form-control" readonly type="date"
                     value="{{$corridaProgramada->fInicio}}">
             </div>
         </div>
@@ -71,7 +71,7 @@
                 <label for="fechaDeFin" class="float-md-right text-md-right">Fecha de fin*</label>
             </div>
             <div class="col-12 col-md-8">
-                <input id="horaDeSalida"class="form-control" readonly
+                <input id="horaDeSalida"class="form-control" readonly type="date"
                 value="{{$corridaProgramada->fFin}}">
             </div>
         </div>
@@ -115,7 +115,7 @@
             </tr>
         </table>
         <div class="col-12 justify-content-center">
-            <a href="javascript:history.back()">
+            <a href="{{route('corridas.programadas.index')}}">
                 <span class="btn-collap float-right" title="volver">
                     <label class="btn btn-sm btn-parhi-primary"
                         >

@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\conductores;
 use App\Models\Autobus;
 use App\Models\CorridasEstados;
+use App\Models\CorridasDisponiblesHistorial;
 use DB;
+use Auth;
 
 class CorridasDisponibles extends Model
 {
@@ -55,5 +57,32 @@ class CorridasDisponibles extends Model
                 'id' => $this->nNumero
             ]);
     }
+    public function cambiarEstado($edo){
+        CorridasDisponiblesHistorial::create([
+            "corrida_disponible" => $this->nNumero,
+            "aEstadoAnterior" => $this->aEstado,
+            "aEstadoNuevo" => $edo,
+            "user" => Auth::user()->id,
+        ]);
+        $this->update([
+            "aEstado" => $edo
+        ]);
+    }
+    public function desbloquear(){
+        $ultimoHist=CorridasDisponiblesHistorial::where("corrida_disponible", "=", $this->nNumero)
+            ->orderBy("created_at","DESC")
+            ->first();
+        // dd($ultimoHist->aEstadoAnterior);
+        CorridasDisponiblesHistorial::create([
+            "corrida_disponible" => $this->nNumero,
+            "aEstadoAnterior" => $this->aEstado,
+            "aEstadoNuevo" => $ultimoHist->aEstadoAnterior,
+            "user" => Auth::user()->id,
+        ]);
 
+        $this->update([
+            "aEstado" => $ultimoHist->aEstadoAnterior
+        ]);
+        return $this;
+    }
 }

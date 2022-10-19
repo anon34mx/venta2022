@@ -39,7 +39,11 @@
             </thead>
             <tbody>
                 @foreach($corridasDisponibles as $cp)
-                <tr>
+                <tr class='
+                        {{ $cp->aEstado=="C" ? "text-danger" : ""}}
+                        {{ $cp->aEstado=="B" ? "text-secondary" : ""}}
+                    '
+                >
                     <td>{{$cp->nNumero}}</td>
                     <td>
                         @php

@@ -5,14 +5,20 @@
     <h3 class="titleWithAnchor" id="nuevoUsuario">
         <a href="#nuevoUsuario">Corridas programadas</a>
     </h3>
+
+    <div>
+        @if(session()->has('status'))
+            <p class="alert alert-success">{{session('status')}}</p>
+        @endif
+    </div>
     @if($errors->any())
-        <div class="card-body mt-2 mb-2 ">
-            <div class="alert-danger px-3 py-3">
-                @foreach($errors->all() as $error)
-                - {{$error}}<br>
-                @endforeach
-            </div>
+    <div class="card-body mt-2 mb-2 ">
+        <div class="alert-danger px-3 py-3">
+            @foreach($errors->all() as $error)
+            - {{$error}}<br>
+            @endforeach
         </div>
+    </div>
     @endif
 
     <form action="{{route('corridas.programadas.store')}}" method="POST" class="needs-validation" novalidate>
@@ -26,8 +32,10 @@
                     <select name="itinerario" id="itinerario" class="form-control" required>
                         <option value="" disabled selected>Seleccione</option>
                         @foreach($itinerarios as $itinerario=>$tramos)
-                            <option value="{{ $itinerario }}">
+                        <!-- $errors->any() old("itinerario") : ""> -->
+                            <option value="{{ $itinerario }}" 
                                 @php
+                                echo ($errors->any() && $itinerario==old("itinerario")) ? "selected >" : ">" ;
                                 $tiempoTotal=0;
                                 for($i=0; $i<sizeof($tramos);$i++){
                                     $tiempoTotal+=$tramos[$i]->nTiempo+$tramos[$i]->nEstancia;
@@ -42,18 +50,17 @@
                         @endforeach
                     </select>
                     @php
-                    foreach($itinerarios as $itinerario=>$tramos){
-                        $tiempoTotal=0;
-                        for($i=0; $i<sizeof($tramos);$i++){
-                            $tiempoTotal+=$tramos[$i]->nTiempo+$tramos[$i]->nEstancia;
+                        foreach($itinerarios as $itinerario=>$tramos){
+                            $tiempoTotal=0;
+                            for($i=0; $i<sizeof($tramos);$i++){
+                                $tiempoTotal+=$tramos[$i]->nTiempo+$tramos[$i]->nEstancia;
+                            }
+                            @endphp
+                            <div class="hidden">
+                                <div id="tiempo-{{$itinerario}}">{{$tiempoTotal}}</div>
+                            </div>
+                            @php
                         }
-                        @endphp
-                        <div class="hidden">
-                            <div id="tiempo-{{$itinerario}}">{{$tiempoTotal}}</div>
-                        </div>
-                        @php
-                    }
-
                     @endphp
                 </div>
             </div>
@@ -65,7 +72,12 @@
                     <select name="tipoDeServicio" id="tipoDeServicio" class="form-control" required onchange="calcHoraLlegada();">
                         <option value="" disabled selected>Seleccione</option>
                         @foreach($servicios as $servicio)
-                            <option value="{{($servicio->nNumero)}}">{{($servicio->aDescripcion)}}</option>
+                            <option value="{{($servicio->nNumero)}}"
+                                @php
+                                echo ($errors->any() && $servicio->nNumero==old("tipoDeServicio")) ? "selected >" : " >";
+                                @endphp
+                                {{($servicio->aDescripcion)}}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -91,7 +103,10 @@
                     <label for="fechaDeInicio" class="float-md-right text-md-right">Fecha de inicio*</label>
                 </div>
                 <div class="col-12 col-md-8 col-lg-9">
-                    <input id="fechaDeInicio" type="date" name="fechaDeInicio" class="form-control" min="{{date('Y-m-d')}}" value="{{date('Y-m-d')}}" required>
+                    <input id="fechaDeInicio" type="date" name="fechaDeInicio" class="form-control"
+                    min="{{date('Y-m-d')}}"
+                    value="{{ ($errors->any()) ? old('fechaDeInicio') : '' }}"
+                    required>
                 </div>
             </div>
             <div class="col-12 col-md-6 row mb-2">
@@ -99,7 +114,10 @@
                     <label for="fechaDeFin" class="float-md-right text-md-right">Fecha de fin*</label>
                 </div>
                 <div class="col-12 col-md-8 col-lg-9">
-                    <input id="fechaDeFin" type="date" name="fechaDeFin" class="form-control" min="{{date('Y-m-d')}}" required>
+                    <input id="fechaDeFin" type="date" name="fechaDeFin" class="form-control"
+                    min="{{ date('Y-m-d') }}"
+                    value="{{ ($errors->any()) ? old("fechaDeFin") : ''}}"
+                    required>
                 </div>
             </div>
             <div class="col-12 row mb-2 px-4">
@@ -108,37 +126,44 @@
                     <tr>
                         <td class="col-auto px-4">
                             <input id="lunes" type="checkbox" class="form-check-input" name="dias[lLunes]"
-                                {{ (@$corridaProgramada->lLunes==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["lLunes"]) ? "checked" : "" }}
+                            >
                             <label for="lunes" class="px-2">L</label>
                         </td>
                         <td class="col-auto px-4">
                             <input id="martes" type="checkbox" class="form-check-input" name="dias[lMartes]"
-                                {{ (@$corridaProgramada->lMartes==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["lMartes"]) ? "checked" : "" }}
+                            >
                             <label for="martes" class="px-2">M</label>
                         </td>
                         <td class="col-auto px-4">
                             <input id="miercoles" type="checkbox" class="form-check-input" name="dias[lMiercoles]"
-                                {{ (@$corridaProgramada->lMiercoles==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["lMiercoles"]) ? "checked" : "" }}
+                            >
                             <label for="miercoles" class="px-2">I</label>
                         </td>
                         <td class="col-auto px-4">
                             <input id="jueves" type="checkbox" class="form-check-input" name="dias[Jueves]"
-                                {{ (@$corridaProgramada->lJueves==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["Jueves"]) ? "checked" : "" }}
+                            >
                             <label for="jueves" class="px-2">J</label>
                         </td>
                         <td class="col-auto px-4">
                             <input id="viernes" type="checkbox" class="form-check-input" name="dias[lViernes]"
-                                {{ (@$corridaProgramada->lViernes==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["lViernes"]) ? "checked" : "" }}
+                            >
                             <label for="viernes" class="px-2">V</label>
                         </td>
                         <td class="col-auto px-4">
                             <input id="sabado" type="checkbox" class="form-check-input" name="dias[lSabado]"
-                                {{ (@$corridaProgramada->lSabado==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["lSabado"]) ? "checked" : "" }}
+                            >
                             <label for="sabado" class="px-2">S</label>
                         </td>
                         <td class="col-auto px-4">
                             <input id="domingo" type="checkbox" class="form-check-input" name="dias[lDomingo]"
-                                {{ (@$corridaProgramada->lDomingo==true) ? "checked" : ""}}>
+                                {{ isset(old("dias")["lDomingo"]) ? "checked" : "" }}
+                            >
                             <label for="domingo" class="px-2">D</label>
                         </td>
                     </tr>
@@ -176,7 +201,7 @@
                     <th>V</th>
                     <th>S</th>
                     <th>D</th>
-                    <th colspan="2"></th>
+                    <th colspan="3"></th>
                 </tr>
             </thead>
             <tbody>
@@ -222,8 +247,7 @@
                         </a>
                     </td>
                     <td>
-                        <form action="{{ route('corridas.programadas.transfer', $cp->nNumero) }}" method="post">
-                            @csrf
+                        <a href="{{ route('corridas.programadas.transfer', $cp->nNumero) }}">
                             <span class="btn-collap" title="Transferir">
                                 <label class="btn btn-sm btn-primary"
                                     for="transfer-{{$cp->nNumero}}">
@@ -233,7 +257,7 @@
                                 <input id="transfer-{{$cp->nNumero}}" type="submit"
                                 class="btn" onclick="">
                             </span>
-                        </form>
+                        </a>
                     </td>
                     <td>
                         <form action="{{route('corridas.programadas.destroy',$cp)}}" method="POST">
