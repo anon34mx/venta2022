@@ -70,9 +70,13 @@ class corridasProgramadasController extends Controller
         ]);
     }
 
-    public function update(Request $request){
-        // dd($request);
-        //no hay actualizaciones, hay transferencias
+    public function edit(Corridasprogramadas $corridaProgramada){
+        //Vista para transferir
+        return view('corridasProgramadas.transfer',[
+            "corridaProgramada" => $corridaProgramada,
+            "itinerarios" => Itinerario::unicosDetallado(),
+            "servicios" => TiposServicios::all(),
+        ]);
     }
 
     public function destroy(Corridasprogramadas $corridaProgramada, Request $request){
@@ -81,19 +85,8 @@ class corridasProgramadasController extends Controller
         return back()->with('status', 'Eliminado con éxito');
     }
 
-    public function transfer(Corridasprogramadas $corridaProgramada){
-        return view('corridasProgramadas.transfer',[
-            "corridaProgramada" => $corridaProgramada,
-            "itinerarios" => Itinerario::unicosDetallado(),
-            "servicios" => TiposServicios::all(),
-        ]);
-    }
-    public function storeTransfer(Corridasprogramadas $corridaProgramada, Request $request){
-        // dd($corridaProgramada->version+1);
-        // dd($request->dias);
-        // dd(Auth::user()->id);
-
-        // VALIDAR
+    public function update(Corridasprogramadas $corridaProgramada, Request $request){
+        // Guardar transferencia de corrida
         $validated = $request->validate([
             'itinerario' => 'required|integer',
             'tipoDeServicio' => 'required|integer',
@@ -120,7 +113,6 @@ class corridasProgramadasController extends Controller
             'fFin' => $corridaProgramada->fFin,
             'user_id' => Auth::user()->id
         ]);
-
         $nuevaCorrida = Corridasprogramadas::create([
             'nItinerario' => $request->itinerario,
             'nTipoServicio' => $request->tipoDeServicio,
@@ -137,8 +129,9 @@ class corridasProgramadasController extends Controller
             'version' => $corridaProgramada->version+1,
         ]);
 
-        $corridaProgramada->delete();
+        $corridaProgramada->cancelar();
 
+        // MOSTAR PASAJEROS EN LIMBO (VENDIDOS QUE QUEDARON SIN CORRIDA)
         return redirect()
             ->route('corridas.programadas.show', $nuevaCorrida)
             ->with("status","Corrida transferida con éxito");

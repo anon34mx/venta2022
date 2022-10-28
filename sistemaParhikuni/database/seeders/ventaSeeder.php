@@ -24,18 +24,29 @@ class ventaSeeder extends Seeder
     public function run()
     {
         exec('cmd /c "C:/xampp/htdocs/venta2022/[BD]/respaldos/RESTAURAR_en_laravel.bat"');
-
         $path_poblar = ('C:\\xampp\\htdocs\\venta2022\\[BD]\\inserts\\poblar.sql');
         $sql_poblar = file_get_contents($path_poblar);
         DB::unprepared($sql_poblar);
-        
+
+
         // sobre la tabla de usuarios
-        // DB::unprepared("ALTER TABLE users
-        //     ADD FOREIGN KEY FK_p (`persona_nNumero`)
-        //         REFERENCES personas(nNumeroPersona)
-        //         ON UPDATE CASCADE ON DELETE RESTRICT,
-        //     ADD UNIQUE (persona_nNumero)
-        // ");
-        // 
+        DB::unprepared("ALTER TABLE users
+            ADD FOREIGN KEY FK_p (`persona_nNumero`)
+                REFERENCES personas(nNumeroPersona)
+                ON UPDATE CASCADE ON DELETE RESTRICT,
+            ADD UNIQUE (persona_nNumero)
+        ");
+        DB::unprepared("ALTER TABLE `corridas_versiones`
+            ADD FOREIGN KEY (user_id)
+            REFERENCES users(id)
+            ON UPDATE CASCADE ON DELETE RESTRICT;
+        ");
+        DB::unprepared("ALTER TABLE corridas_disponibles_historial
+            ADD FOREIGN KEY(user)
+        REFERENCES users(id)
+            ON UPDATE CASCADE ON DELETE RESTRICT
+        ");
+    
+
     }
 }

@@ -144,9 +144,20 @@
             </div>
         </div>
         <div class="col-12 justify-content-center">
-            @if($corridaDisponible->aEstado=="C")
+            @if($corridaDisponible->aEstado!="C")
+            <span class="btn-collap float-right mx-1" title="Guardar">
+                <label class="btn btn-sm btn-parhi-primary"
+                    for="guardar">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Guardar</span>
+                </label>
+                <input id="guardar" type="submit"
+                class="btn">
+            </span>
+            
+            @endif
             <a href="{{route('corridas.disponibles.index')}}">
-                <span class="btn-collap float-right" title="volver">
+                <span class="btn-collap float-left mx-1" title="volver">
                     <label class="btn btn-sm btn-parhi-primary"
                         >
                         <i class="fa-solid fa-arrow-left"></i>
@@ -156,18 +167,6 @@
                     class="btn">
                 </span>
             </a>
-            @else
-            <span class="btn-collap float-right" title="Guardar">
-                <label class="btn btn-sm btn-parhi-primary"
-                    for="guardar">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <span>Guardar</span>
-                </label>
-                <input id="guardar" type="submit"
-                class="btn">
-            </span>
-
-            @endif
         </div>
     </form>
 </div>

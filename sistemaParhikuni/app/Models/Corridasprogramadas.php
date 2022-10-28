@@ -55,16 +55,21 @@ class Corridasprogramadas extends Model
             ]);
     }
     public function cancelar(){
-        return DB::select("UPDATE corridasprogramadas corpro
+        $disponibles = DB::statement("UPDATE corridasprogramadas corpro
             INNER JOIN corridasdisponibles cordis
                 ON cordis.nProgramada=corpro.nNumero
+            LEFT JOIN boletosvendidos bol
+                ON bol.nCorrida=cordis.nNumero
             SET corpro.deleted_at=now(),
-                cordis.deleted_at=now(),
-                cordis.aEstado='C'
+                cordis.aEstado='C',
+                bol.aEstado='LM'
             where corpro.nNumero=:id",
             [
             'id' => $this->nNumero,
         ]);
+        // corpro.deleted_at=now()
+        // cordis.deleted_at=now(),
+        return $disponibles;
     }
 }
 

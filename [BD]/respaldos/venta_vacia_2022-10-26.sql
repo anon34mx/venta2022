@@ -262,14 +262,12 @@ CREATE TABLE `conductores` (
   `nNumeroPersona` int(10) unsigned NOT NULL,
   `aLicencia` varbinary(20) NOT NULL,
   `fVigenciaLicencia` date NOT NULL,
-  `aEstado` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `aEstado` varchar(2) NOT NULL,
   `nNumeroAutobus` int(11) DEFAULT NULL,
   PRIMARY KEY (`nNumeroConductor`),
   UNIQUE KEY `nNumeroConductor` (`nNumeroConductor`),
   KEY `nNumeroPersona` (`nNumeroPersona`),
   KEY `nNumeroAutobus` (`nNumeroAutobus`),
-  KEY `conductores_estados` (`aEstado`),
-  CONSTRAINT `conductores_estados` FOREIGN KEY (`aEstado`) REFERENCES `personas_estados` (`aClave`),
   CONSTRAINT `conductores_ibfk_1` FOREIGN KEY (`nNumeroPersona`) REFERENCES `personas` (`nNumeroPersona`),
   CONSTRAINT `conductores_ibfk_2` FOREIGN KEY (`nNumeroAutobus`) REFERENCES `autobuses` (`nNumeroAutobus`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -712,20 +710,6 @@ CREATE TABLE `personas` (
   CONSTRAINT `FK_tipopersona` FOREIGN KEY (`aTipo`) REFERENCES `tipospersona` (`aTipo`) ON UPDATE CASCADE,
   CONSTRAINT `personas_ibfk_1` FOREIGN KEY (`nOficina`) REFERENCES `oficinas` (`nNumero`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `personas_estados`
---
-
-DROP TABLE IF EXISTS `personas_estados`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `personas_estados` (
-  `aClave` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `descripcion` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`aClave`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2182,4 +2166,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-28 17:14:09
+-- Dump completed on 2022-10-26 10:23:09

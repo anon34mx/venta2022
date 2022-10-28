@@ -69,7 +69,10 @@
                         </ul>
                     </li>
                 @endif
-                @if(Auth::user()->hasPermissionTo('corridasProgramadas.index') && Auth::user()->hasPermissionTo('corridasDisponibles.index'))
+                @can([
+                    "corridas.programadas.index",
+                    "corridas.disponibles.index"
+                    ])
                     <li class="active">
                         <a href="#corridasSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Corridas</a>
                         <ul class="collapse list-unstyled" id="corridasSubmenu">
@@ -81,12 +84,12 @@
                             </li>
                         </ul>
                     </li>
-                @endif
+                @endcan
                 <li class="active">
                     <a href="#PersonalSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Personal</a>
                     <ul class="collapse list-unstyled" id="PersonalSubmenu">
                         <li>
-                            <a href="{{route('corridas.programadas.index')}}">Conductores</a>
+                            <a href="{{route('personal.conductores.index')}}">Conductores</a>
                         </li>
                     </ul>
                 </li>

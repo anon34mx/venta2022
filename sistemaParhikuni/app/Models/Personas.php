@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Oficinas;
 
 class Personas extends Model
 {
@@ -23,5 +24,8 @@ class Personas extends Model
 
     public function user(){
         return $this->hasOne(User::class);
+    }
+    public function oficina(){
+        return $this->belongsTo(Oficinas::class, 'nOficina', );
     }
 }

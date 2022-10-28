@@ -56,6 +56,23 @@ formaspago
 promociones
     ALTER TABLE `promociones` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP;
 */
+INSERT INTO personas_estados VALUES
+("AC", "Activo"),
+("BA", "Proceso de Baja"),
+("PE", "Permiso"),
+("AU", "Ausente"),
+("CA", "Castigo");
+INSERT INTO boletos_vendidos_estados
+VALUES
+("VE", "Vendido"),
+("CA", "Cancelado"),
+("AP", "Abordo pasajero"),
+("PC", "Paquete en Corrida"),
+("PD", "Paquete en Destino"),
+("PE", "Paquete Entregado"),
+("LM", "Limbo"),
+("IN", "Intercambiado"),
+("LI", "Liquidado");
 INSERT INTO `corridas_estados` (`id`, `aEstado`, `orden`, `elegible`) VALUES
 ('B', 'Bloqueada', 99, 1),
 ('C', 'Cancelada', 99, 1),
@@ -189,11 +206,11 @@ INSERT INTO `personas`(`nNumeroPersona`,`aNombres`, `aApellidos`, `nOficina`, `a
 
 INSERT INTO `conductores`(`nNumeroConductor`, `nNumeroPersona`, `aLicencia`, `fVigenciaLicencia`, `aEstado`, `nNumeroAutobus`)
 VALUES
-(1,2,'LIC007','2025-10-11','A',
+(1,2,'LIC007','2025-10-11','AC',
     (select nNumeroAutobus from autobuses where nNumeroEconomico="5005")),
-(2,3,'LIC084','2028-03-08','A',
+(2,3,'LIC084','2028-03-08','AC',
     (select nNumeroAutobus from autobuses where nNumeroEconomico="9001")),
-(3,4,'LIC026','2025-07-26','B',
+(3,4,'LIC026','2025-07-26','BA',
     (select nNumeroAutobus from autobuses where nNumeroEconomico="7002"));
 
 INSERT INTO `tramos`(`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`)
@@ -285,7 +302,7 @@ INSERT INTO terminales (aTerminal, nOficina, aDescripcion) VALUES
 
 INSERT INTO sesiones (nNumero,nNumeroPersona, nOficina, fContable) VALUES (1,1,8,"2022-08-31");
 INSERT INTO venta (nNumero,nSesion) VALUES(1,1);
--- HASTA AQUI VA BIEN
+
 
 
 -- insertar forma de pago y subtipos de formas de pago
@@ -306,20 +323,27 @@ INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 INSERT INTO promociones (nNumero,aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin) VALUES
 (1,"ES", "Desc INSEN", 8, 12, "2022-09-01", "2022-12-31");
 
--- 
+-- HASTA AQUI VA BIEN
 
 -- INSERTAR información del pago
 INSERT INTO ventapago (nNumero,nVenta, aFormaPago, nFormaPagoSubtipo, nMonto, aFolioDocumento, aAutorizacionBanco)
-VALUES (2,1, "TB", 4, 99.99, 0, 0);
+VALUES (1,1, "TB", 4, 99.99, 0, 0);
 -- INSERTAR PASAJERO
 -- pasajero normal
 /*
 INSERT INTO Boletosvendidos
 (nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
 aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
-(1,37, "2022-08-31", "12:00:00", 8, 1, "AD", "Juan Lopez Perez", 1,
+(1,1, "2022-08-31", "12:00:00", 8, 1, "AD", "Juan Lopez Perez", 1,
 "CO", "500", "15", 30, "VE",1
 );
+INSERT INTO Boletosvendidos
+(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
+aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
+(1,1, "2022-08-31", "12:00:00", 8, 1, "AD", "ADRIAN Lopez Perez", 1,
+"CO", "500", "15", 30, "VE",1
+);
+/*
 -- pasajero con promocion
 INSERT INTO Boletosvendidos
 (nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
@@ -330,6 +354,7 @@ aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
 "CO", "500", "15", 30, "VE",
     (SELECT nNumero from terminales where aTerminal="DTI")
 );
+*/
 /*
 INSERT INTO boletosvendidos_promociones (nBoletoVendido, nPromocion) VALUES (9,1);
 -- pasajero con descuento de empleado

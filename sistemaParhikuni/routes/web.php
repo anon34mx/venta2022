@@ -83,43 +83,57 @@ Route::delete('/permisos/{permission}', [App\Http\Controllers\PermissionControll
 // CORRIDAS PROGRAMADAS
 Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadasController::class, 'index'])
     ->name("corridas.programadas.index")
-    ->middleware('permission:corridasProgramadas.index');
+    ->middleware('permission:corridas.programadas.index');
 Route::get('/corridas/programadas/{corridaProgramada}/detalle', [App\Http\Controllers\corridasProgramadasController::class, 'show'])
     ->name("corridas.programadas.show")
-    ->middleware('permission:corridasProgramadas.index');
+    ->middleware('permission:corridas.programadas.show');
 Route::delete('/corridas/programadas/{corridaProgramada}/delete', [App\Http\Controllers\corridasProgramadasController::class, 'destroy'])
     ->name("corridas.programadas.destroy")
-    ->middleware('permission:corridasProgramadas.index');
+    ->middleware('permission:corridas.programadas.destroy');
 Route::post('/corridas/programadas/store', [App\Http\Controllers\corridasProgramadasController::class, 'store'])
     ->name("corridas.programadas.store")
-    ->middleware('permission:corridasProgramadas.index');
-Route::get('/corridas/programadas/{corridaProgramada}/transfer', [App\Http\Controllers\corridasProgramadasController::class, 'transfer'])
+    ->middleware('permission:corridas.programadas.store');
+Route::get('/corridas/programadas/{corridaProgramada}/transfer', [App\Http\Controllers\corridasProgramadasController::class, 'edit'])
     ->name('corridas.programadas.transfer')
-    ->middleware('permission:corridasProgramadas.index');
-Route::post('/corridas/programadas/{corridaProgramada}/transfer/store', [App\Http\Controllers\corridasProgramadasController::class, 'storeTransfer'])
+    ->middleware('permission:corridas.programadas.transfer');
+Route::post('/corridas/programadas/{corridaProgramada}/transfer/store', [App\Http\Controllers\corridasProgramadasController::class, 'update'])
     ->name('corridas.programadas.storeTransfer')
-    ->middleware('permission:corridasProgramadas.index');
+    ->middleware('permission:corridas.programadas.storeTransfer');
 
 // CORRIDAS DISPONIBLES
 Route::get('/corridas/disponibles', [App\Http\Controllers\CorridasDisponiblesController::class, 'index'])
     ->name("corridas.disponibles.index")
-    ->middleware('permission:corridasDisponibles.index');
+    ->middleware('permission:corridas.disponibles.index');
 Route::get('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'edit'])
     ->name("corridas.disponibles.edit")
-    ->middleware('permission:corridasDisponibles.index');
+    ->middleware('permission:corridas.disponibles.edit');
 Route::post('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'update'])
     ->name('corridas.disponibles.update')
-    ->middleware('permission:users.update');
+    ->middleware('permission:corridas.disponibles.update');
 
+// BOLETOS VENDIDOS
+ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
+    ->name("boletos.limbo.show")
+    ->middleware("permission:boletos.limbo.show");
 
 //  VENTA
 Route::get('/venta/01', [App\Http\Controllers\CorridasDisponiblesController::class, 'venta'])
     ->name("corridas.disponibles.venta")
-    ->middleware('permission:corridasDisponibles.index');
+    ->middleware('permission:corridasDisponibles.index');//pendiente
+
+//  Personal
+//      CONDUCTORES
+Route::get('/personal/conductores', [App\Http\Controllers\ConductoresController::class, 'index'])
+    ->name("personal.conductores.index");
+Route::get('/personal/conductores/{conductor}/edit', [App\Http\Controllers\ConductoresController::class, 'edit'])
+    ->name("personal.conductores.edit");
+Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\ConductoresController::class, 'update'])
+    ->name("personal.conductores.update");
+    // ->middleware('permission:corridasDisponibles.index');
 
 Route::get('/test', function(){
     return view('test2');
-})->middleware('permission:test');
+}); //->middleware('permission:test');
 
 
 Route::get('/logout', function(Request $request){

@@ -1,6 +1,6 @@
 -- MariaDB dump 10.19  Distrib 10.4.21-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: venta2022c
+-- Host: localhost    Database: laravel
 -- ------------------------------------------------------
 -- Server version	10.4.21-MariaDB
 
@@ -53,6 +53,20 @@ CREATE TABLE `autobuses` (
   CONSTRAINT `autobuses_ibfk_1` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`),
   CONSTRAINT `autobuses_ibfk_2` FOREIGN KEY (`nDistribucionAsientos`) REFERENCES `distribucionasientos` (`nNumero`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `boletos_vendidos_estados`
+--
+
+DROP TABLE IF EXISTS `boletos_vendidos_estados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `boletos_vendidos_estados` (
+  `id` varchar(2) NOT NULL,
+  `descripcion` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -112,7 +126,7 @@ DROP TABLE IF EXISTS `boletosvendidos`;
 CREATE TABLE `boletosvendidos` (
   `nNumero` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `nVenta` int(10) unsigned NOT NULL,
-  `nCorrida` BIGINT unsigned NOT NULL,
+  `nCorrida` bigint(20) unsigned NOT NULL,
   `fSalida` date NOT NULL,
   `hSalida` time NOT NULL,
   `nOrigen` int(10) unsigned NOT NULL,
@@ -124,7 +138,7 @@ CREATE TABLE `boletosvendidos` (
   `nMontoBase` decimal(6,2) NOT NULL,
   `nMontoDescuento` decimal(6,2) NOT NULL,
   `nIVA` decimal(6,2) NOT NULL,
-  `aEstado` char(20) NOT NULL,
+  `aEstado` varchar(2) NOT NULL,
   `fCreacion` datetime NOT NULL DEFAULT current_timestamp(),
   `nTerminal` int(10) unsigned NOT NULL,
   PRIMARY KEY (`nNumero`),
@@ -136,6 +150,8 @@ CREATE TABLE `boletosvendidos` (
   KEY `aTipoPasajero` (`aTipoPasajero`),
   KEY `boletosvendidos_ibfk_4` (`nVenta`),
   KEY `boletosvendidos_ibfk_9` (`nTerminal`),
+  KEY `FK_boletoEstado` (`aEstado`),
+  CONSTRAINT `FK_boletoEstado` FOREIGN KEY (`aEstado`) REFERENCES `boletos_vendidos_estados` (`id`),
   CONSTRAINT `boletosvendidos_ibfk_1` FOREIGN KEY (`nOrigen`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `boletosvendidos_ibfk_2` FOREIGN KEY (`nDestino`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `boletosvendidos_ibfk_3` FOREIGN KEY (`nCorrida`) REFERENCES `corridasdisponibles` (`nNumero`),
@@ -143,7 +159,7 @@ CREATE TABLE `boletosvendidos` (
   CONSTRAINT `boletosvendidos_ibfk_5` FOREIGN KEY (`aTipoVenta`) REFERENCES `tipoventa` (`aClave`),
   CONSTRAINT `boletosvendidos_ibfk_6` FOREIGN KEY (`aTipoPasajero`) REFERENCES `tipopasajero` (`aClave`),
   CONSTRAINT `boletosvendidos_ibfk_9` FOREIGN KEY (`nTerminal`) REFERENCES `terminales` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,6 +274,37 @@ CREATE TABLE `conductores` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `corridas_disponibles_historial`
+--
+
+DROP TABLE IF EXISTS `corridas_disponibles_historial`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corridas_disponibles_historial` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `corrida_disponible` bigint(20) unsigned NOT NULL,
+  `aEstadoAnterior` varchar(1) NOT NULL,
+  `aEstadoNuevo` varchar(1) NOT NULL,
+  `nConductor` int(10) unsigned DEFAULT NULL,
+  `user` bigint(20) unsigned NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `corrida_disponible` (`corrida_disponible`),
+  KEY `aEstadoAnterior` (`aEstadoAnterior`),
+  KEY `aEstadoNuevo` (`aEstadoNuevo`),
+  KEY `user` (`user`),
+  KEY `nConductor` (`nConductor`),
+  CONSTRAINT `corridas_disponibles_historial_ibfk_1` FOREIGN KEY (`corrida_disponible`) REFERENCES `corridasdisponibles` (`nNumero`) ON UPDATE CASCADE,
+  CONSTRAINT `corridas_disponibles_historial_ibfk_2` FOREIGN KEY (`aEstadoAnterior`) REFERENCES `corridas_estados` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `corridas_disponibles_historial_ibfk_3` FOREIGN KEY (`aEstadoNuevo`) REFERENCES `corridas_estados` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `corridas_disponibles_historial_ibfk_4` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `corridas_disponibles_historial_ibfk_5` FOREIGN KEY (`nConductor`) REFERENCES `conductores` (`nNumeroConductor`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `corridas_estados`
 --
 
@@ -274,6 +321,41 @@ CREATE TABLE `corridas_estados` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `corridas_versiones`
+--
+
+DROP TABLE IF EXISTS `corridas_versiones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corridas_versiones` (
+  `nNumero` bigint(20) unsigned NOT NULL,
+  `nItinerario` int(10) unsigned NOT NULL,
+  `nTipoServicio` int(10) unsigned NOT NULL,
+  `hSalida` time NOT NULL,
+  `lLunes` tinyint(1) NOT NULL,
+  `lMartes` tinyint(1) NOT NULL,
+  `lMiercoles` tinyint(1) NOT NULL,
+  `lJueves` tinyint(1) NOT NULL,
+  `lViernes` tinyint(1) NOT NULL,
+  `lSabado` tinyint(1) NOT NULL,
+  `lDomingo` tinyint(1) NOT NULL,
+  `fInicio` date NOT NULL,
+  `fFin` date NOT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` datetime DEFAULT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`nNumero`),
+  UNIQUE KEY `nNumero` (`nNumero`),
+  KEY `nTipoServicio` (`nTipoServicio`),
+  KEY `corridas_versiones_IN` (`nNumero`,`nItinerario`),
+  KEY `corridas_versiones_user_id` (`user_id`),
+  CONSTRAINT `corridas_versiones_ibfk_1` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`),
+  CONSTRAINT `corridas_versiones_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `corridasdisponibles`
 --
 
@@ -281,8 +363,8 @@ DROP TABLE IF EXISTS `corridasdisponibles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corridasdisponibles` (
-  `nNumero` BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  `nProgramada` BIGINT unsigned NOT NULL,
+  `nNumero` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nProgramada` bigint(20) unsigned NOT NULL,
   `nItinerario` int(10) unsigned NOT NULL,
   `nTipoServicio` int(10) unsigned NOT NULL,
   `fSalida` date NOT NULL,
@@ -319,7 +401,7 @@ DROP TABLE IF EXISTS `corridasprogramadas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corridasprogramadas` (
-  `nNumero` BIGINT unsigned NOT NULL AUTO_INCREMENT,
+  `nNumero` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `nItinerario` int(10) unsigned NOT NULL,
   `nTipoServicio` int(10) unsigned NOT NULL,
   `hSalida` time NOT NULL,
@@ -375,7 +457,7 @@ CREATE TABLE `descuentos` (
   CONSTRAINT `descuentos_ibfk_3` FOREIGN KEY (`nPasajero`) REFERENCES `personas` (`nNumeroPersona`),
   CONSTRAINT `descuentos_ibfk_4` FOREIGN KEY (`nOrigen`) REFERENCES `oficinas` (`nNumero`),
   CONSTRAINT `descuentos_ibfk_5` FOREIGN KEY (`nDestino`) REFERENCES `oficinas` (`nNumero`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -387,7 +469,7 @@ DROP TABLE IF EXISTS `disponibilidad`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `disponibilidad` (
   `nNumero` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `nCorridaDisponible` BIGINT unsigned NOT NULL,
+  `nCorridaDisponible` bigint(20) unsigned NOT NULL,
   `nOrigen` int(10) unsigned NOT NULL,
   `nDestino` int(10) unsigned NOT NULL,
   `fLlegada` date NOT NULL,
@@ -434,13 +516,23 @@ CREATE TABLE `disponibilidadasientos` (
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER asiento_ultima_actualizacion
 
+
+
 BEFORE UPDATE ON disponibilidadasientos
+
+
 
 FOR EACH ROW
 
+
+
 BEGIN
 
+
+
     SET NEW.last_update=CURRENT_TIMESTAMP;
+
+
 
 END */;;
 DELIMITER ;
@@ -588,7 +680,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -781,7 +873,7 @@ DROP TABLE IF EXISTS `registropasopuntos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `registropasopuntos` (
-  `nNumero` BIGINT unsigned NOT NULL,
+  `nNumero` bigint(20) unsigned NOT NULL,
   `nItinerario` int(10) unsigned NOT NULL,
   `fLlegada` datetime NOT NULL,
   `fSalida` datetime NOT NULL,
@@ -1122,7 +1214,7 @@ CREATE TABLE `ventascliente` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'venta2022c'
+-- Dumping routines for database 'laravel'
 --
 /*!50003 DROP FUNCTION IF EXISTS `corridasPorDia` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -1137,33 +1229,63 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `corridasPorDia`(IN_fIni DATE, IN_dias SMALLINT) RETURNS int(11)
 BEGIN
 
+
+
     DECLARE fFin DATE;
+
+
 
     DECLARE fMax DATE;
 
+
+
     DECLARE ins INT;
+
+
 
     
 
+
+
     SET fFin=IN_fIni + INTERVAL IN_dias DAY;
 
+
+
     SET ins=0;
+
+
 
     SET fMax=(SELECT max(`fFin`) FROM `corridasprogramadas`);
 
 
 
+
+
+
+
     WHILE IN_fIni<=fFin AND IN_fIni<=fMax DO
+
+
 
         SET ins=ins+crear_corridas_disponibles(IN_fIni);
 
+
+
         SET IN_fIni = IN_fIni + INTERVAL 1 DAY;
+
+
 
     END WHILE;
 
+
+
     
 
+
+
     RETURN ins;
+
+
 
 END ;;
 DELIMITER ;
@@ -1184,12 +1306,14 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `crear_corridas_disponibles`(IN_fecha DATE) RETURNS int(11)
 BEGIN
 
-    
+    -- variables
+
     DECLARE corridas_insertadas INT;
 
     DECLARE disponibilidad_insertadas SMALLINT;
 
-        
+        -- corrida programada
+
     DECLARE totalInserted SMALLINT;
 
     DECLARE curProg_ID INT;
@@ -1200,8 +1324,10 @@ BEGIN
 
     DECLARE curProg_hSal TIME;
 
-    DECLARE done INT DEFAULT FALSE; 
-    DECLARE cursor_Prog CURSOR FOR SELECT 
+    DECLARE done INT DEFAULT FALSE; -- continuar o terminar ciclo
+
+    DECLARE cursor_Prog CURSOR FOR SELECT -- Seleccionar corridas programadas que no tengan corrida disponible
+
         cop.nNumero, cop.nItinerario, cop.nTipoServicio, cop.hSalida
 
         FROM corridasprogramadas cop
@@ -1212,7 +1338,8 @@ BEGIN
 
         and cod.nNumero IS NULL
 
-        AND (CASE 
+        AND (CASE -- ver si se inserta este dia de la semana
+
             WHEN (cop.lDomingo  AND (SELECT DAYOFWEEK(IN_fecha)=1)) THEN true
 
             WHEN (cop.lLunes    AND (SELECT DAYOFWEEK(IN_fecha)=2)) THEN true
@@ -1231,42 +1358,54 @@ BEGIN
 
         end);
 
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE; 
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE; -- HANDLER es manejo de errores
 
 
-    SET corridas_insertadas=0; 
-    SET disponibilidad_insertadas=0; 
+
+    SET corridas_insertadas=0; -- 
+
+    SET disponibilidad_insertadas=0; -- 
 
 
-    OPEN cursor_Prog; 
-        read_loop: LOOP 
-            
+
+    OPEN cursor_Prog; -- iniciar ciclo
+
+        read_loop: LOOP -- leer fila
+
+            -- poner las columnas en variables para poder usarlas
+
             FETCH cursor_Prog INTO curProg_ID, curProg_nIti, curProg_nTipSer, curProg_hSal;
 
-            IF done THEN 
+            IF done THEN -- si se encontró otra fila
+
             LEAVE read_loop;
 
             END IF;
 
-            
-            
+            -- insertar corrida disponible
+
+            -- falta crear el rol maestro para poner el numero de autobus
+
             INSERT INTO `corridasdisponibles`(`nProgramada`, `nItinerario`, `nTipoServicio`, `fSalida`, `hSalida`,
 
                     `aEstado`, `nNumeroAutobus`) VALUES
 
-                    (curProg_ID,curProg_nIti,curProg_nTipSer,IN_fecha,curProg_hSal,'A', 
+                    (curProg_ID,curProg_nIti,curProg_nTipSer,IN_fecha,curProg_hSal,'D', 
 
                         (SELECT nNumeroAutobus from autobuses where `nTipoServicio`=curProg_nTipSer limit 1)
 
                         );
 
-            
-                
+            -- [INICIO] insertar tabla disponibilidad
+
+                -- SET curCorrAct_nNum=LAST_INSERT_ID(); -- Corrida recien insertada
+
             SET corridas_insertadas=corridas_insertadas+1;
 
             SET disponibilidad_insertadas = crear_disponibilidad(LAST_INSERT_ID());
 
-        
+        -- termina ciclo
+
         END LOOP;
 
     CLOSE cursor_Prog;
@@ -1292,121 +1431,241 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `crear_disponibilidad`(IN_corrida_dis INT) RETURNS smallint(6)
 BEGIN
 
+
+
     DECLARE curDisp_nOrigen INT UNSIGNED;
+
+
 
     DECLARE curDisp_nDestino INT UNSIGNED;
 
+
+
     DECLARE curDisp_hLlega DATETIME;
+
+
 
     DECLARE curDisp_hSale DATETIME;
 
+
+
     DECLARE curDisp_inserted BOOLEAN;
+
+
 
     
 
+
+
     DECLARE done INT DEFAULT FALSE; 
+
     DECLARE cursor_Disp CURSOR FOR SELECT
 
+
+
         TIMESTAMP(cordis.fSalida, cordis.hSalida) + INTERVAL (
+
+
 
             SELECT
 
+
+
             IF(SUM(tr.nTiempo)+tr.nEstancia IS NULL, 0, SUM(tr.nTiempo)+tr.nEstancia)
+
+
 
             FROM `itinerario` itiSub
 
+
+
             INNER JOIN tramos tr on tr.nNumero=itiSub.nTramo
+
+
 
             WHERE itiSub.nItinerario=iti.nItinerario
 
+
+
             and itiSub.nConsecutivo<(
+
+
 
                 SELECT itiSub2.nConsecutivo FROM `itinerario` itiSub2
 
+
+
                 INNER JOIN tramos trSub on trSub.nNumero=itiSub2.nTramo
+
+
 
                 WHERE itiSub2.nItinerario=iti.nItinerario and trSub.nOrigen=tra.nOrigen
 
+
+
             )
+
+
 
         ) MINUTE as hSalidaCorrida,
 
+
+
         TIMESTAMP(cordis.fSalida, cordis.hSalida) + INTERVAL (
+
+
 
             (
 
+
+
                 SELECT
+
+
 
                 IF( SUM(trSub.nTiempo) is NULL, 0, SUM(trSub.nTiempo))
 
+
+
                 as tiempoTrans
+
+
 
                 FROM `itinerario` itiSub
 
+
+
                 INNER JOIN tramos trSub on itiSub.nTramo=trSub.nNumero
+
+
 
                 WHERE itiSub.`nItinerario`=cordis.nItinerario and itiSub.nConsecutivo<=cadaTramo.nConsecutivo
 
+
+
                 ORDER BY itiSub.nConsecutivo ASC 
+
             )
+
+
 
             +
 
+
+
             (
+
+
 
                 SELECT
 
+
+
                 IF( SUM(tr.nEstancia) IS NULL, 0, SUM(tr.nEstancia))
+
+
 
                 FROM  itinerario as itiSub
 
+
+
                 INNER JOIN tramos tr on tr.nNumero=itiSub.nTramo
 
+
+
                 WHERE itiSub.nItinerario=3 
+
                 AND itiSub.nConsecutivo<(
+
+
 
                     SELECT itiSub2.nConsecutivo FROM itinerario as itiSub2
 
+
+
                     INNER JOIN tramos trSub on trSub.nNumero=itiSub2.nTramo
 
+
+
                     WHERE trSub.nDestino=cadaTramo.nDestino AND  itiSub2.nItinerario=iti.nItinerario 
+
                     ORDER BY itiSub2.nConsecutivo ASC 
+
                 )
+
+
 
             )
 
+
+
         ) MINUTE as hLlegadaCalc,
+
+
 
         tra.nOrigen, cadaTramo.nDestino
 
+
+
         FROM corridasdisponibles cordis
+
+
 
         JOIN itinerario iti on iti.nItinerario=cordis.nItinerario
 
+
+
         join tramos tra on tra.nNumero=iti.nTramo
+
+
 
         JOIN (
 
+
+
             SELECT itiSub.nItinerario, itiSub.nConsecutivo, tramSub.nOrigen, tramSub.nDestino  from itinerario as itiSub
 
+
+
                 INNER JOIN tramos as tramSub on tramSub.nNumero=itiSub.nTramo 
+
         ) as cadaTramo on cadaTramo.nItinerario=iti.nItinerario and cadaTramo.nConsecutivo>=iti.nConsecutivo
+
+
 
         INNER JOIN oficinas as ofiOri on ofiOri.nNumero=tra.nOrigen
 
+
+
         INNER JOIN oficinas as ofiDes on ofiDes.nNumero=cadaTramo.nDestino
+
+
 
         LEFT JOIN disponibilidad as dis on dis.nCorridaDisponible=cordis.nNumero
 
+
+
             and dis.nOrigen=tra.nOrigen and dis.nDestino=cadaTramo.nDestino
+
+
 
         where cordis.nNumero=IN_corrida_dis and dis.nNumero IS NULL AND tra.nOrigen!=cadaTramo.nDestino
 
+
+
         order by iti.nConsecutivo;
+
+
 
     
 
+
+
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+
+
+
 
 
 
@@ -1414,32 +1673,63 @@ BEGIN
 
 
 
+
+
+
+
     OPEN cursor_Disp;
+
+
 
         read_loop: LOOP
 
+
+
             FETCH cursor_Disp INTO curDisp_hSale, curDisp_hLlega, curDisp_nOrigen, curDisp_nDestino; 
+
             IF done THEN
 
+
+
                 LEAVE read_loop;
+
+
 
             END IF;
 
 
 
+
+
+
+
             INSERT INTO disponibilidad
+
+
 
                 (`nCorridaDisponible`, `nOrigen`, `nDestino`, `fLlegada`, `hLlegada`, `fSalida`, `hSalida`)
 
+
+
                 VALUES (IN_corrida_dis, curDisp_nOrigen, curDisp_nDestino, DATE(curDisp_hLlega), TIME(curDisp_hLlega), DATE(curDisp_hSale), TIME(curDisp_hSale));
+
+
 
         SET curDisp_inserted=curDisp_inserted+1;
 
+
+
         END LOOP;
+
+
 
     CLOSE cursor_Disp;
 
+
+
     RETURN curDisp_inserted;
+
+
 
 END ;;
 DELIMITER ;
@@ -1459,163 +1749,322 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `estadoAsientos`(IN_cordis BIGINT UNSIGNED, IN_origen INT UNSIGNED, IN_destino INT UNSIGNED,
 
+
+
         IN_nAsiento SMALLINT UNSIGNED, IN_estado VARCHAR(2)) RETURNS text CHARSET utf8mb4
 BEGIN
 
+
+
     
+
     
+
     DECLARE code CHAR(5) DEFAULT '00000';
+
+
 
     DECLARE msg TEXT DEFAULT "";
 
+
+
     DECLARE nrows INT UNSIGNED DEFAULT 0;
+
+
 
     DECLARE result TEXT DEFAULT "Corrida no encontrada";
 
 
 
+
+
+
+
     DECLARE v_done INT DEFAULT FALSE; 
+
     DECLARE v_nDispo BIGINT UNSIGNED;
+
+
 
     DECLARE v_disp INT UNSIGNED;
 
+
+
     DECLARE v_origen INT UNSIGNED;
+
+
 
     DECLARE v_destino INT UNSIGNED;
 
+
+
     
+
     DECLARE v_recorrido CURSOR FOR
+
+
 
         SELECT origenes.origen, destinos.destino
 
+
+
         FROM (
 
+
+
             SELECT
+
+
 
             iti.nItinerario, iti.nConsecutivo, tr.nOrigen "origen" 
 
+
+
             FROM  `itinerario` iti
+
+
 
             INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
 
+
+
             WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) 
+
             and nConsecutivo>=(
+
+
 
                 SELECT nConsecutivo FROM  itinerario itiSub
 
+
+
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
 
+
+
                 WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen 
+
             )
+
+
 
             and nConsecutivo<=(
 
+
+
                 SELECT nConsecutivo FROM  itinerario itiSub
+
+
 
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
 
+
+
                 WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino 
+
             )
+
+
 
         ) as origenes
 
+
+
         JOIN (
+
+
 
             SELECT
 
+
+
             iti.nItinerario, iti.nConsecutivo, tr.nDestino "destino"
+
+
 
             FROM  `itinerario` iti
 
+
+
             INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
 
+
+
             WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=IN_cordis) 
+
             and nConsecutivo>=(
+
+
 
                 SELECT nConsecutivo FROM  itinerario itiSub
 
+
+
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
 
+
+
                 WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=IN_origen 
+
             )
+
+
 
             and nConsecutivo<=(
 
+
+
                 SELECT nConsecutivo FROM  itinerario itiSub
+
+
 
                 INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
 
+
+
                 WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=IN_destino 
+
             )
+
+
 
         ) as destinos on origenes.nItinerario=destinos.nItinerario
 
+
+
             and origenes.origen!=destinos.destino
+
+
 
             and destinos.nConsecutivo>=origenes.nConsecutivo;
 
+
+
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+
+
 
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
 
+
+
     BEGIN
+
+
 
       GET DIAGNOSTICS CONDITION 1
 
+
+
         code = RETURNED_SQLSTATE, msg = MESSAGE_TEXT;
+
+
 
     END;
 
+
+
     OPEN v_recorrido;
+
+
 
         read_loop: LOOP
 
+
+
             FETCH v_recorrido INTO v_origen, v_destino;
+
+
 
             IF v_done THEN
 
+
+
                 LEAVE read_loop;
 
+
+
             END IF;
+
+
+
+
 
 
 
             SELECT nNumero INTO v_nDispo FROM `disponibilidad`
 
+
+
             WHERE `nCorridaDisponible`=IN_cordis
+
+
 
             AND `nOrigen`= v_origen AND nDestino=v_destino;
 
 
 
+
+
+
+
             INSERT INTO disponibilidadasientos (nDisponibilidad,nAsiento,aEstadoAsiento)
+
+
 
             VALUES (v_nDispo, IN_nAsiento, IN_estado);
 
 
 
+
+
+
+
             
+
             IF code = '00000' THEN
+
+
 
                 GET DIAGNOSTICS @nrows = ROW_COUNT;
 
+
+
                 SET nrows=nrows+1;
+
+
 
                 SET result = CONCAT('insert succeeded, row count = ',nrows);
 
+
+
             ELSE
+
+
 
                 SET result = CONCAT('insert failed, error = ',code,', message = ',msg);
 
+
+
                 LEAVE read_loop;
+
+
 
             END IF;
 
+
+
         END LOOP;
+
+
 
     CLOSE v_recorrido;
 
+
+
     RETURN result;
+
+
 
 END ;;
 DELIMITER ;
@@ -1636,18 +2085,33 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `exceptionTest`(IN_val BOOLEAN) RETURNS text CHARSET utf8mb4
 BEGIN
 
+
+
     DECLARE specialty CONDITION FOR SQLSTATE '45000'; 
+
+
+
 
 
     IF IN_val = 1 THEN
 
+
+
         SIGNAL SQLSTATE '45000' 
+
         SET MESSAGE_TEXT = 'this is fucked up', 
+
             MYSQL_ERRNO  = 1000;
+
+
 
     END IF;
 
+
+
     RETURN "success";
+
+
 
 END ;;
 DELIMITER ;
@@ -1667,43 +2131,86 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` FUNCTION `insert_pasajero`(IN_nVenta INT,
 
+
+
     IN_nCorrida INT,
+
+
 
     IN_fSalida DATE,
 
+
+
     IN_hSalida TIME,
+
+
 
     IN_nOrigen INT,
 
+
+
     IN_nDestino INT,
+
+
 
     IN_aTipoPasajero VARCHAR(2),
 
+
+
     IN_aPasajero TEXT,
+
+
 
     IN_nAsiento VARCHAR(2),
 
+
+
     IN_aTipoVenta VARCHAR(4),
+
+
 
     IN_nMontoBase DECIMAL(6,2),
 
+
+
     IN_nMontoDescuento DECIMAL(6,2),
+
+
 
     IN_nIva DECIMAL(6,2),
 
+
+
     IN_aEstado CHAR(20), 
+
     IN_nTerminal INT,
+
+
 
     IN_nPromocion INT,
 
+
+
     IN_nDescuento INT
+
+
 
     ) RETURNS text CHARSET utf8mb4
 BEGIN
 
+
+
     DECLARE specialty CONDITION FOR SQLSTATE '45000'; 
+
     DECLARE retorno TEXT DEFAULT ""; 
+
     DECLARE var_idBoletoVendido INT DEFAULT 0;
+
+
+
+
+
+
 
 
 
@@ -1711,53 +2218,103 @@ BEGIN
 
     INSERT INTO Boletosvendidos
 
+
+
         (nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
+
+
 
             aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal)
 
+
+
         VALUES
+
+
 
             (IN_nVenta,IN_nCorrida, IN_fSalida, IN_hSalida, IN_nOrigen, IN_nDestino, IN_aTipoPasajero, IN_aPasajero, IN_nAsiento,
 
+
+
                 IN_aTipoVenta, IN_nMontoBase, IN_nMontoDescuento, IN_nIva, IN_aEstado, IN_nTerminal);
+
+
 
     SET var_idBoletoVendido=LAST_INSERT_ID(); 
 
 
 
+
+
+
+
     IF IN_nPromocion!=0 OR IN_nPromocion!=NULL THEN
+
+
 
         INSERT INTO boletosvendidos_promociones (nBoletoVendido, nPromocion)
 
+
+
             VALUES (var_idBoletoVendido,IN_nPromocion);
 
+
+
     END IF;
+
+
+
+
 
 
 
 	IF IN_nVenta=0 OR IN_fSalida="" OR IN_hSalida="" OR IN_aTipoPasajero="" OR IN_aPasajero=""
 
+
+
 		OR IN_nAsiento=0 OR IN_aTipoVenta="" OR IN_nMontoBase=0 OR IN_nIva=0 or IN_aEstado="" 
+
+
 
 		OR IN_nTerminal=0
 
+
+
 		THEN
 
+
+
 			SIGNAL SQLSTATE '45000' 
+
 			SET MESSAGE_TEXT = 'ESCRIBA TODOS LOS DATOS DEL PASAJERO', 
+
 				MYSQL_ERRNO  = 1000;
+
+
 
 	END IF;
 
 
 
+
+
+
+
     IF var_idBoletoVendido!=0 THEN
+
+
 
         SET retorno=var_idBoletoVendido;
 
+
+
     END IF;
 
+
+
     RETURN retorno;
+
+
 
 END ;;
 DELIMITER ;
@@ -1775,4 +2332,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-17 17:03:22
+-- Dump completed on 2022-10-19 13:09:42

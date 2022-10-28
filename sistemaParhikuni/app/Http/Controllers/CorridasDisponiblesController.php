@@ -23,11 +23,13 @@ class CorridasDisponiblesController extends Controller
     public function index(){
         $corridasDisponibles = CorridasDisponibles::
             // whereDate('fSalida', '>=', Carbon::now()->addDays(-1)->toDateString())
-            whereRaw('timestamp(`fSalida`, hSalida) >= DATE_SUB( CURRENT_TIMESTAMP, INTERVAL 12 HOUR) AND fSalida>=DATE_SUB( CURRENT_DATE, INTERVAL 1 DAY)')
+            // whereRaw('timestamp(`fSalida`, hSalida) >= DATE_SUB( CURRENT_TIMESTAMP, INTERVAL 12 HOUR) AND fSalida>=DATE_SUB( CURRENT_DATE, INTERVAL 1 DAY)')
+            whereRaw('timestamp(`fSalida`, hSalida) >=  DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR)')
             ->orderBy("fSalida", "ASC")
             ->orderBy("hSalida", "ASC")
-            // ->toSql();
             ->paginate($this->elementsPerPage);
+            // ->toSql();
+            // ->get();
         // dd($corridasDisponibles);
         return view('corridasDisponibles.index',[
             "corridasDisponibles" => $corridasDisponibles
@@ -80,7 +82,6 @@ class CorridasDisponiblesController extends Controller
             }
         }
     }
-
 
     public function venta(){
         return view("venta.filtros");

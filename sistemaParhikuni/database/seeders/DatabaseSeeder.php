@@ -19,10 +19,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            ventaSeeder::class,
-        ]);
-        // PERMISOS
+        //======== [    PERMISOS    ] ========
+        //      Usuarios
         Permission::create(['name' => 'users.index']);
         Permission::create(['name' => 'users.store']);
         Permission::create(['name' => 'users.edit']);
@@ -31,13 +29,32 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'users.addrol']);
         Permission::create(['name' => 'users.removerol']);
         Permission::create(['name' => 'users.editPermissions']);
+        
+        //      Personas
+        Permission::create(['name' => 'personas.update']);
 
+        //      Corridas programadas
+        Permission::create(['name' => 'corridas.programadas.index']);
+        Permission::create(['name' => 'corridas.programadas.store']);
+        Permission::create(['name' => 'corridas.programadas.show']);
+        Permission::create(['name' => 'corridas.programadas.destroy']);
+        Permission::create(['name' => 'corridas.programadas.transfer']);
+        Permission::create(['name' => 'corridas.programadas.storeTransfer']);
+        
+        //      Corridas disponibles
+        Permission::create(['name' => 'corridas.disponibles.index']);
+        Permission::create(['name' => 'corridas.disponibles.edit']);
+        Permission::create(['name' => 'corridas.disponibles.update']);
+        
+        //      Boletos
+        Permission::create(['name' => 'boletos.limbo.show']);
+        
+        //      Personal
+        Permission::create(['name' => 'personal.conductores.index']);
+        Permission::create(['name' => 'personal.conductores.edit']);
+        Permission::create(['name' => 'personal.conductores.update']);
 
-        Permission::create(['name' => 'corridasProgramadas.index']);
-        Permission::create(['name' => 'corridasDisponibles.index']);
-
-
-        //  ROLES
+        //======== [    ROLES    ] ========
         $admin = Role::create(['name' => 'Admin']); // sistemas
         $publicoGeneral = Role::create(['name' => 'publicoGeneral']);
         $servicios = Role::create(['name' => 'servicios']);
@@ -66,8 +83,20 @@ class DatabaseSeeder extends Seeder
         */
 
         $servicios->givePermissionTo([
-            'corridasProgramadas.index',
-            'corridasDisponibles.index',
+            'corridas.programadas.index',
+            'corridas.programadas.store',
+            'corridas.programadas.show',
+            'corridas.programadas.destroy',
+            'corridas.programadas.transfer',
+            'corridas.programadas.storeTransfer',
+
+            'corridas.disponibles.index',
+            'corridas.disponibles.edit',
+            'corridas.disponibles.update',
+
+            'personal.conductores.index',
+            'personal.conductores.edit',
+            'personal.conductores.update',
         ]);
 
         $usuarioAdmin = User::create([
@@ -89,7 +118,7 @@ class DatabaseSeeder extends Seeder
         $usuarioSergio->givePermissionTo('users.index');
         // $usuarioSergio->revokePermissionTo('users.index');
         // $usuarioAdmin->assignRole('Admin');
-        \App\Models\User::factory(25)->create();
+        \App\Models\User::factory(3)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -97,7 +126,9 @@ class DatabaseSeeder extends Seeder
         // ]);
         
         // OficinasSeeder::run();
-
+        $this->call([
+            ventaSeeder::class,
+        ]);
 
         DB::unprepared('SELECT corridasPorDia("2022-08-01", 60);');
     }

@@ -22,6 +22,11 @@
         <br>
     </p>
 
+    <form action=""
+        class="row needs-validation" method="post">
+
+    </form>
+
     <div style="overflow-x:auto;overflow-y: hidden;">
         <table class="table table-stripped table-parhi">
             <thead>
@@ -34,6 +39,7 @@
                     <th>Estado</th>
                     <th>Autobus</th>
                     <th>Conductor</th>
+                    <th>Boletos vendidos</th>
                     <th colspan="2"></th>
                 </tr>
             </thead>
@@ -65,19 +71,35 @@
                     <td>{{ $cp->aEstado }}</td>
                     <td>{{ $cp->autobus->nNumeroEconomico }}</td>
                     <td>{{ ($cp->nNumeroConductor==null) ? "NA": $cp->conductor->persona->aApellidos." - ".$cp->conductor->persona->aNombres}}</td>
-                    
+                    <td>{{ $cp->aEstado=="C" ? sizeof($cp->boletosEnLimbo()) : sizeof($cp->boletosVendidos) }}</td>
                     <td>
-                        <a href="{{ route('corridas.disponibles.edit', $cp->nNumero) }}">
-                            <span class="btn-collap" title="Editar">
-                                <label class="btn btn-sm btn-primary"
-                                    for="edit-{{$cp->nNumero}}">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    <span>Editar</span>
-                                </label>
-                                <input id="edit-{{$cp->nNumero}}" type="submit"
-                                class="btn" onclick="">
-                            </span>
-                        </a>
+                        @if($cp->aEstado=="C" && sizeof($cp->boletosEnLimbo())>0)
+                            <a href="{{ route('boletos.limbo.show', $cp->nNumero) }}">
+                                <span class="btn-collap" title="Editar">
+                                    <label class="btn btn-sm btn-primary"
+                                        for="edit-{{$cp->nNumero}}">
+                                        <i class="fa-solid fa-arrow-rotate-right"></i>
+                                        <span>Reubicar pasajeros</span>
+                                    </label>
+                                    <input id="edit-{{$cp->nNumero}}" type="submit"
+                                    class="btn" onclick="">
+                                </span>
+                            </a>
+                        @elseif($cp->aEstado=="C" && sizeof($cp->boletosEnLimbo())>0) 
+                        
+                        @else
+                            <a href="{{ route('corridas.disponibles.edit', $cp->nNumero) }}">
+                                <span class="btn-collap" title="Editar">
+                                    <label class="btn btn-sm btn-primary"
+                                        for="edit-{{$cp->nNumero}}">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Editar</span>
+                                    </label>
+                                    <input id="edit-{{$cp->nNumero}}" type="submit"
+                                    class="btn" onclick="">
+                                </span>
+                            </a>
+                        @endif
                     </td>
                     <td>
                         <form action="{{route('corridas.programadas.destroy',$cp)}}" method="POST">

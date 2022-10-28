@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\conductores;
 use App\Models\Autobus;
 use App\Models\CorridasEstados;
+use App\Models\BoletosVendidos;
 use App\Models\CorridasDisponiblesHistorial;
 use DB;
 use Auth;
@@ -84,5 +85,23 @@ class CorridasDisponibles extends Model
             "aEstado" => $ultimoHist->aEstadoAnterior
         ]);
         return $this;
+    }
+
+    public function boletosVendidos(){
+        return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero');
+    }
+
+    public function boletosEnLimbo(){
+        return DB::select('
+            SELECT *
+                FROM `boletosvendidos`
+                where nCorrida=:id AND aEstado="LM"
+            ', [
+                'id' => $this->nNumero
+            ]);
+    }
+
+    public static function filtrar(){
+        return "owo";
     }
 }

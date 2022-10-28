@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="col-12 col-sm-10 col-md-8 col-lg-10 mx-auto">
-    <h3>Corrida programada {{ @$corridaProgramada->nNumero }}</h3>
+    <h3>Transferir corrida programada {{ @$corridaProgramada->nNumero }}</h3>
 
     <div>
         @if(session()->has('status'))
@@ -187,7 +187,8 @@
             <div class="col-12 col-md-8">
                 <input id="fechaDeInicio" type="date" name="fechaDeInicio" placeholder="Apellidos" class="form-control"
                     value="{{old('fechaDeInicio')}}"
-                    min="{{ date('Y-m-d', strtotime($corridaProgramada->fFin. ' + 1 days')) }}" required>
+                    min="{{ $corridaProgramada->fInicio<date('Y-m-d') ? date('Y-m-d') : $corridaProgramada->fInicio }}"
+                    required>
             </div>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 row mb-2">
@@ -197,7 +198,8 @@
             <div class="col-12 col-md-8">
                 <input id="fechaDeFin" type="date" name="fechaDeFin" placeholder="Apellidos" class="form-control"
                     value="{{old('fechaDeFin')}}"
-                    min="{{ date('Y-m-d', strtotime($corridaProgramada->fFin. ' + 1 days')) }}" required>
+                    min="{{ $corridaProgramada->fInicio<date('Y-m-d') ? date('Y-m-d') : $corridaProgramada->fInicio }}"
+                    required>
             </div>
         </div>
         <table class="table mb-2 mx-4">
