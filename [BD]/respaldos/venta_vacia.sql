@@ -264,6 +264,9 @@ CREATE TABLE `conductores` (
   `fVigenciaLicencia` date NOT NULL,
   `aEstado` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `nNumeroAutobus` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`nNumeroConductor`),
   UNIQUE KEY `nNumeroConductor` (`nNumeroConductor`),
   KEY `nNumeroPersona` (`nNumeroPersona`),
@@ -705,6 +708,8 @@ CREATE TABLE `personas` (
   `nOficina` int(10) unsigned DEFAULT NULL,
   `aTipo` varchar(2) DEFAULT NULL,
   `updated_at` date NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`nNumeroPersona`),
   UNIQUE KEY `nNumeroPersona` (`nNumeroPersona`),
   KEY `nOficina` (`nOficina`),
@@ -783,15 +788,30 @@ DROP TABLE IF EXISTS `registropasopuntos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `registropasopuntos` (
-  `nNumero` bigint(20) unsigned NOT NULL,
-  `nItinerario` int(10) unsigned NOT NULL,
+  `nCorrida` bigint(20) unsigned NOT NULL,
+  `nConsecutivo` smallint(5) unsigned NOT NULL,
+  `fLlegada` datetime DEFAULT NULL,
+  `fSalida` datetime DEFAULT NULL,
+  PRIMARY KEY (`nCorrida`,`nConsecutivo`),
+  CONSTRAINT `registropasopuntos_ibfk_1` FOREIGN KEY (`nCorrida`) REFERENCES `corridasdisponibles` (`nNumero`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `registropasopuntos2`
+--
+
+DROP TABLE IF EXISTS `registropasopuntos2`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `registropasopuntos2` (
+  `nCorrida` bigint(20) unsigned NOT NULL,
+  `nConsecutivo` smallint(5) unsigned NOT NULL,
   `fLlegada` datetime NOT NULL,
   `fSalida` datetime NOT NULL,
-  PRIMARY KEY (`nNumero`,`nItinerario`),
-  KEY `nItinerario` (`nItinerario`),
-  CONSTRAINT `registropasopuntos_ibfk_1` FOREIGN KEY (`nItinerario`) REFERENCES `itinerario` (`nItinerario`),
-  CONSTRAINT `registropasopuntos_ibfk_2` FOREIGN KEY (`nNumero`) REFERENCES `corridasdisponibles` (`nNumero`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`nCorrida`,`nConsecutivo`),
+  CONSTRAINT `registropasopuntos2_ibfk_1` FOREIGN KEY (`nCorrida`) REFERENCES `corridasdisponibles` (`nNumero`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2182,4 +2202,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-28 17:14:09
+-- Dump completed on 2022-10-31 17:47:33

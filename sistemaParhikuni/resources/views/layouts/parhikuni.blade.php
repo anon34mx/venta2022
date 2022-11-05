@@ -6,6 +6,7 @@
     <link rel="icon" type="image/x-icon" href="{{ Vite::asset('resources/images/favicon.ico') }}">
     <meta name="theme-color" content="#ccdede" >
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	
@@ -36,6 +37,9 @@
 </head>
 
 <body>
+    <div id="printed" class="float-right">
+        {{date("d-m-Y h:i:s")}}
+    </div>
     <div class="wrapper">
         <!-- Sidebar  -->
         <nav id="sidebar" class="active">
@@ -81,6 +85,9 @@
                             </li>
                             <li>
                                 <a href="{{route('corridas.disponibles.index')}}">disponibles</a>
+                            </li>
+                            <li>
+                                <a href="{{route('corridas.disponibles.index')}}">Firmas</a>
                             </li>
                         </ul>
                     </li>

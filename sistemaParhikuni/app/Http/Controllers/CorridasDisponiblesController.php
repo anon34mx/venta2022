@@ -11,10 +11,12 @@ use App\Models\CorridasEstados;
 use App\Models\Autobus;
 use App\Models\conductores;
 use App\Models\CorridasDisponiblesHistorial;
+use App\Models\RegistroPasoPuntos;
 
 use DB;
 use Auth;
 use Carbon\Carbon;
+use PDF;
 
 class CorridasDisponiblesController extends Controller
 {
@@ -57,33 +59,87 @@ class CorridasDisponiblesController extends Controller
             $corridaDisponible->desbloquear();
             return back()->with('status', 'Corrida desbloqueada');
         }
-        elseif($request->estado=="B" || $request->estado=="C"){
-            $corridaDisponible->cambiarEstado($request->estado);
-            return back()->with('status', 'Actualizado con éxito');
+        elseif(@$request->estado!=null){
+            $data["aEstado"]=$request->estado;
+        }
+
+        if($request->conductor!=null && $corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C"){ //
+            $data["nNumeroConductor"]=$request->conductor;
+            $data["aEstado"]="A";
+        }
+        if($request->autobus != $corridaDisponible->nNumeroAutobus){
+            $data["nNumeroAutobus"] = $request->autobus;
+        }
+        if(sizeof($data)==0){
+            return back()->withErrors("No se especificaron cambios");
         }else{
-            if($request->conductor!=null && $corridaDisponible->aEstado=="D" || $corridaDisponible->aEstado=="A"){
-                $data["aEstado"]="A";
-                $data["nNumeroConductor"]=$request->conductor;
-            }
-            if($request->autobus != $corridaDisponible->nNumeroAutobus){
-                $data["nNumeroAutobus"] = $request->autobus;
-            }
-            if(sizeof($data)==0){
-                return back()->withErrors("No se especificaron cambios");
-            }else{
-                $corridaDisponible->update($data);
+            if(@$request->estado!=null){
                 CorridasDisponiblesHistorial::create([
                     "corrida_disponible" => $corridaDisponible->nNumero,
                     "aEstadoAnterior" => $corridaDisponible->aEstado,
                     "aEstadoNuevo" => $data["aEstado"],
                     "user" => Auth::user()->id,
                 ]);
-                return back()->with('status', 'Actualizado con éxito');
             }
+            $corridaDisponible->update($data);
+            return back()->with('status', 'Actualizado con éxito');
         }
     }
 
     public function venta(){
         return view("venta.filtros");
+    }
+
+    public function despachar(CorridasDisponibles $corridaDisponible, Request $request){
+        if($corridaDisponible->aEstado=="C"){
+            return back()->withErrors("La corrida ".$corridaDisponible->nNumero." está cancelada");
+        }
+        if($corridaDisponible->nNumeroConductor==null || $corridaDisponible->nNumeroAutobus==null){
+            return redirect(route('corridas.disponibles.edit', $corridaDisponible))->withErrors("Para despachar, primero registra un conductor y autobus para esta corrida");
+        }
+
+        if(false){// revisar que no se esté realizando una venta para esta corrida
+            return back()->withErrors("Se está realizando una venta para esta corrida");
+        }else{
+            if(sizeof($corridaDisponible->boletos) < $corridaDisponible->servicio->ocupacioMinima){
+                # dd("notificar baja ocupacion");
+            }
+            $corridaDisponible->update(["aEstado"=>"R"]);
+            DB::table('registropasopuntos')->insert([
+                "nCorrida" => $corridaDisponible->nNumero,
+                "nConsecutivo" => 1,
+                "fLlegada" => date("Y-m-d H:i:s"), #--  cambiar por now, dato de mysql
+                "fSalida" => date("Y-m-d H:i:s") #--    cambiar por now, dato de mysql
+            ]);
+            return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
+        }
+    }
+    public function guiaPasajeros(CorridasDisponibles $corridaDisponible){
+        // dd($corridaDisponible);
+        // if($request->mode=="Descargar"){
+        //     $pdf = PDF::loadView('corridasDisponibles.guiaPasajeros', ["corridaDisponible" => $corridaDisponible]);
+        //     return $pdf->download('articles.pdf');
+        // }elseif($request->mode=="Ver pdf"){
+        //     $pdf = PDF::loadView('corridasDisponibles.guiaPasajeros', ["corridaDisponible" => $corridaDisponible]);
+        //     $pdf->render();
+        //     return $pdf->stream();
+        // }else{
+        //     return view("corridasDisponibles.guiaPasajeros",[
+        //         "corridaDisponible" => $corridaDisponible
+        //     ]);
+        // }
+        return view("corridasDisponibles.guiaPasajeros",[
+                "corridaDisponible" => $corridaDisponible
+            ]);
+    }
+
+    public function puntosDeControl(CorridasDisponibles $corridaDisponible){
+        // dd($corridaDisponible->puntosDeControl());
+        return view('corridasDisponibles.puntosDeControl',[
+            "corridaDisponible" => $corridaDisponible
+        ]);
+    }
+    public function checkpoint(){
+
     }
 }

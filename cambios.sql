@@ -160,3 +160,17 @@ ALTER TABLE personas
 ADD COLUMN created_at datetime default current_timestamp,
 -- ADD COLUMN updated_at datetime,
 ADD COLUMN deleted_at datetime;
+
+DROP TABLE IF EXISTS `registropasopuntos`;
+CREATE TABLE `registropasopuntos` (
+  `nCorrida` BIGINT unsigned NOT NULL,
+  `nConsecutivo` smallint unsigned NOT NULL,
+  `fLlegada` datetime,
+  `fSalida` datetime,
+
+  PRIMARY KEY (`nCorrida`,`nConsecutivo`),
+  -- KEY `nItinerario` (`nItinerario`),
+  FOREIGN KEY (nCorrida)
+    REFERENCES corridasdisponibles(nNumero)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+);

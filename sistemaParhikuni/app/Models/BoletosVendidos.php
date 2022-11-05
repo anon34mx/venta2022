@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\TipoPasajero;
+use App\Models\Oficinas;
+
 class BoletosVendidos extends Model
 {
     use HasFactory;
@@ -31,6 +34,16 @@ class BoletosVendidos extends Model
         'fCreacion',
         'nTerminal',
     ];
+    public function tipo(){
+        return $this->hasOne(TipoPasajero::class, 'aClave', 'aTipoPasajero');
+    }
+
+    public function origen(){
+        return $this->hasOne(Oficinas::class, "nNumero", "nOrigen");
+    }
+    public function destino(){
+        return $this->hasOne(Oficinas::class, "nNumero", "nDestino");
+    }
 }
 
 

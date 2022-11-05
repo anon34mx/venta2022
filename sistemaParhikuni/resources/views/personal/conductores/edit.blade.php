@@ -27,7 +27,7 @@
             <div class="col-12 col-md-8 col-lg-8">
                 <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Nombre"
                     value="{{$conductor->persona->aNombres}}" pattern="([a-zA-ZÀ-ÖØ-öø-ÿ]{3,})+([ a-zA-ZÀ-ÖØ-öø-ÿ]{3,})?"
-                    required>
+                    required @cannot("personas.update") {{"disabled"}} @endcannot>
             </div>
         </div>
         <div class="col-12 col-md-6 row mb-2">
@@ -37,9 +37,10 @@
             <div class="col-12 col-md-8 col-lg-8">
                 <input id="apellidos" class="form-control" type="text" name="apellidos" placeholder="Apellidos"
                     value="{{$conductor->persona->aApellidos}}" pattern="([a-zA-ZÀ-ÖØ-öø-ÿ]{3,})+([ a-zA-ZÀ-ÖØ-öø-ÿ]{3,})?"
-                    required>
+                    required @cannot("personas.update") {{"disabled"}} @endcannot>
             </div>
         </div>
+        @can("personas.update") 
         <div class="col-12 col-md-6 row mb-2">
             <div class="col-12 col-md-4 col-lg-4 text-md-right">
                 <label for="oficina">Oficina</label>
@@ -57,6 +58,7 @@
                 </select>
             </div>
         </div>
+        @endcan
         <div class="col-12 col-md-6 row mb-2">
             <div class="col-12 col-md-4 col-lg-4 text-md-right">
                 <label for="numeroDeLicencia">Licencia</label>

@@ -3,6 +3,21 @@
 @section('content')
 <div class="col-12">
     <h3>Corridas disponibles</h3>
+
+    @if(session()->has('status'))
+        <div>
+            <p class="alert alert-success">{{session('status')}}</p>
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="card-body mt-2 mb-2 ">
+            <div class="alert-danger px-3 py-3">
+                @foreach($errors->all() as $error)
+                - {{$error}}<br>
+                @endforeach
+            </div>
+        </div>
+    @endif
     <p>
         poner busqueda
         <br>
@@ -40,20 +55,19 @@
                     <th>Autobus</th>
                     <th>Conductor</th>
                     <th>Boletos vendidos</th>
-                    <th colspan="2"></th>
+                    <th colspan="7"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($corridasDisponibles as $cp)
+                @foreach($corridasDisponibles as $cd)
                 <tr class='
-                        {{ $cp->aEstado=="C" ? "text-danger" : ""}}
-                        {{ $cp->aEstado=="B" ? "text-secondary" : ""}}
-                    '
-                >
-                    <td>{{$cp->nNumero}}</td>
+                        {{ $cd->aEstado=="C" ? "text-danger" : ""}}
+                        {{ $cd->aEstado=="B" ? "text-secondary" : ""}}
+                    '>
+                    <td>{{$cd->nNumero}}</td>
                     <td>
                         @php
-                        $itinerario = $cp->getItinerario();
+                        $itinerario = $cd->getItinerario();
                         $size = sizeof($itinerario);
                         for($i=0;$i<$size; $i++){
                             // var_dump($itinerario[$i]);
@@ -65,53 +79,142 @@
                         }
                         @endphp
                     </td>
-                    <td>{{ $cp->servicio->aDescripcion }}</td>
-                    <td class="nobreak">{{ $cp->fSalida }}</td>
-                    <td class="nobreak">{{ substr($cp->hSalida, 0, 5) }}h</td>
-                    <td>{{ $cp->aEstado }}</td>
-                    <td>{{ $cp->autobus->nNumeroEconomico }}</td>
-                    <td>{{ ($cp->nNumeroConductor==null) ? "NA": $cp->conductor->persona->aApellidos." - ".$cp->conductor->persona->aNombres}}</td>
-                    <td>{{ $cp->aEstado=="C" ? sizeof($cp->boletosEnLimbo()) : sizeof($cp->boletosVendidos) }}</td>
+                    <td>{{ $cd->servicio->aDescripcion }}</td>
+                    <td class="nobreak">{{ date_format(date_create($cd->fSalida), "d/m/Y") }}</td>
+                    <td class="nobreak">{{ substr($cd->hSalida, 0, 5) }}h</td>
+                    <td>{{ $cd->estado->aEstado }}</td>
+                    <td>{{ $cd->autobus->nNumeroEconomico }}</td>
+                    <td>{{ ($cd->nNumeroConductor==null) ? "NA": $cd->conductor->persona->aApellidos." - ".$cd->conductor->persona->aNombres}}</td>
+                    <td>{{ $cd->aEstado=="C" ? sizeof($cd->boletosEnLimbo()) : sizeof($cd->boletos) }}</td>
                     <td>
-                        @if($cp->aEstado=="C" && sizeof($cp->boletosEnLimbo())>0)
-                            <a href="{{ route('boletos.limbo.show', $cp->nNumero) }}">
-                                <span class="btn-collap" title="Editar">
+                        @if($cd->aEstado=="C" && sizeof($cd->boletosEnLimbo())>0)
+                            <a href="{{ route('boletos.limbo.show', $cd->nNumero) }}">
+                                <span class="btn-collap" title="Reubicar pasajeros">
                                     <label class="btn btn-sm btn-primary"
-                                        for="edit-{{$cp->nNumero}}">
+                                        for="edit-{{$cd->nNumero}}">
                                         <i class="fa-solid fa-arrow-rotate-right"></i>
                                         <span>Reubicar pasajeros</span>
                                     </label>
-                                    <input id="edit-{{$cp->nNumero}}" type="submit"
+                                    <input id="edit-{{$cd->nNumero}}" type="submit"
                                     class="btn" onclick="">
                                 </span>
                             </a>
-                        @elseif($cp->aEstado=="C" && sizeof($cp->boletosEnLimbo())>0) 
-                        
+                        @elseif($cd->aEstado=="C" && sizeof($cd->boletosEnLimbo())==0)
+                            <a href="{{ route('corridas.disponibles.edit', $cd->nNumero) }}">
+                                <span class="btn-collap" title="Ver detalles">
+                                    <label class="btn btn-sm btn-primary"
+                                        for="edit-{{$cd->nNumero}}">
+                                        <i class="fa-solid fa-eye"></i>
+                                        <span>Ver detalles</span>
+                                    </label>
+                                    <input id="edit-{{$cd->nNumero}}" type="submit"
+                                    class="btn" onclick="">
+                                </span>
+                            </a>
                         @else
-                            <a href="{{ route('corridas.disponibles.edit', $cp->nNumero) }}">
+                            <a href="{{ route('corridas.disponibles.edit', $cd->nNumero) }}">
                                 <span class="btn-collap" title="Editar">
                                     <label class="btn btn-sm btn-primary"
-                                        for="edit-{{$cp->nNumero}}">
+                                        for="edit-{{$cd->nNumero}}">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                         <span>Editar</span>
                                     </label>
-                                    <input id="edit-{{$cp->nNumero}}" type="submit"
+                                    <input id="edit-{{$cd->nNumero}}" type="submit"
                                     class="btn" onclick="">
                                 </span>
                             </a>
                         @endif
                     </td>
                     <td>
-                        <form action="{{route('corridas.programadas.destroy',$cp)}}" method="POST">
+                        @if($cd->aEstado=="C" || $cd->aEstado=="R")
+                            <span class="btn-collap" title="Despachar">
+                                <label class="btn btn-sm btn-secondary">
+                                    <i class="fa-sharp fa-solid fa-van-shuttle"></i>
+                                    <span>Despachar</span>
+                                </label>
+                                <input class="btn">
+                            </span>
+                        @else
+                        <form action="{{route('corridas.disponibles.despachar',$cd)}}" method="POST">
+                            @csrf
+                            @method('')
+                            <span class="btn-collap" title="Despachar">
+                                <label class="btn btn-sm btn-success"
+                                    for="del-{{ $cd->nNumero }}">
+                                    <i class="fa-sharp fa-solid fa-van-shuttle"></i>
+                                    <span>Despachar</span>
+                                </label>
+                                <input id="del-{{ $cd->nNumero }}" type="submit"
+                                class="btn"
+                                @if(sizeof($cd->boletos) < $cd->servicio->ocupacioMinima)
+                                    onclick="return confirm('La corrida tiene {{sizeof($cd->boletos)}} pasajeros, el mínimo necesario es {{$cd->servicio->ocupacioMinima}}.\n¿Despachar corrida de igual forma?')"
+                                @endif
+                                >
+                            </span>
+                        </form>
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('corridas.disponibles.guiaPasajeros', $cd->nNumero) }}">
+                            <span class="btn-collap" title="Guia pasajeros">
+                                <label class="btn btn-sm btn-primary"
+                                    for="guia-{{$cd->nNumero}}">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Guia pasajeros</span>
+                                </label>
+                                <input id="guia-{{$cd->nNumero}}" type="submit"
+                                class="btn" onclick="">
+                            </span>
+                        </a>
+                    </td>
+                    <td>
+                        @if($cd->aEstado=="C")
+                            <span class="btn-collap" title="Paso puntos">
+                                <label class="btn btn-sm btn-secondary">
+                                    <i class="fa-solid fa-check-to-slot"></i>
+                                    <span>Paso puntos</span>
+                                </label>
+                                <input class="btn">
+                            </span>
+                        @else
+                        <a href="{{ route('corridas.disponibles.puntosDeControl', $cd->nNumero) }}">
+                            <span class="btn-collap" title="puntosDeControl">
+                                <label class="btn btn-sm btn-primary"
+                                    for="hist-{{$cd->nNumero}}">
+                                    <i class="fa-solid fa-check-to-slot"></i>
+                                    <span>puntosDeControl</span>
+                                </label>
+                                <input id="hist-{{$cd->nNumero}}" type="submit"
+                                class="btn" onclick="">
+                            </span>
+                        </a>
+                        @endif
+                    </td>
+                    </td>
+                    <!-- <td>
+                        <a href="{{ route('corridas.disponibles.puntosDeControl', $cd->nNumero) }}">
+                            <span class="btn-collap" title="Firma llegada/salida">
+                                <label class="btn btn-sm btn-primary"
+                                    for="edit-{{$cd->nNumero}}">
+                                    <i class="fa-solid fa-check-to-slot"></i>
+                                    <span>Firma llegada/salida</span>
+                                </label>
+                                <input id="edit-{{$cd->nNumero}}" type="submit"
+                                class="btn" onclick="">
+                            </span>
+                        </a>
+                    </td>  -->
+                    <td>
+                        <form action="{{route('corridas.programadas.destroy',$cd)}}" method="POST">
                             @csrf
                             @method('DELETE')
                             <span class="btn-collap" title="Eliminar">
                                 <label class="btn btn-sm btn-danger"
-                                    for="del-{{ $cp->nNumero }}">
+                                    for="del-{{ $cd->nNumero }}">
                                     <i class="fa-solid fa-circle-minus"></i>
                                     <span>Eliminar</span>
                                 </label>
-                                <input id="del-{{ $cp->nNumero }}" type="submit"
+                                <input id="del-{{ $cd->nNumero }}" type="submit"
                                 class="btn"
                                 onclick="return confirm('¿Eliminar corrida programada?')">
                             </span>

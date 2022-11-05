@@ -110,6 +110,20 @@ Route::get('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\Co
 Route::post('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'update'])
     ->name('corridas.disponibles.update')
     ->middleware('permission:corridas.disponibles.update');
+    // Registro paso puntos
+Route::post('/corridas/disponibles/{corridaDisponible}/despachar', [App\Http\Controllers\CorridasDisponiblesController::class, 'despachar'])
+    ->name('corridas.disponibles.despachar')
+    ->middleware('permission:corridas.disponibles.despachar');
+Route::get('/corridas/disponibles/{corridaDisponible}/guia', [App\Http\Controllers\CorridasDisponiblesController::class, 'guiaPasajeros'])
+    ->name('corridas.disponibles.guiaPasajeros')
+    ->middleware('permission:corridas.disponibles.guiaPasajeros');
+// Route::post('/corridas/disponibles/{corridaDisponible}/registro', [App\Http\Controllers\CorridasDisponiblesController::class, 'checkpoint'])
+//     ->name('corridas.disponibles.checkpoint')
+//     ->middleware('permission:corridas.disponibles.checkpoint');
+Route::get('/corridas/disponibles/{corridaDisponible}/puntosDeControl', [App\Http\Controllers\CorridasDisponiblesController::class, 'puntosDeControl'])
+    ->name('corridas.disponibles.puntosDeControl')
+    ->middleware('permission:corridas.disponibles.puntosDeControl');
+
 
 // BOLETOS VENDIDOS
 ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
@@ -134,7 +148,9 @@ Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\Co
 Route::get('/test', function(){
     return view('test2');
 }); //->middleware('permission:test');
-
+Route::get('/phpinfo', function() {
+    return phpinfo();
+});
 
 Route::get('/logout', function(Request $request){
     Auth::logout();

@@ -144,7 +144,9 @@
             </div>
         </div>
         <div class="col-12 justify-content-center">
-            @if($corridaDisponible->aEstado!="C")
+
+            <!--  -->
+            @if($corridaDisponible->aEstado!="C" && $corridaDisponible->aEstado!="R")
             <span class="btn-collap float-right mx-1" title="Guardar">
                 <label class="btn btn-sm btn-parhi-primary"
                     for="guardar">
@@ -154,7 +156,7 @@
                 <input id="guardar" type="submit"
                 class="btn">
             </span>
-            
+
             @endif
             <a href="{{route('corridas.disponibles.index')}}">
                 <span class="btn-collap float-left mx-1" title="volver">
@@ -169,5 +171,26 @@
             </a>
         </div>
     </form>
+    <div class="col-12">
+
+    </div>
+    <form class="float-right" action="{{route('corridas.disponibles.despachar',$corridaDisponible)}}" method="POST">
+    @csrf
+    @method('')
+    <span class="btn-collap float-right" title="Despachar">
+        <label class="btn btn-sm btn-success"
+            for="del-{{ $corridaDisponible->nNumero }}">
+            <i class="fa-sharp fa-solid fa-van-shuttle"></i>
+            <span>Despachar</span>
+        </label>
+        <input id="del-{{ $corridaDisponible->nNumero }}" type="submit"
+        class="btn"
+        @if(sizeof($corridaDisponible->boletos) < $corridaDisponible->servicio->ocupacioMinima)
+            onclick="return confirm('La corrida tiene {{sizeof($corridaDisponible->boletos)}} pasajeros, el mínimo necesario es {{$corridaDisponible->servicio->ocupacioMinima}}.\n¿Despachar corrida de igual forma?')"
+
+        @endif
+        >
+    </span>
+</form>
 </div>
 @endsection

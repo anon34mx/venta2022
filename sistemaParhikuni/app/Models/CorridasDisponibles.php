@@ -56,9 +56,31 @@ class CorridasDisponibles extends Model
             where cordis.nNumero=:id -- parametro
             order by iti.nConsecutivo ASC", [
                 'id' => $this->nNumero
+            ]
+        );
+    }
+
+    public function puntosDeControl(){
+        return DB::select("SELECT
+            iti.nItinerario as 'itinerario', iti.nConsecutivo as 'consecutivo',
+            tr.nNumero as 'tramo',
+            tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
+            tr.nDestino, ofiDes.aClave as 'claveDestino', ofiDes.aNombre as 'destino',
+            paso.*
+            FROM corridasdisponibles cordis
+            INNER JOIN itinerario as iti on iti.nItinerario=cordis.nItinerario
+            INNER JOIN tramos as tr on tr.nNumero=iti.nTramo
+            INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
+            INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
+            LEFT JOIN registropasopuntos paso
+                on paso.nConsecutivo=iti.nConsecutivo and paso.nCorrida=cordis.nNumero
+            where cordis.nNumero=:id -- parametro
+            order by iti.nConsecutivo ASC", [
+                'id' => $this->nNumero
             ]);
     }
     public function cambiarEstado($edo){
+
         CorridasDisponiblesHistorial::create([
             "corrida_disponible" => $this->nNumero,
             "aEstadoAnterior" => $this->aEstado,
@@ -73,7 +95,6 @@ class CorridasDisponibles extends Model
         $ultimoHist=CorridasDisponiblesHistorial::where("corrida_disponible", "=", $this->nNumero)
             ->orderBy("created_at","DESC")
             ->first();
-        // dd($ultimoHist->aEstadoAnterior);
         CorridasDisponiblesHistorial::create([
             "corrida_disponible" => $this->nNumero,
             "aEstadoAnterior" => $this->aEstado,
@@ -87,8 +108,21 @@ class CorridasDisponibles extends Model
         return $this;
     }
 
-    public function boletosVendidos(){
-        return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero');
+    public function despachable(){
+        return "#";
+    }
+
+    public function boletos(){
+        return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero')
+            ->where("aTipoPasajero", "!=", "PQ");
+    }
+    public function paquetes(){
+        return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero')
+            ->where("aTipoPasajero", "=", "PQ");
+    }
+    public function guiaPasajeros(){
+        return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero')
+            ->orderBy("nAsiento", "asc");
     }
 
     public function boletosEnLimbo(){

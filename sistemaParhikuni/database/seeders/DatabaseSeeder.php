@@ -130,6 +130,6 @@ class DatabaseSeeder extends Seeder
             ventaSeeder::class,
         ]);
 
-        DB::unprepared('SELECT corridasPorDia("2022-08-01", 60);');
+        DB::unprepared('SELECT corridasPorDia("2022-10-01", 60);');
     }
 }
