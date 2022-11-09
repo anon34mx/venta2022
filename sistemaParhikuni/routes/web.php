@@ -123,6 +123,9 @@ Route::get('/corridas/disponibles/{corridaDisponible}/guia', [App\Http\Controlle
 Route::get('/corridas/disponibles/{corridaDisponible}/puntosDeControl', [App\Http\Controllers\CorridasDisponiblesController::class, 'puntosDeControl'])
     ->name('corridas.disponibles.puntosDeControl')
     ->middleware('permission:corridas.disponibles.puntosDeControl');
+Route::post('/corridas/disponibles/{corridaDisponible}/puntosDeControl/registrar', [App\Http\Controllers\CorridasDisponiblesController::class, 'registrarPuntoDeControl'])
+    ->name('corridas.disponibles.registrarPuntoDeControl');
+    // ->middleware('permission:corridas.disponibles.registrarPuntoDeControl');
 
 
 // BOLETOS VENDIDOS

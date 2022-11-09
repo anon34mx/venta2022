@@ -28,7 +28,6 @@ class ventaSeeder extends Seeder
         $sql_poblar = file_get_contents($path_poblar);
         DB::unprepared($sql_poblar);
 
-
         // sobre la tabla de usuarios
         DB::unprepared("ALTER TABLE users
             ADD FOREIGN KEY FK_p (`persona_nNumero`)

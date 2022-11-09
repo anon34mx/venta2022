@@ -187,7 +187,7 @@ footer div{
 	.form-control {
 		background-color: white ;
 	}
-	body{
+	.bg-res-red{
 		background: linear-gradient(0deg, #e34d0f, #da1b12);
 	}
 	.login .card{
@@ -210,6 +210,7 @@ footer div{
 	}
 }
 @media (min-width: 576px) {
+	/**/
 }
 
 @media print {

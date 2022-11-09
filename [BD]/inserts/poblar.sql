@@ -79,7 +79,7 @@ INSERT INTO `corridas_estados` (`id`, `aEstado`, `orden`, `elegible`) VALUES
 
 ('D', 'Disponible', 1, 0),
 ('A', 'Asignada', 2, 0),
-('S', 'Lista para salir', 3, 0)
+('S', 'Lista para salir', 3, 1),
 ('R', 'En ruta', 4, 0),
 ('T', 'Terminada', 5, 0),
 ('L', 'Liquidada', 6, 0)
@@ -107,12 +107,12 @@ INSERT INTO `oficinas` (`nNumero`,`aClave`, `aNombre`, `aTipo`, `lDestino`) VALU
 (11,'ZIHUA','Zihuatanejo', 'int', 1),
 (12,'PEMO','Pensión morelia', 'int',0);
 
-INSERT INTO `tiposervicio`(`nNumero`, `aClave`, `aDescripcion`, `nDistribucionAsientos`) VALUES
-(1,"PL",'Platinum',2),
-(2,"UL",'Ultra',3),
-(3,"EX",'Express',4),
-(4,"PC",'Premium Class',5),
-(5, "CP", 'Business Class',5);
+INSERT INTO `tiposervicio`(`nNumero`, `aClave`, `aDescripcion`, `nDistribucionAsientos`, ocupacionMinima) VALUES
+(1,"PL",'Platinum',2, 8),
+(2,"UL",'Ultra',3, 7),
+(3,"EX",'Express',4, 6),
+(4,"PC",'Premium Class',5, 6),
+(5, "CP", 'Business Class',5, 7);
 
 INSERT INTO `autobuses`(`nNumeroEconomico`, nTipoServicio, nDistribucionAsientos) VALUES
 -- business
@@ -330,12 +330,12 @@ INSERT INTO promociones (nNumero,aTipo, aDescripcion, nMaximos, nDescuento, fIni
 
 -- HASTA AQUI VA BIEN
 
+/*
 -- INSERTAR información del pago
 INSERT INTO ventapago (nNumero,nVenta, aFormaPago, nFormaPagoSubtipo, nMonto, aFolioDocumento, aAutorizacionBanco)
 VALUES (1,1, "TB", 4, 99.99, 0, 0);
 -- INSERTAR PASAJERO
 -- pasajero normal
-/*
 INSERT INTO Boletosvendidos
 (nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
 aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES

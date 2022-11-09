@@ -1,7 +1,7 @@
 @extends('layouts.parhikuni')
 
 @section('content')
-<div class="col-12 col-sm-10 col-md-8 col-lg-10 mx-auto">
+<div class="col-12 col-sm-10 col-md-8 col-lg-11 mx-auto">
     <h3>Corrida disponible {{ @$corridaDisponible->nNumero }}</h3>
 
     <div>
@@ -19,7 +19,11 @@
         </div>
     @endif
 
-    <form action="{{route('corridas.disponibles.update', $corridaDisponible)}}" class="row needs-validation" method="post">
+    @if($corridaDisponible->aEstado == "T")        
+        <form class="row needs-validation">
+    @else
+        <form action="{{route('corridas.disponibles.update', $corridaDisponible)}}" class="row needs-validation" method="post">
+    @endif
         @csrf
         <div class="col-12 row mb-2">
             <div class="col-12 col-md-4 col-lg-3">
@@ -73,15 +77,15 @@
                 <label for="estado" class="float-md-right text-md-right">Estado*</label>
             </div>
             <div class="col-12 col-md-8">
-                @if($corridaDisponible->aEstado=="B")
+                @if($corridaDisponible->aEstado == "B")
                     <select name="estado" id="estado" class="form-control">
                         <option value="B" selected>Bloqueada</option>
                         <option value="DB" >Desbloquear</option>
                         <option value="C" >Cancelar</option>
                     </select>
-                @elseif($corridaDisponible->aEstado=="C")
+                @elseif($corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="T")
                     <select class="form-control" disabled>
-                        <option>Cancelada</option>
+                        <option>{{$corridaDisponible->estado->aEstado}}</option>
                     </select>
                 @else
                     <select name="estado" id="estado" class="form-control">
@@ -102,7 +106,7 @@
                 <label for="autobus" class="float-md-right text-md-right">Autobus*</label>
             </div>
             <div class="col-12 col-md-8">
-                    @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C")
+                    @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="T")
                     <select name="" id="autobus" class="form-control" disabled>
                         <option value="">{{$corridaDisponible->autobus->nNumeroEconomico}}</option>
                     </select>
@@ -125,8 +129,8 @@
                 <label for="conductor" class="float-md-right text-md-right">Conductor*</label>
             </div>
             <div class="col-12 col-md-8">
-                @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C")
-                    <select name="" id="autobus" class="form-control" disabled>
+                @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="T")
+                    <select name="" id="conductor" class="form-control" disabled>
                         <option value="">{{@$corridaDisponible->conductor->persona->aApellidos." - ".@$corridaDisponible->conductor->persona->aNombres}}</option>
                     </select>
                 @else
@@ -146,7 +150,7 @@
         <div class="col-12 justify-content-center">
 
             <!--  -->
-            @if($corridaDisponible->aEstado!="C" && $corridaDisponible->aEstado!="R")
+            @if($corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="B" && $corridaDisponible->aEstado!="C")
             <span class="btn-collap float-right mx-1" title="Guardar">
                 <label class="btn btn-sm btn-parhi-primary"
                     for="guardar">
@@ -156,7 +160,6 @@
                 <input id="guardar" type="submit"
                 class="btn">
             </span>
-
             @endif
             <a href="{{route('corridas.disponibles.index')}}">
                 <span class="btn-collap float-left mx-1" title="volver">
@@ -174,23 +177,25 @@
     <div class="col-12">
 
     </div>
-    <form class="float-right" action="{{route('corridas.disponibles.despachar',$corridaDisponible)}}" method="POST">
-    @csrf
-    @method('')
-    <span class="btn-collap float-right" title="Despachar">
-        <label class="btn btn-sm btn-success"
-            for="del-{{ $corridaDisponible->nNumero }}">
-            <i class="fa-sharp fa-solid fa-van-shuttle"></i>
-            <span>Despachar</span>
-        </label>
-        <input id="del-{{ $corridaDisponible->nNumero }}" type="submit"
-        class="btn"
-        @if(sizeof($corridaDisponible->boletos) < $corridaDisponible->servicio->ocupacioMinima)
-            onclick="return confirm('La corrida tiene {{sizeof($corridaDisponible->boletos)}} pasajeros, el mínimo necesario es {{$corridaDisponible->servicio->ocupacioMinima}}.\n¿Despachar corrida de igual forma?')"
+    @if($corridaDisponible->aEstado=="S")
+        <form class="float-right" action="{{route('corridas.disponibles.despachar',$corridaDisponible)}}" method="POST">
+            @csrf
+            @method('')
+            <span class="btn-collap float-right" title="Despachar">
+                <label class="btn btn-sm btn-success"
+                    for="del-{{ $corridaDisponible->nNumero }}">
+                    <i class="fa-sharp fa-solid fa-van-shuttle"></i>
+                    <span>Despachar</span>
+                </label>
+                <input id="del-{{ $corridaDisponible->nNumero }}" type="submit"
+                class="btn"
+                @if(sizeof($corridaDisponible->boletos) < $corridaDisponible->servicio->ocupacioMinima || $corridaDisponible->servicio->ocupacioMinima==0)
+                    onclick="return confirm('La corrida tiene {{sizeof($corridaDisponible->boletos)}} pasajeros, el mínimo necesario es {{$corridaDisponible->servicio->ocupacioMinima}}.\n¿Despachar corrida de igual forma?')"
 
-        @endif
-        >
-    </span>
-</form>
+                @endif
+                >
+            </span>
+        </form>
+    @endif
 </div>
 @endsection

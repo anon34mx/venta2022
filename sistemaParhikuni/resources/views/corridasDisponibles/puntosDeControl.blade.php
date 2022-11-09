@@ -25,11 +25,9 @@
         <table class="table table-stripped table-parhi">
             <thead>
                 <tr>
-                    <th>Tramo</th>
-                    <th>Origen</th>
-                    <th>Llegada</th>
-                    <th>Destino</th>
-                    <th>Salida</th>
+                    <th></th>
+                    <th colspan="2">Salida de </th>
+                    <th colspan="2">Llegada a</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,28 +39,52 @@
                     }
                 @endphp
                     <tr>
-                        <td>{{$control->consecutivo}}</td>
-                        <td>{{$control->origen}}</td>
-                        <td>{{$control->fLlegada}}</td>
-                        <td>{{$control->destino}}</td>
-                        <td>{{$control->fSalida}}</td>
+                        <td>{{@$control->consecutivo}}</td>
+                        <td class="text-right">{{@$control->origen}}</td>
+                        <td class="text-left">{{@$control->fSalida}}</td>
+                        <td class="text-right">{{@$control->destino}}</td>
+                        <td class="text-left">{{@$control->fLlegada}}</td>
                     </tr>
                 @php
                 }
                 @endphp
             </tbody>
         </table>
-        {{var_dump($siguiente)}}
-        
-        @if($siguiente->fLlegada==null)
-            <h3> Registrar llegada a {{$siguiente->origen}}</h3>
+        @if($siguiente==null)
+            <center><b>= Corrida terminada =</b></center>
         @else
-            <h3> Registrar salida de {{$siguiente->origen}}</h3>
-        @endif
-        
-        <form action="">
+            @if(@$siguiente->fSalida==null)
+                <h3> Registrar llegada a {{@$siguiente->origen}}</h3>
+            @else
+                <h3> Registrar salida de {{@$siguiente->origen}} a {{@$siguiente->destino}}</h3>
+            @endif
             
-        </form>
+            <form action="{{route('corridas.disponibles.registrarPuntoDeControl',$corridaDisponible)}}" method="POST" class="col-12 row needs-validation" novalidate>
+                @csrf
+                <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+                    <div class="col-12 col-md-4">
+                        <label for="contraseñaDeCondutor" class="float-md-right text-md-right">*Contraseña de conductor</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input id="contraseñaDeCondutor" class="form-control" type="password" name="contraseñaDeCondutor" placeholder="Contraseña de conductor"
+                            value="" pattern="(^([a-zA-Z0-9\.-_]+)(\d+)?$)" autocomplete="off" required>
+                    </div>
+                </div>
+                <div class="col-12 row">
+                    <div class="col-12 justify-content-center">
+                        <span class="btn-collap float-right" title="Guardar">
+                            <label class="btn btn-sm btn-parhi-primary"
+                                for="guardar">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Guardar</span>
+                            </label>
+                            <input id="guardar" type="submit"
+                            class="btn">
+                        </span>
+                    </div>
+                </div>
+            </form>
+        @endif
     </div>
 </div>
 @endsection

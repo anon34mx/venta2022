@@ -316,7 +316,7 @@ DROP TABLE IF EXISTS `corridas_estados`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corridas_estados` (
   `id` varchar(1) NOT NULL,
-  `aEstado` varchar(15) DEFAULT NULL,
+  `aEstado` varchar(17) DEFAULT NULL,
   `orden` tinyint(4) NOT NULL,
   `elegible` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
@@ -792,25 +792,10 @@ CREATE TABLE `registropasopuntos` (
   `nConsecutivo` smallint(5) unsigned NOT NULL,
   `fLlegada` datetime DEFAULT NULL,
   `fSalida` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`nCorrida`,`nConsecutivo`),
   CONSTRAINT `registropasopuntos_ibfk_1` FOREIGN KEY (`nCorrida`) REFERENCES `corridasdisponibles` (`nNumero`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `registropasopuntos2`
---
-
-DROP TABLE IF EXISTS `registropasopuntos2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `registropasopuntos2` (
-  `nCorrida` bigint(20) unsigned NOT NULL,
-  `nConsecutivo` smallint(5) unsigned NOT NULL,
-  `fLlegada` datetime NOT NULL,
-  `fSalida` datetime NOT NULL,
-  PRIMARY KEY (`nCorrida`,`nConsecutivo`),
-  CONSTRAINT `registropasopuntos2_ibfk_1` FOREIGN KEY (`nCorrida`) REFERENCES `corridasdisponibles` (`nNumero`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -930,6 +915,7 @@ CREATE TABLE `tiposervicio` (
   `aClave` char(2) NOT NULL,
   `aDescripcion` varchar(20) NOT NULL,
   `nDistribucionAsientos` int(10) unsigned NOT NULL,
+  `ocupacioMinima` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`nNumero`),
   UNIQUE KEY `nNumero` (`nNumero`),
   UNIQUE KEY `aClave` (`aClave`),
@@ -2202,4 +2188,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-31 17:47:33
+-- Dump completed on 2022-11-07 13:04:58

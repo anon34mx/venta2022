@@ -79,6 +79,38 @@ class CorridasDisponibles extends Model
                 'id' => $this->nNumero
             ]);
     }
+    public function registrarPasoPunto(){
+        // dd(sizeof($this->puntosDeControl())); // 3
+        // dd(($this->puntosDeControl())); // 3
+        foreach($this->puntosDeControl() as $control){
+            if($control->fSalida==null){
+                DB::table('registropasopuntos')->insert([
+                    "nCorrida" => $this->nNumero,
+                    "nConsecutivo" => $control->consecutivo,
+                    "fSalida" => date("Y-m-d H:i:s"),
+                ]);
+                break;
+            }elseif($control->fLlegada==null){
+                // dd($control->consecutivo); // 2
+                // echo $control->consecutivo; // 3
+                // echo "<br>";
+                // echo sizeof($this->puntosDeControl()); // 3
+                // exit;
+                if($control->consecutivo>=sizeof($this->puntosDeControl())){
+                    $this->update(["aEstado"=>"T"]);
+                }
+                DB::table('registropasopuntos')
+                ->where("nCorrida", "=", $this->nNumero)
+                ->where("nConsecutivo", "=", $control->consecutivo)
+                ->update([
+                    "fLlegada" => date("Y-m-d H:i:s")
+                ]);
+                break;
+            }
+        }
+        return true;
+    }
+
     public function cambiarEstado($edo){
 
         CorridasDisponiblesHistorial::create([
