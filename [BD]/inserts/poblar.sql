@@ -206,7 +206,8 @@ INSERT INTO `personas`(`nNumeroPersona`,`aNombres`, `aApellidos`, `nOficina`, `a
 (2,'ANGEL','ZAMORA DE JESUS',12,'EI'),
 (3,'FRANCISCO JAVIER','ALVARADO LEMUS',12,'EI'),
 (4,'PASCUAL','ESTEBAN GABRIEL',12,'EI'),
-(5,'JESUS','CORNEJO MAULE',12,null);
+(5,'JESUS','CORNEJO MAULE',12,null),
+(6, 'sergio', 'medrano', '8', 'EI')
 
 INSERT INTO `conductores`(`nNumeroConductor`, `nNumeroPersona`, `aLicencia`, `fVigenciaLicencia`, `aEstado`, `nNumeroAutobus`)
 VALUES

@@ -136,12 +136,11 @@
                 @else
                     <select name="conductor" id="conductor" class="form-control">
                         <option value="" {{($corridaDisponible->nNumeroAutobus==null) ? "selected":""}}>Seleccione</option>
+                        @if($corridaDisponible->conductor!=null)
+                        <option value="" selected>{{@$corridaDisponible->conductor->persona->aApellidos." ".@$corridaDisponible->conductor->persona->aNombres}}</option>
+                        @endif
                         @foreach($conductores as $conductor)
-                            @if($conductor->nNumeroConductor == $corridaDisponible->nNumeroConductor)
-                            <option value="{{$conductor->nNumeroConductor}}" selected>{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
-                            @else
                             <option value="{{$conductor->nNumeroConductor}}">{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
-                            @endif
                         @endforeach
                     </select>
                 @endif
@@ -150,7 +149,7 @@
         <div class="col-12 justify-content-center">
 
             <!--  -->
-            @if($corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="B" && $corridaDisponible->aEstado!="C")
+            @if($corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C")
             <span class="btn-collap float-right mx-1" title="Guardar">
                 <label class="btn btn-sm btn-parhi-primary"
                     for="guardar">

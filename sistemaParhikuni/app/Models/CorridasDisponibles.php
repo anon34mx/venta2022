@@ -12,7 +12,8 @@ use App\Models\Autobus;
 use App\Models\CorridasEstados;
 use App\Models\BoletosVendidos;
 use App\Models\CorridasDisponiblesHistorial;
-use DB;
+use App\Models\RegistroPasoPuntos;
+use DB, Carbon;
 use Auth;
 
 class CorridasDisponibles extends Model
@@ -80,35 +81,38 @@ class CorridasDisponibles extends Model
             ]);
     }
     public function registrarPasoPunto(){
-        // dd(sizeof($this->puntosDeControl())); // 3
-        // dd(($this->puntosDeControl())); // 3
-        foreach($this->puntosDeControl() as $control){
-            if($control->fSalida==null){
-                DB::table('registropasopuntos')->insert([
-                    "nCorrida" => $this->nNumero,
-                    "nConsecutivo" => $control->consecutivo,
-                    "fSalida" => date("Y-m-d H:i:s"),
-                ]);
-                break;
-            }elseif($control->fLlegada==null){
-                // dd($control->consecutivo); // 2
-                // echo $control->consecutivo; // 3
-                // echo "<br>";
-                // echo sizeof($this->puntosDeControl()); // 3
-                // exit;
-                if($control->consecutivo>=sizeof($this->puntosDeControl())){
-                    $this->update(["aEstado"=>"T"]);
-                }
-                DB::table('registropasopuntos')
-                ->where("nCorrida", "=", $this->nNumero)
-                ->where("nConsecutivo", "=", $control->consecutivo)
-                ->update([
-                    "fLlegada" => date("Y-m-d H:i:s")
-                ]);
-                break;
+        /**
+         * El conductor registra su llegada y salida de cada oficina
+        */
+
+        $registro=DB::select(
+            "SELECT iti.nItinerario, iti.nConsecutivo as consecutivo, reg.nCorrida as registro ,reg.despachado, reg.fSalida, reg.fLlegada
+            FROM corridasDisponibles cordis
+            INNER JOIN itinerario iti ON iti.nItinerario=cordis.nItinerario
+            LEFT JOIN registropasopuntos reg ON reg.nCorrida=cordis.nNumero AND reg.nConsecutivo=iti.nConsecutivo
+            WHERE cordis.nNumero=:id AND ( reg.fSalida IS NULL || reg.fLlegada IS NULL )
+            ORDER BY iti.nConsecutivo ASC LIMIT 1",[
+                "id" => $this->nNumero,
+            ]
+        );
+        if($registro==null){
+            return false;
+        }else{
+            if($registro[0]->fSalida==null){
+                $registro=RegistroPasoPuntos::upsert(
+                    ["nCorrida" => $this->nNumero, "nConsecutivo" => $registro[0]->consecutivo, "fSalida" => date("Y-m-d H:i:s")],
+                    ["nCorrida", "nConsecutivo"],
+                    ["fSalida"]
+                );
+            }elseif($registro[0]->fLlegada==null){
+                $registro=RegistroPasoPuntos::upsert(
+                    ["nCorrida" => $this->nNumero, "nConsecutivo" => $registro[0]->consecutivo, "fLlegada" => date("Y-m-d H:i:s")],
+                    ["nCorrida", "nConsecutivo"],
+                    ["fLlegada"]
+                );
             }
+            return true;
         }
-        return true;
     }
 
     public function cambiarEstado($edo){
@@ -140,8 +144,15 @@ class CorridasDisponibles extends Model
         return $this;
     }
 
-    public function despachable(){
-        return "#";
+    public function despachar($consecutivo){
+        $registro=RegistroPasoPuntos::firstOrCreate([
+            "nCorrida" => $this->nNumero,
+            "nConsecutivo" => $consecutivo,
+        ]);
+        if($registro->despachado==null){
+            $registro->update(["despachado"=>Carbon\Carbon::now()]);
+        }
+        return $registro;
     }
 
     public function boletos(){

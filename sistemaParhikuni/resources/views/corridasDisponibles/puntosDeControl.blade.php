@@ -26,6 +26,7 @@
             <thead>
                 <tr>
                     <th></th>
+                    <th>Despachada</th>
                     <th colspan="2">Salida de </th>
                     <th colspan="2">Llegada a</th>
                 </tr>
@@ -34,16 +35,17 @@
                 @php
                 $siguiente=null;
                 foreach($corridaDisponible->puntosDeControl() as $control){
-                    if($siguiente==null && $control->fLlegada==null){
+                    if($siguiente==null && $control->fLlegada==null || $control->fLlegada=="0000-00-00 00:00:00"){
                         $siguiente=$control;
                     }
                 @endphp
                     <tr>
                         <td>{{@$control->consecutivo}}</td>
+                        <td> {{ @$control->despachado!=null ? "✔️" : "❌"}} </td>
                         <td class="text-right">{{@$control->origen}}</td>
-                        <td class="text-left">{{@$control->fSalida}}</td>
+                        <td class="text-left">➡{{@$control->fSalida}}</td>
                         <td class="text-right">{{@$control->destino}}</td>
-                        <td class="text-left">{{@$control->fLlegada}}</td>
+                        <td class="text-left">⬅{{@$control->fLlegada}}</td>
                     </tr>
                 @php
                 }
@@ -54,9 +56,9 @@
             <center><b>= Corrida terminada =</b></center>
         @else
             @if(@$siguiente->fSalida==null)
-                <h3> Registrar llegada a {{@$siguiente->origen}}</h3>
-            @else
                 <h3> Registrar salida de {{@$siguiente->origen}} a {{@$siguiente->destino}}</h3>
+            @else
+                <h3> Registrar llegada a {{@$siguiente->origen}}</h3>
             @endif
             
             <form action="{{route('corridas.disponibles.registrarPuntoDeControl',$corridaDisponible)}}" method="POST" class="col-12 row needs-validation" novalidate>

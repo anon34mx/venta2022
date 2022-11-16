@@ -14,6 +14,8 @@ use App\Models\CorridasDisponiblesHistorial;
 use App\Models\RegistroPasoPuntos;
 use App\Models\Oficinas;
 
+use App\Http\Controllers\SmsController;
+
 use DB;
 use Auth;
 use Carbon\Carbon;
@@ -88,12 +90,12 @@ class CorridasDisponiblesController extends Controller
     public function edit(CorridasDisponibles $corridaDisponible){
         $conductores=conductores::
             whereRaw("conductores.nNumeroConductor NOT IN (
-                SELECT cordis.nNumeroConductor FROM corridasdisponibles cordis WHERE cordis.aEstado IN ('A','S', 'R') GROUP BY cordis.nNumeroConductor
+                SELECT IF(cordis.nNumeroConductor is NULL, 0 , cordis.nNumeroConductor) FROM corridasdisponibles cordis WHERE cordis.aEstado IN ('A','S', 'R') GROUP BY cordis.nNumeroConductor
             )")
             ->orderBy("conductores.nNumeroConductor", "ASC")
             ->get();
             // ->toSql();
-        // dd($conductores);
+        // dd($corridaDisponible);
 
         return view('corridasDisponibles.edit',[
             "corridaDisponible" => $corridaDisponible,
@@ -106,18 +108,14 @@ class CorridasDisponiblesController extends Controller
     }
 
     public function update(CorridasDisponibles $corridaDisponible, Request $request){
-        if($corridaDisponible->aEstado="T" || $corridaDisponible->aEstado="C" || $corridaDisponible->aEstado="L"){
+        $data=array();
+        if($corridaDisponible->aEstado=="T" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="L"){
             return back()->withErrors("No se puede editar");
         }
-        $data=array();
         if($request->estado=="DB"){
             $corridaDisponible->desbloquear();
             return back()->with('status', 'Corrida desbloqueada');
         }
-        elseif(@$request->estado!=null){
-            $data["aEstado"]=$request->estado;
-        }
-
         if($request->conductor!=null && $corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C"){ //
             $data["nNumeroConductor"]=$request->conductor;
         }
@@ -127,10 +125,14 @@ class CorridasDisponiblesController extends Controller
         if($request->autobus != $corridaDisponible->nNumeroAutobus){
             $data["nNumeroAutobus"] = $request->autobus;
         }
+        if(@$request->estado!=null && @$request->estado != $corridaDisponible->aEstado){
+            $data["aEstado"]=$request->estado;
+        }
         if(sizeof($data)==0){
             return back()->withErrors("No se especificaron cambios");
         }else{
-            if(@$request->estado!=null){
+            //#
+            if(isset($data["aEstado"])){
                 CorridasDisponiblesHistorial::create([
                     "corrida_disponible" => $corridaDisponible->nNumero,
                     "aEstadoAnterior" => $corridaDisponible->aEstado,
@@ -159,14 +161,13 @@ class CorridasDisponiblesController extends Controller
             return back()->withErrors("Se está realizando una venta para esta corrida");
         }else{
             if(sizeof($corridaDisponible->boletos) < $corridaDisponible->servicio->ocupacioMinima){
-                # dd("notificar baja ocupacion");
+                if(false){ // verifica si hay que mandar SMS de que hubo baja ocupacion
+                    SmsController::corridaBajaOcupacion($corridaDisponible->nNumero);
+                }
             }
-            $corridaDisponible->update(["aEstado"=>"R"]);
-            DB::table('registropasopuntos')->insert([
-                "nCorrida" => $corridaDisponible->nNumero,
-                "nConsecutivo" => 1,
-                "fSalida" => date("Y-m-d H:i:s")
-            ]);
+            $corridaDisponible->update(["aEstado"=>"R"]); #-- ver donde pongo este cambio
+            dd($corridaDisponible->despachar($request->consecutivo));
+                
             return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
         }
     }
@@ -192,7 +193,6 @@ class CorridasDisponiblesController extends Controller
     public function puntosDeControl(CorridasDisponibles $corridaDisponible){
         if($corridaDisponible->aEstado=="D" || $corridaDisponible->aEstado=="A" || $corridaDisponible->aEstado=="S"){
             return redirect(route("corridas.disponibles.index",$corridaDisponible))->withErrors("La corrida no ha sido despachada");
-            // dd("1");
         }else{ //if($corridaDisponible->aEstado=="R"){
             return view('corridasDisponibles.puntosDeControl',[
                 "corridaDisponible" => $corridaDisponible
@@ -202,14 +202,14 @@ class CorridasDisponiblesController extends Controller
     public function registrarPuntoDeControl(CorridasDisponibles $corridaDisponible, Request $request){
         $conductor=conductores::find(1);
         if($conductor->nNumeroConductor==$request->contraseñaDeCondutor){
-            $corridaDisponible->registrarPasoPunto();
-            return back()->with("status", "Registrado");
+            
+            if($corridaDisponible->registrarPasoPunto()){
+                return back()->with("status", "Registrado");
+            }else{
+                return back()->with("error", "No se registraron cambios");
+            }
         }else{
             return back()->withErrors("Registra la clave del conductor");
         }
-    }
-
-    public function checkpoint(){
-
     }
 }

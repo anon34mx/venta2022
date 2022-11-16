@@ -122,6 +122,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Sergio Medrano',
             'email' => 'sergio.medrano@parhikuni.com.mx',
             'password' => bcrypt('123456'),
+            'persona_nNumero' => 2,
             ]);
         $usuarioSergio = User::find(2); 
         $usuarioSergio->assignRole('servicios');

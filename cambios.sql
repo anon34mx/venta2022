@@ -111,9 +111,10 @@ WHERE
 
 -- borrar
 ALTER TABLE corridas_versiones
-  DROP CONSTRAINT corridas_versiones_user_id;
+  DROP CONSTRAINT corridas_corridas_disponibles_historial_ibfk_1versiones_user_id;
+
 ALTER TABLE corridas_disponibles_historial
-  DROP CONSTRAINT corridas_disponibles_historial_ibfk_4;
+  DROP CONSTRAINT corridas_disponibles_historial_ibfk_1;
 
 
 
@@ -122,10 +123,14 @@ ADD FOREIGN KEY (user_id)
 REFERENCES users(id)
 ON UPDATE CASCADE ON DELETE RESTRICT;
 
+
+
 ALTER TABLE corridas_disponibles_historial
-ADD FOREIGN KEY(user)
-REFERENCES users(id)
-ON UPDATE CASCADE ON DELETE RESTRICT
+  DROP CONSTRAINT corridas_disponibles_historial_ibfk_1;
+ALTER TABLE corridas_disponibles_historial
+ADD FOREIGN KEY(corrida_disponible)
+REFERENCES corridasdisponibles(nNumero)
+ON UPDATE CASCADE ON DELETE RESTRICT;
 
 {{ date('Y-m-d', strtotime($corridaProgramada->fInicio. ' + 1 days')) }}
 
@@ -174,3 +179,6 @@ CREATE TABLE `registropasopuntos` (
     REFERENCES corridasdisponibles(nNumero)
     ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+ALTER TABLE `registropasopuntos`
+  ADD `despachado` DATETIME NOT NULL AFTER `nConsecutivo`;

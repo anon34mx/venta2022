@@ -27,13 +27,13 @@
             <td>Autobus</td>
             <td>Conductor</td>
             <td>Corrida</td>
-            <td>origen-destino</td>
+            <td>Origen - Destino</td>
         </tr>
         <tr>
-            <td><b>{{$corridaDisponible->autobus->nNumeroEconomico}}</b></td>
-            <td><b>{{$corridaDisponible->conductor->persona->aApellidos}}</b></td>
-            <td><b>{{$corridaDisponible->nNumero}}</b></td>
-            <td><b>{{$itinerario[0]->origen}}->{{$itinerario[sizeOf($itinerario)-1]->destino}}</b</td>
+            <td><b>{{@$corridaDisponible->autobus->nNumeroEconomico}}</b></td>
+            <td><b>{{@$corridaDisponible->conductor->persona->aApellidos != null ? @$corridaDisponible->conductor->persona->aApellidos: "N/A"}}</b></td>
+            <td><b>{{@$corridaDisponible->nNumero}}</b></td>
+            <td><b>{{@$itinerario[0]->origen}} -> {{@$itinerario[sizeOf($itinerario)-1]->destino}}</b</td>
         </tr>
     </table>
     <div style="overflow-x:auto;overflow-y: hidden;">
@@ -49,28 +49,32 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($corridaDisponible->guiapasajeros as $boleto)
-                    <tr>
-                        <td>
-                            {{$boleto->nAsiento}}
-                        </td>
-                        <td class="text-left">
-                            {{$boleto->aPasajero}}
-                        </td>
-                        <td>
-                            {{$boleto->tipo->aDescripcion}}
-                        </td>
-                        <td>
-                            {{$boleto->origen->aNombre}}
-                        </td>
-                        <td>
-                            {{$boleto->destino->aNombre}}
-                        </td>
-                        <td class="text-right">
-                            ${{number_format($boleto->nMontoBase-$boleto->nMontoDescuento, 2)}}
-                        </td>
-                    </tr>
-                @endforeach
+                @if(sizeof($corridaDisponible->guiapasajeros)>0)
+                    @foreach($corridaDisponible->guiapasajeros as $boleto)
+                        <tr>
+                            <td>
+                                {{$boleto->nAsiento}}
+                            </td>
+                            <td class="text-left">
+                                {{$boleto->aPasajero}}
+                            </td>
+                            <td>
+                                {{$boleto->tipo->aDescripcion}}
+                            </td>
+                            <td>
+                                {{$boleto->origen->aNombre}}
+                            </td>
+                            <td>
+                                {{$boleto->destino->aNombre}}
+                            </td>
+                            <td class="text-right">
+                                ${{number_format($boleto->nMontoBase, 2)}}
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                <tr><td colspan="999"><b>No hay pasajeros registrados</b></td></tr>
+                @endif
             </tbody>
         </table>
         <span class="btn-collap float-right noprint" title="Imprimir" onclick="print()">

@@ -84,7 +84,7 @@
                                 <a href="{{route('corridas.programadas.index')}}">Programadas</a>
                             </li>
                             <li>
-                                <a href="{{route('corridas.disponibles.index')}}">disponibles</a>
+                                <a href="{{route('corridas.disponibles.index')}}">Disponibles</a>
                             </li>
                             <li>
                                 <a href="{{route('corridas.disponibles.index')}}">Firmas</a>

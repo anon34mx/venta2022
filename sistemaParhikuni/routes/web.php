@@ -25,8 +25,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 // Parhikuni
 Route::get('/test', function(){
-    return view('test');
+
 });
+Route::get('/testsms', [App\Http\Controllers\SmsController::class, 'corridaBajaOcupacion',]);
 
 // USUARIOS
 Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index')
@@ -148,9 +149,9 @@ Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\Co
     ->name("personal.conductores.update");
     // ->middleware('permission:corridasDisponibles.index');
 
-Route::get('/test', function(){
-    return view('test2');
-}); //->middleware('permission:test');
+// Route::get('/test', function(){
+//     return view('test2');
+// }); //->middleware('permission:test');
 Route::get('/phpinfo', function() {
     return phpinfo();
 });

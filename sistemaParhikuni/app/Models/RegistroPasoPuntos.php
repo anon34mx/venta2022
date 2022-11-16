@@ -16,6 +16,7 @@ class RegistroPasoPuntos extends Model
     protected $fillable = [
         "nCorrida",
         "nConsecutivo",
+        "despachado",
         "fLlegada",
         "fSalida",
     ];
