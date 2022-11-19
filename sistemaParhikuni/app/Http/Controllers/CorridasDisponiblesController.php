@@ -166,7 +166,7 @@ class CorridasDisponiblesController extends Controller
                 }
             }
             $corridaDisponible->update(["aEstado"=>"R"]); #-- ver donde pongo este cambio
-            dd($corridaDisponible->despachar($request->consecutivo));
+            $corridaDisponible->despachar($request->consecutivo);
                 
             return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
         }
