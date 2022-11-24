@@ -182,3 +182,30 @@ CREATE TABLE `registropasopuntos` (
 
 ALTER TABLE `registropasopuntos`
   ADD `despachado` DATETIME NOT NULL AFTER `nConsecutivo`;
+
+
+-- #################################
+
+CREATE OR REPLACE TABLE origenesdestinos(
+  nOrigen int(10) unsigned not null,
+  nDestino int(10) unsigned not null,
+
+  FOREIGN KEY (nOrigen)
+  REFERENCES oficinas(nNumero)
+  ON UPDATE CASCADE ON DELETE RESTRICT,
+
+  FOREIGN KEY (nDestino)
+  REFERENCES oficinas(nNumero)
+  ON UPDATE CASCADE ON DELETE RESTRICT
+);
+CREATE UNIQUE INDEX origen_destino ON origenesdestinos (nOrigen,nDestino);
+
+
+
+SELECT od.nOrigen, od.nDestino, ori.aNombre, ori.lDisponible, des.aNombre, des.lDisponible
+FROM origenesdestinos od
+  INNER JOIN oficinas as ori ON ori.nNumero=od.nOrigen
+  INNER JOIN oficinas as des ON des.nNumero=od.nDestino
+WHERE od.nOrigen=8 AND
+ori.lDisponible=1 AND des.lDisponible=1
+ORDER BY ori.aNombre, des.aNombre

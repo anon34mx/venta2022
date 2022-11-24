@@ -1,7 +1,7 @@
 @extends('layouts.parhikuni')
 
 @section('content')
-<div class="col-12 col-sm-10 col-md-8 col-lg-10 mx-auto">
+<div class="col-12 col-sm-10 col-md-10 col-lg-10 mx-auto">
     @if($errors->any())
         <div class="card-body mt-2 mb-2 ">
             <div class="alert-danger px-3 py-3">
@@ -15,18 +15,90 @@
         <a href="#nuevoUsuario">Filtros</a>
     </h3>
 
-    <form action method="POST" class="row needs-validation" novalidate>
+
+    <form action="{{route('corridas.disponibles.corridasFiltradas')}}" method="get" class="row needs-validation" novalidate>
         <div class="col-12 col-lg-6 col-xl-4 row mb-2">
-            <div class="col-12 col-md-4">
+            <div class="col-4 col-md-4">
                 <label for="tipoDeViaje" class="float-md-right text-md-right">Tipo de viaje*</label>
             </div>
-            <div class="col-12 col-md-8">
-                <select name="tipoDeViaje" id="tipoDeViaje" class="form-control">
-                    <option value="" disabled selected>Elije uno</option>
-                    <option value="sencillo" >Viaje sencillo</option>
-                    <option value="redondo" >Viaje redondo</option>
+            <div class="col-4 col-md-4">
+                <label for="viajeSencillo">Sencillo</label>
+                <input id="viajeSencillo" type="radio" name="tipoViaje" value="sencillo">
+            </div>
+            <div class="col-4 col-md-4">
+                <label for="viajeRedondo">Redondo</label>
+                <input id="viajeRedondo" type="radio" name="tipoViaje" value="redondo" checked>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+            <div class="col-6 col-md-6">
+                Origen
+            </div>
+            <div class="col-6 col-md-6">
+                <select name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
+                    <option value="" >Seleccione Origen</option>
+                    @foreach($oficinas as $key)
+                        <option value="{{@$key["nNumero"]}}">{{@$key["origen"]}}</option>
+                    @endforeach
                 </select>
             </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+            <div class="col-6 col-md-6">
+                Destino
+            </div>
+            <div class="col-6 col-md-6">
+                <select name="destino" id="destino">
+                    <option value="">Seleccione Destino</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+            <div class="col-6 col-md-6">
+                Fecha de salida
+            </div>
+            <div class="col-6 col-md-6">
+                <input type="date" min="{{date('Y-m-d')}}" name="fechaDeSalida">
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+            <div class="col-6 col-md-6">
+                Fecha de regreso
+            </div>
+            <div class="col-6 col-md-6">
+                <input type="date" min="{{date('Y-m-d')}}" name="fechaMax">
+            </div>
+        </div>
+        
+        <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+            <div class="col-4">
+                <div class="col-12">
+                    Adultos
+                </div>
+                <div class="col-12">
+                    <input id="adultos" name="adultos" class="col-12" type="number" step="1" value="1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="col-12">
+                    Niños
+                </div>
+                <div class="col-12">
+                    <input id="niños" name="niños" class="col-12" type="number" step="1" value="0">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="col-12">
+                    INSEN
+                </div>
+                <div class="col-12">
+                    <input id="insen" name="insen" class="col-12" type="number" step="1" value="0">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6 col-xl-4 row mb-2">
+            <input type="submit" value="ver corridas">
         </div>
     </form>
 </div>

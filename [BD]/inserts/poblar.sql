@@ -93,6 +93,7 @@ VALUES
 (5,'40',"01T,02,00,03,04|05,06,00,07,08|09,10,00,11,12|13,14,00,15,16|17T,18,00,19,20|21,22,00,23,24|25,26,00,27,28|29T,30,00,31,32|33,34,00,35,36|37,38,00,39,40|CA,00,00,00,BU"),
 (6,'42',"05,06,00,07,08|09,10,00,11,12T|13,14,00,15,16|17,18,00,19,20|21T,22,00,00,PU|23,24,00,25,26|27,28,00,29,30T|31,32,00,33,34|35,36,00,37,38|39,40,00,00,00|41,42,00,00,00|00,00,00,0C,BU");
 
+-- latitud, longitud, 
 INSERT INTO `oficinas` (`nNumero`,`aClave`, `aNombre`, `aTipo`, `lDestino`) VALUES
 (1,'APAT','Apatzingán', 'int', 1),
 (2,'ARTE','Arteaga', 'int', 1),
@@ -106,6 +107,19 @@ INSERT INTO `oficinas` (`nNumero`,`aClave`, `aNombre`, `aTipo`, `lDestino`) VALU
 (10,'URUA','Uruapan', 'int', 1),
 (11,'ZIHUA','Zihuatanejo', 'int', 1),
 (12,'PEMO','Pensión morelia', 'int',0);
+
+INSERT into `origenesdestinos`(nOrigen, nDestino) VALUES
+(1, 3), (1, 4), (1, 5), (1, 8), (1, 9), (1, 10),
+(2, 5),(2, 8),(2, 10),
+(3, 1),(3, 4),(3, 5),(3, 8),(3, 9),(3, 10),
+(4, 1), (4, 3), (4, 5), (4, 8), (4, 9), (4, 10),
+(5, 1), (5, 2), (5, 3), (5, 4), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (5, 11),
+(6, 5), (6, 8), (6, 10), (6, 11),
+(7, 1), (7, 5), (7, 8), (7, 10),
+(8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 9), (8, 10), (8, 11),
+(9, 1), (9, 3), (9, 4), (9, 5), (9, 8), (9, 10),
+(10, 1), (10, 2), (10, 3), (10, 5), (10, 4), (10, 6), (10, 7), (10, 8), (10, 9), (10, 11),
+(11, 5), (11, 6), (11, 8), (11, 10);
 
 INSERT INTO `tiposervicio`(`nNumero`, `aClave`, `aDescripcion`, `nDistribucionAsientos`, ocupacionMinima) VALUES
 (1,"PL",'Platinum',2, 8),
@@ -329,6 +343,19 @@ INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 INSERT INTO promociones (nNumero,aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin) VALUES
 (1,"ES", "Desc INSEN", 8, 12, "2022-09-01", "2022-12-31");
 
+
+truncate tarifastramos;
+INSERT INTO `tarifastramos`
+(`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `nIVA`, `fAplicacion`)
+VALUES
+('1', '8', '10', '150', '130', '11', '2021-01-01'),
+('2', '8', '10', '150', '130', '11', '2021-01-01'),
+('3', '8', '10', '150', '130', '11', '2021-01-01'),
+
+('1', '8', '10', '201', '190', '14', '2022-11-20'),
+('2', '8', '10', '202', '190', '14', '2022-11-20'),
+('3', '8', '10', '203', '140', '12', '2022-11-20')
+;
 -- HASTA AQUI VA BIEN
 
 /*

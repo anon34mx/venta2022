@@ -13,6 +13,7 @@ use App\Models\CorridasEstados;
 use App\Models\BoletosVendidos;
 use App\Models\CorridasDisponiblesHistorial;
 use App\Models\RegistroPasoPuntos;
+use App\Models\Itinerario;
 use DB, Carbon;
 use Auth;
 
@@ -60,6 +61,21 @@ class CorridasDisponibles extends Model
             ]
         );
     }
+    // return DB::select("SELECT
+    //     iti.nItinerario as 'itinerario', iti.nConsecutivo as 'consecutivo',
+    //     tr.nNumero as 'tramo',
+    //     tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
+    //     tr.nDestino, ofiDes.aClave as 'claveDestino', ofiDes.aNombre as 'destino'
+    //     FROM corridasdisponibles cordis
+    //     INNER JOIN itinerario as iti on iti.nItinerario=cordis.nItinerario
+    //     INNER JOIN tramos as tr on tr.nNumero=iti.nTramo
+    //     INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
+    //     INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
+    //     where cordis.nNumero=:id -- parametro
+    //     order by iti.nConsecutivo ASC", [
+    //         'id' => $this->nNumero
+    //     ]
+    // );
 
     public function puntosDeControl(){
         return DB::select("SELECT
@@ -178,7 +194,67 @@ class CorridasDisponibles extends Model
             ]);
     }
 
-    public static function filtrar(){
-        return "owo";
-    }
+    public function filtrar($origen=null, $destino=null, $fechaSalida=null, $fechaMax=null){
+        $res=$this::from("corridasdisponibles as cordis")
+            ->selectRaw("cordis.nNumero as 'corrida', cordis.aEstado as 'estado',
+                autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
+                (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
+                disp.nNumero as disp, disp.nOrigen, disp.nDestino, ori.aNombre as origen, des.aNombre as destino, disp.fSalida ,disp.hSalida,
+                disp.fLlegada, disp.hLlegada,
+                iti.nItinerario as itinerario, iti.nConsecutivo,
+                reg.despachado, reg.fLlegada as checkin, reg.fSalida as checkout,
+                tatr.nMontoBaseRuta as tarifaBase, tatr.nIVA as iva")
+            ->join("autobuses as autobus", "autobus.nNumeroAutobus", "=", "cordis.nNumeroAutobus")
+            ->join("distribucionasientos as dist", "dist.nNumero", "=", "autobus.nDistribucionAsientos")
+            ->join("tiposervicio as tser", "tser.nNumero", "=", "autobus.nTipoServicio")
+            ->join("itinerario as iti", "iti.nItinerario", "=", "cordis.nItinerario")
+            ->join("tramos as tr", "tr.nNumero", "=", "iti.nTramo")
+            ->join("disponibilidad as disp", function($join){
+                $join->on("disp.nCorridaDisponible", "=", "cordis.nNumero");
+                $join->on("disp.nOrigen", "=", "tr.nOrigen");
+            })
+            ->join("oficinas as ori", "ori.nNumero", "=", "disp.nOrigen")
+            ->join("oficinas as des", "des.nNumero", "=", "disp.nDestino")
+            ->leftJoin("registropasopuntos as reg", function($join){
+                $join->on("reg.nCorrida", "=", "cordis.nNumero");
+                $join->on("iti.nConsecutivo", "=", "reg.nConsecutivo");
+            })
+            ->leftJoin("boletosvendidos as boletos", function($join){
+                $join->on("boletos.nCorrida", "=", "cordis.nNumero");
+                $join->on("boletos.nOrigen", "=", "disp.nOrigen");
+                $join->on("boletos.nDestino", "=", "disp.nDestino");
+            })
+            ->leftJoin("tarifastramos as tatr", function($join){
+                $join->on("tatr.nOrigen", "=", "disp.nOrigen");
+                $join->on("tatr.nDestino", "=", "disp.nDestino");
+                $join->on("tatr.nTipoServicio", "=", "cordis.nTipoServicio");
+            });
+
+            $res->whereRaw("cordis.fSalida>=current_date");
+            // $res->whereRaw("cordis.fSalida<= date_add(current_date(), interval 1 DAY) ");
+
+            if($fechaSalida==null){
+                $res->whereRaw("cordis.fSalida>=current_date");
+            }else{
+                $res->whereRaw("cordis.fSalida>=$fechaSalida");
+            }
+            if($fechaMax==null){
+                $res->whereRaw("cordis.fSalida<= date_add(current_date(), interval 1 DAY) ");
+            }else{
+                $res->whereRaw("cordis.fSalida<= $fechaMax ");
+            }
+            if($origen!=null){
+                $res->whereRaw("disp.nOrigen=".$origen);
+            }
+            if($destino!=null){
+                $res->whereRaw("disp.nDestino=".$destino);
+            }
+
+            $res->whereRaw("reg.despachado IS NULL");
+
+            $res->groupByRaw("cordis.nNumero, disp.nOrigen , disp.nDestino")
+            ->orderByRaw("cordis.nNumero, iti.nConsecutivo, disp.fSalida, disp.hSalida, tatr.fAplicacion DESC");
+        $res=$res->get();
+        return $res;
+    } 
 }

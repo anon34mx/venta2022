@@ -1,3 +1,4 @@
+// const { forEach } = require("lodash")
 
 (function () {
     'use strict'
@@ -69,7 +70,7 @@ $(document).ready(()=>{
     
 });
 
-function toggler(inpt, target){
+window.toggler=function(inpt, target){
     if($(inpt).prop("checked") == true){
         $(target).show();
         if ($(inpt).attr("targetRequired") == "" || $(inpt).attr("targetRequired") == "required") {
@@ -82,3 +83,39 @@ function toggler(inpt, target){
         $(target + " input").removeAttr("required");
     }
 }
+
+window.cargarDestinos=function(origen,comprimir){
+    $.ajax({
+        url: "/oficina/"+origen+"/destinos/"+comprimir,
+        method: "get",
+        success: function (response) {
+            $("#destino").empty();
+            $("#destino").append('<option value="">Seleccione Destino</option>');
+            response.forEach(element => {
+                console.log(element);
+                $("#destino").append('<option value="' + element.nDestino +'">' + element.destino +'</option>');
+            });
+        }
+    });
+}
+/*
+ * cuando va en la plantilla
+ *         
+ *
+    window.cargarDestinos=function(origen){
+        $.ajax({
+            url: "{{route('corridas.disponibles.destinos')}}",
+            method: "post",
+            data:{
+                "_token" : "{{csrf_token()}}",
+                "origen": origen
+            },
+            success: function (response) {
+                $("#destino").empty();
+                $("#destino").append('<option value="">Seleccione Destino</option>');
+                response.forEach(element => {
+                    $("#destino").append('<option value="' + element.nDestino +'">' + element.destino +'</option>');
+                });
+            }
+        });
+ */

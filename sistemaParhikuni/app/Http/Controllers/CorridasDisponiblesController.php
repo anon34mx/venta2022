@@ -145,10 +145,6 @@ class CorridasDisponiblesController extends Controller
         }
     }
 
-    public function venta(){
-        return view("venta.filtros");
-    }
-
     public function despachar(CorridasDisponibles $corridaDisponible, Request $request){
         if($corridaDisponible->aEstado=="C"){
             return back()->withErrors("La corrida ".$corridaDisponible->nNumero." está cancelada");
@@ -211,5 +207,36 @@ class CorridasDisponiblesController extends Controller
         }else{
             return back()->withErrors("Registra la clave del conductor");
         }
+    }
+
+    public function filtros(){
+        // dd(Oficinas::destinos(0,true));
+        return view("venta.filtros",[
+            "oficinas" => Oficinas::destinos(0,true),
+        ]);
+    }
+    public function corridasFiltradas(Request $request){
+        setcookie("origen", $request->origen."", time() + (360), "/");
+        setcookie("destino", $request->destino."", time() + (360), "/");
+        setcookie("test", "valor", time() + (360), "/");
+        // if(!isset($_COOKIE["test"])) {
+        //     echo "Cookie named '" . "test" . "' is not set!";
+        // }else {
+        //     echo "Cookie '" . "test" . "' is set!<br>";
+        //     echo "Value is: " . $_COOKIE["test"];
+        // }
+        // var_dump($_COOKIE);
+        // dd($request->all());
+        $cordis=new CorridasDisponibles();
+        return view('venta.corridasFiltradas',[
+            "corridas" => $cordis->filtrar($request->origen, $request->destino, $request->fechaDeSalida),
+            "origen" => Oficinas::find($request->origen),
+            "destino" => Oficinas::find($request->destino),
+            "adultos"=> $request->adultos!=null ? $request->adultos : 0,
+            "niños"=> $request->niños!=null ? $request->niños : 0,
+            "insen"=> $request->insen!=null ? $request->insen : 0,
+            "fechaDeSalida" => $request->fechaDeSalida,
+            "fechaMax" => $request->fechaMax,
+        ]);
     }
 }

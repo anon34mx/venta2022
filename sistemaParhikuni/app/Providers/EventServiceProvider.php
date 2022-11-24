@@ -5,6 +5,11 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+
+//evento login - saber cuando se hace login
+
+//listener login - lo que se va a hacer cuando se hace login
+
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider

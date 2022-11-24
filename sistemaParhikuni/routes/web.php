@@ -135,9 +135,14 @@ ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVe
     ->middleware("permission:boletos.limbo.show");
 
 //  VENTA
-Route::get('/venta/01', [App\Http\Controllers\CorridasDisponiblesController::class, 'venta'])
-    ->name("corridas.disponibles.venta")
-    ->middleware('permission:corridasDisponibles.index');//pendiente
+Route::get('/venta/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
+    ->name("corridas.disponibles.filtros");//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::get('/venta/corridas', [App\Http\Controllers\CorridasDisponiblesController::class, 'corridasFiltradas'])
+    ->name("corridas.disponibles.corridasFiltradas");//->middleware('permission:corridas.disponibles.index');//pendiente
+//
+Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])
+// Route::post('/oficina/destinos', [App\Http\Controllers\OficinasController::class, 'destinos'])
+    ->name("corridas.disponibles.destinos");
 
 //  Personal
 //      CONDUCTORES

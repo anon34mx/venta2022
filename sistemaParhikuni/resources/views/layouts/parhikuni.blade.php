@@ -1,3 +1,4 @@
+@routes
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -57,21 +58,23 @@
 
             <ul class="list-unstyled components">
                 <!-- <p>Dummy Heading</p> -->
-                @if(Auth::user()->hasRole('Admin'))
-                    <li class="active">
-                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Admin</a>
-                        <ul class="collapse list-unstyled" id="homeSubmenu">
-                            <li>
-                                <a href="{{route('users.index')}}">Usuarios</a>
-                            </li>
-                            <li>
-                                <a href="{{route('roles.index')}}">Roles</a>
-                            </li>
-                            <li>
-                                <a href="{{route('permissions.index')}}">Permisos</a>
-                            </li>
-                        </ul>
-                    </li>
+                @if(Auth::user()!="")
+                    @if(Auth::user()->hasRole('Admin'))
+                        <li class="active">
+                            <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Admin</a>
+                            <ul class="collapse list-unstyled" id="homeSubmenu">
+                                <li>
+                                    <a href="{{route('users.index')}}">Usuarios</a>
+                                </li>
+                                <li>
+                                    <a href="{{route('roles.index')}}">Roles</a>
+                                </li>
+                                <li>
+                                    <a href="{{route('permissions.index')}}">Permisos</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
                 @endif
                 @can([
                     "corridas.programadas.index",
@@ -92,6 +95,9 @@
                         </ul>
                     </li>
                 @endcan
+                @can([
+                    "personal.conductores.index"
+                    ])
                 <li class="active">
                     <a href="#PersonalSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Personal</a>
                     <ul class="collapse list-unstyled" id="PersonalSubmenu">
@@ -100,6 +106,7 @@
                         </li>
                     </ul>
                 </li>
+                @endcan
                 <li>
                     <a href="#">Venta de boletos</a>
                 </li>
@@ -157,6 +164,12 @@
 							<li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
+                                    <pre>
+                                        {{ Auth::user() }}
+                                    </pre>
+                                    <pre>
+                                        {{ Auth::user()->personas }}
+                                    </pre>
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
