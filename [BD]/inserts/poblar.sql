@@ -245,7 +245,7 @@ VALUES
 
 (8,5,7,166,120,0), -- ccam-lazaro
 (9,5,6,200,140,15), -- ccam-ixta
-(10,6,11,9,20,0); -- ixta-zihu
+(10,6,11,9,20,0), -- ixta-zihu
 -- regreso
 INSERT INTO `tramos`(`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`)
 VALUES
@@ -271,7 +271,14 @@ INSERT INTO `itinerario`(`nItinerario`, `nConsecutivo`, `nTramo`) VALUES
 (5, 1, 11),
 (5, 2, 12),
 (5, 3, 13),
-(5, 4, 14)
+(5, 4, 14),
+
+(6, 1, 1),
+(6, 2, 2),
+(6, 3, 3),
+(6, 4, 4),
+(6, 5, 5),
+(6, 6, 6)
 ;
 
 INSERT INTO `corridasprogramadas`(`nItinerario`, `nTipoServicio`, `hSalida`,

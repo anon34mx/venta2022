@@ -209,3 +209,57 @@ FROM origenesdestinos od
 WHERE od.nOrigen=8 AND
 ori.lDisponible=1 AND des.lDisponible=1
 ORDER BY ori.aNombre, des.aNombre
+
+
+-- 2022-11-24
+ALTER TABLE corridas_disponibles_historial
+  ADD COLUMN nConsecutivo smallint unsigned
+
+-- ##################################################################
+
+-- CREAR procedimiento que crea la vista de itinerario-tramos que sirve de ayuda al 
+CREATE OR REPLACE PROCEDURE view_iti_tra_update()
+BEGIN 
+    CREATE OR REPLACE VIEW `vw_iti_tra` AS
+    SELECT iti.nItinerario AS itinerario, iti.nConsecutivo AS iti_consecutivo, cadatramo.nConsecutivo AS tra_consecutivo, tra.nNumero AS tramo, tra.nOrigen AS tra_origen, cadatramo.nDestino AS tra_destino
+    FROM itinerario iti join tramos tra on(tra.nNumero = iti.nTramo)
+    join (
+        select itisub.nItinerario AS nItinerario,itisub.nConsecutivo AS nConsecutivo,tramsub.nOrigen AS nOrigen,tramsub.nDestino AS nDestino
+        from itinerario itisub join tramos tramsub on tramsub.nNumero = itisub.nTramo
+    ) as cadatramo 
+        on cadatramo.nItinerario = iti.nItinerario and cadatramo.nConsecutivo >= iti.nConsecutivo
+    WHERE tra.nOrigen <> cadatramo.nDestino
+    ORDER BY iti.nItinerario ASC, iti.nConsecutivo ASC;
+END//
+
+-- ACTUALIZAR vista cuando se inserte o actualice en itinerario o tramos
+CREATE TRIGGER tgr_insrt_iti
+AFTER INSERT ON itinerario
+FOR EACH ROW
+BEGIN
+  CALL view_iti_tra_update();
+END//
+CREATE TRIGGER tgr_upt_iti
+AFTER UPDATE ON itinerario
+FOR EACH ROW
+BEGIN
+  CALL view_iti_tra_update();
+END//
+
+CREATE TRIGGER tgr_insrt_tra
+AFTER INSERT ON tramos
+FOR EACH ROW
+BEGIN
+  CALL view_iti_tra_update();
+END//
+CREATE TRIGGER tgr_upt_tra
+AFTER UPDATE ON tramos
+FOR EACH ROW
+BEGIN
+  CALL view_iti_tra_update();
+END//
+
+-- cuando se cancele un asiento
+SELECT * FROM `disponibilidad` disp
+INNER JOIN disponibilidadasientos as disa on disa.nDisponibilidad=disp.nNumero
+where nCorridaDisponible=70 and disa.nAsiento=1;

@@ -44,8 +44,7 @@ class CorridasDisponibles extends Model
         return $this->hasOne(CorridasEstados::class, 'id', 'aEstado');
     }
     public function getItinerario(){
-        // return "Aquí va el itinerario.<br>".$this->nNumero;
-        return DB::select("SELECT
+        $sql="SELECT
             iti.nItinerario as 'itinerario', iti.nConsecutivo as 'consecutivo',
             tr.nNumero as 'tramo',
             tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
@@ -56,26 +55,61 @@ class CorridasDisponibles extends Model
             INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
             INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
             where cordis.nNumero=:id -- parametro
-            order by iti.nConsecutivo ASC", [
+            order by iti.nConsecutivo ASC";
+        return DB::select($sql, [
                 'id' => $this->nNumero
             ]
         );
     }
-    // return DB::select("SELECT
-    //     iti.nItinerario as 'itinerario', iti.nConsecutivo as 'consecutivo',
-    //     tr.nNumero as 'tramo',
-    //     tr.nOrigen, ofiOri.aClave as 'claveOrigen', ofiOri.aNombre as 'origen',
-    //     tr.nDestino, ofiDes.aClave as 'claveDestino', ofiDes.aNombre as 'destino'
-    //     FROM corridasdisponibles cordis
-    //     INNER JOIN itinerario as iti on iti.nItinerario=cordis.nItinerario
-    //     INNER JOIN tramos as tr on tr.nNumero=iti.nTramo
-    //     INNER JOIN oficinas ofiOri on ofiOri.nNumero=tr.nOrigen
-    //     INNER JOIN oficinas ofiDes on ofiDes.nNumero=tr.nDestino
-    //     where cordis.nNumero=:id -- parametro
-    //     order by iti.nConsecutivo ASC", [
-    //         'id' => $this->nNumero
-    //     ]
-    // );
+
+    public function getRecorrido($origen=null, $destino=null){
+        // desde la tabla de disponibilidad
+        $sql="SELECT
+            iti.nItinerario, iti.nConsecutivo,
+            tr.nNumero, tr.nOrigen, tr.nDestino, tr.nKilometros, tr.nTiempo, 
+            disp.fSalida, disp.hSalida, disp.fLlegada, disp.hLlegada,
+            ori.nNumero as origen, ori.aNombre as origenNombre, des.nNumero as destino, des.aNombre as destinoNombre
+            FROM `itinerario` as iti
+            INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo
+            LEFT JOIN disponibilidad as disp
+                ON disp.nCorridaDisponible=:IN_cordis and disp.nOrigen=tr.nOrigen
+                and disp.nDestino=tr.nDestino
+
+            INNER JOIN oficinas as ori on ori.nNumero=tr.nOrigen
+            INNER JOIN oficinas as des on des.nNumero=tr.nDestino
+
+            WHERE iti.nItinerario=:IN_iti
+            AND iti.nConsecutivo>=(
+                    SELECT nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub on trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=iti.nItinerario and trSub.nOrigen=:IN_ori
+            )
+            AND iti.nConsecutivo<=(
+                    SELECT nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub on trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=iti.nItinerario and trSub.nDestino=:IN_des
+            )";
+        return DB::select($sql,[
+            "IN_cordis" => $this->nNumero,
+            "IN_iti" => $this->nItinerario,
+            "IN_ori" => $origen,
+            "IN_des" => $destino,
+        ]);
+    }
+
+    public function getTramoOficina($oficina){
+        return DB::select("SELECT
+            iti.nItinerario as itinerario, tr.nNumero as tramo, iti.nConsecutivo as consecutivo,tr.nOrigen as origen, tr.nDestino as destino
+            FROM corridasDisponibles cordis
+            INNER JOIN itinerario iti ON iti.nItinerario=cordis.nItinerario
+            INNER JOIN tramos tr on tr.nNumero=iti.nTramo and tr.nOrigen=:oficina
+            WHERE cordis.nNumero=:id
+            ORDER BY iti.nConsecutivo ASC
+            LIMIT 1",[
+                "id" => $this->nNumero,
+                "oficina" => $oficina,
+            ])[0];
+    }
 
     public function puntosDeControl(){
         return DB::select("SELECT
@@ -130,7 +164,6 @@ class CorridasDisponibles extends Model
             return true;
         }
     }
-
     public function cambiarEstado($edo){
 
         CorridasDisponiblesHistorial::create([
@@ -159,7 +192,6 @@ class CorridasDisponibles extends Model
         ]);
         return $this;
     }
-
     public function despachar($consecutivo){
         $registro=RegistroPasoPuntos::firstOrCreate([
             "nCorrida" => $this->nNumero,
@@ -170,7 +202,8 @@ class CorridasDisponibles extends Model
         }
         return $registro;
     }
-
+    // guia de boletos vendidos: muestra todos los boletos vendidos para X corrida
+    //  excluyendo paqueteria
     public function boletos(){
         return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero')
             ->where("aTipoPasajero", "!=", "PQ");
@@ -183,7 +216,6 @@ class CorridasDisponibles extends Model
         return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero')
             ->orderBy("nAsiento", "asc");
     }
-
     public function boletosEnLimbo(){
         return DB::select('
             SELECT *
@@ -193,12 +225,12 @@ class CorridasDisponibles extends Model
                 'id' => $this->nNumero
             ]);
     }
-
-    public function filtrar($origen=null, $destino=null, $fechaSalida=null, $fechaMax=null){
+    public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null){
         $res=$this::from("corridasdisponibles as cordis")
-            ->selectRaw("cordis.nNumero as 'corrida', cordis.aEstado as 'estado',
+            ->selectRaw("cordis.nNumero as 'corrida', cordis.aEstado as 'estado', hist.aEstadoNuevo,
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
-                (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
+                --      (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
+                count(boletos.nNumero) as ocupados,
                 disp.nNumero as disp, disp.nOrigen, disp.nDestino, ori.aNombre as origen, des.aNombre as destino, disp.fSalida ,disp.hSalida,
                 disp.fLlegada, disp.hLlegada,
                 iti.nItinerario as itinerario, iti.nConsecutivo,
@@ -219,20 +251,37 @@ class CorridasDisponibles extends Model
                 $join->on("reg.nCorrida", "=", "cordis.nNumero");
                 $join->on("iti.nConsecutivo", "=", "reg.nConsecutivo");
             })
+            // ->leftJoin(
+            //     DB::raw(
+            //         "boletosvendidos as boletos ON 1 = 1"
+            //     ),  "boletos.nCorrida","=","cordis.nNumero" //"boletos.nCorrida", "=", "cordis.nNumero"
+            // )
             ->leftJoin("boletosvendidos as boletos", function($join){
                 $join->on("boletos.nCorrida", "=", "cordis.nNumero");
-                $join->on("boletos.nOrigen", "=", "disp.nOrigen");
-                $join->on("boletos.nDestino", "=", "disp.nDestino");
+                $join->whereRaw("iti.nConsecutivo >= (SELECT nConsecutivo FROM vw_iti_tra where nOrigen=boletos.nOrigen AND vw_iti_tra.nItinerario=iti.nItinerario)");
+                $join->whereRaw("iti.nConsecutivo <= (SELECT nConsecutivo FROM vw_iti_tra where nDestino=boletos.nDestino AND vw_iti_tra.nItinerario=iti.nItinerario)");
             })
+            // ->leftJoin("boletosvendidos as boletos", function($join){
+            //     $join->on("boletos.nCorrida", "=", "cordis.nNumero");
+            //     $join->on("boletos.nOrigen", "=", "disp.nOrigen");
+            //     $join->on("boletos.nDestino", "=", "disp.nDestino");
+            // })
             ->leftJoin("tarifastramos as tatr", function($join){
                 $join->on("tatr.nOrigen", "=", "disp.nOrigen");
                 $join->on("tatr.nDestino", "=", "disp.nDestino");
                 $join->on("tatr.nTipoServicio", "=", "cordis.nTipoServicio");
+            })
+            ->leftJoin("corridas_disponibles_historial as hist", function($join){
+                $join->on("hist.corrida_disponible", "=", "cordis.nNumero");
+                $join->on("hist.nConsecutivo", "=", "iti.nConsecutivo");
             });
 
             $res->whereRaw("cordis.fSalida>=current_date");
             // $res->whereRaw("cordis.fSalida<= date_add(current_date(), interval 1 DAY) ");
 
+            if($corrida!=null){
+                $res->whereRaw("cordis.nNumero=".$corrida);
+            }
             if($fechaSalida==null){
                 $res->whereRaw("cordis.fSalida>=current_date");
             }else{
@@ -254,6 +303,7 @@ class CorridasDisponibles extends Model
 
             $res->groupByRaw("cordis.nNumero, disp.nOrigen , disp.nDestino")
             ->orderByRaw("cordis.nNumero, iti.nConsecutivo, disp.fSalida, disp.hSalida, tatr.fAplicacion DESC");
+        // dd($res->toSql());
         $res=$res->get();
         return $res;
     } 

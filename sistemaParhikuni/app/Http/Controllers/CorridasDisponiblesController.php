@@ -13,6 +13,7 @@ use App\Models\conductores;
 use App\Models\CorridasDisponiblesHistorial;
 use App\Models\RegistroPasoPuntos;
 use App\Models\Oficinas;
+use App\Models\Disponibilidad;
 
 use App\Http\Controllers\SmsController;
 
@@ -94,8 +95,6 @@ class CorridasDisponiblesController extends Controller
             )")
             ->orderBy("conductores.nNumeroConductor", "ASC")
             ->get();
-            // ->toSql();
-        // dd($corridaDisponible);
 
         return view('corridasDisponibles.edit',[
             "corridaDisponible" => $corridaDisponible,
@@ -103,11 +102,14 @@ class CorridasDisponiblesController extends Controller
             "servicios" => TiposServicios::all(),
             "estados" => CorridasEstados::orderBy("orden", "ASC")->get(),
             "autobuses" => Autobus::orderBy("nNumeroEconomico", "ASC")->get(),
-            "conductores" => $conductores
+            "conductores" => $conductores,
         ]);
     }
 
     public function update(CorridasDisponibles $corridaDisponible, Request $request){
+        // dd($corridaDisponible->getTramoOficina( $request->oficina)->consecutivo);
+        // dd($request->all());
+
         $data=array();
         if($corridaDisponible->aEstado=="T" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="L"){
             return back()->withErrors("No se puede editar");
@@ -138,6 +140,7 @@ class CorridasDisponiblesController extends Controller
                     "aEstadoAnterior" => $corridaDisponible->aEstado,
                     "aEstadoNuevo" => $data["aEstado"],
                     "user" => Auth::user()->id,
+                    "nConsecutivo" => $corridaDisponible->getTramoOficina( $request->oficina)->consecutivo
                 ]);
             }
             $corridaDisponible->update($data);
@@ -216,9 +219,9 @@ class CorridasDisponiblesController extends Controller
         ]);
     }
     public function corridasFiltradas(Request $request){
-        setcookie("origen", $request->origen."", time() + (360), "/");
-        setcookie("destino", $request->destino."", time() + (360), "/");
-        setcookie("test", "valor", time() + (360), "/");
+        // setcookie("origen", $request->origen."", time() + (360), "/");
+        // setcookie("destino", $request->destino."", time() + (360), "/");
+        // setcookie("test", "valor", time() + (360), "/");
         // if(!isset($_COOKIE["test"])) {
         //     echo "Cookie named '" . "test" . "' is not set!";
         // }else {
@@ -226,10 +229,10 @@ class CorridasDisponiblesController extends Controller
         //     echo "Value is: " . $_COOKIE["test"];
         // }
         // var_dump($_COOKIE);
-        // dd($request->all());
         $cordis=new CorridasDisponibles();
+        // dd($cordis->filtrar($request->origen, $request->destino, $request->fechaDeSalida));
         return view('venta.corridasFiltradas',[
-            "corridas" => $cordis->filtrar($request->origen, $request->destino, $request->fechaDeSalida),
+            "corridas" => $cordis->filtrar($request->corrida, $request->origen, $request->destino, $request->fechaDeSalida),
             "origen" => Oficinas::find($request->origen),
             "destino" => Oficinas::find($request->destino),
             "adultos"=> $request->adultos!=null ? $request->adultos : 0,
@@ -237,6 +240,70 @@ class CorridasDisponiblesController extends Controller
             "insen"=> $request->insen!=null ? $request->insen : 0,
             "fechaDeSalida" => $request->fechaDeSalida,
             "fechaMax" => $request->fechaMax,
+            "oficinas" => Oficinas::destinos(0,true),
         ]);
+    }
+
+    public function asientos(Request $request){
+        $disp=Disponibilidad::where($request->cor)->first();
+        // dd($disp);
+
+        // $cordis=CorridasDisponibles::find($request->cor);
+        // dd($request->all());
+        // dd($cordis);
+        // dd($cordis->autobus);
+        // dd($cordis->autobus->distribucionAsientos);
+        // dd($disp);
+
+    }
+
+    public function itinerario(CorridasDisponibles $corridaDisponible){
+        return json_encode($corridaDisponible->getItinerario());
+    }
+    public function recorrido(CorridasDisponibles $corridaDisponible, $origen, $destino){
+        // return json_encode($corridaDisponible->getRecorrido());
+        $html="";
+        $recorridos = $corridaDisponible->getRecorrido($origen,$destino);
+        $lon=sizeof($recorridos)-1;
+        $cont=0;
+
+        // dd($recorridos);
+        foreach($recorridos as $tramo){
+            if($cont<$lon){
+                $html.=$this->renderPuntoRecorrido($tramo->origenNombre, $tramo->hSalida);
+            }else{
+                $html.=$this->renderPuntoRecorrido($tramo->origenNombre, $tramo->hSalida);
+                $html.=$this->renderPuntoRecorrido($tramo->destinoNombre, $tramo->hLlegada);
+            }
+            /*
+                if($cont==0){
+                    echo($tramo->origenNombre);
+                    echo($tramo->hSalida);
+                    echo "<br>";
+                }
+                elseif($cont==$lon){
+                    echo($tramo->destinoNombre);
+                    echo($tramo->hLlegada);
+                    echo "<br>";
+                }else{
+                    echo($tramo->origenNombre);
+                    echo($tramo->hLlegada);
+                    echo "<br>";
+
+                    echo($tramo->destinoNombre);
+                    echo($tramo->hLlegada);
+                    echo "<br>";
+                }
+            */
+            $cont++;
+        }
+        return "<div class=\"row col-12\">".$html."</div>";
+    }
+
+    private function renderPuntoRecorrido($oficina, $hora){
+        return "<div class=\"row col-6\">
+            <div class=\"col-12\">$oficina</div>
+            <div class=\"col-12\">$hora</div>
+        </div><br>";
     }
 }

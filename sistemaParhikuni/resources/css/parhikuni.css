@@ -57,7 +57,7 @@
 
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
-	/* outline: 1px solid tomato; */
+	outline: 1px solid tomato;
 }
 html{
 	/* background-color: #dbe6e7; */
@@ -190,6 +190,18 @@ ul.list-desp .list-cont li:hover{
 	/* text-align: center; */
 	display: inline-block;
 	margin: 2px 10px;
+	white-space: nowrap;
+}
+
+tr.selected{
+	
+}
+tr.selected td{
+	background-color: var(--parh-btn-primary);
+	color:white;
+}
+
+.fecha{
 	white-space: nowrap;
 }
 /* ************************** */

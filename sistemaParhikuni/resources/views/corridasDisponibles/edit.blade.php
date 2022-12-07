@@ -146,8 +146,27 @@
                 @endif
             </div>
         </div>
-        <div class="col-12 justify-content-center">
+        
+        @if(Auth::user()->hasRole("Admin")==true)
+        <div class="col-12 col-lg-6 col-xl-6 row mb-2">
+            <div class="col-12 col-md-4">
+                <label for="conductor" class="float-md-right text-md-right">Oficina</label>
+            </div>
+            <div class="col-12 col-md-8">
+                @php
+                // dd($corridaDisponible->getItinerario())
+                @endphp
+                <select class="form-control" name="oficina" id="oficina" required>
+                    <option value="" >Seleccionar oficina</option>
+                    @foreach($corridaDisponible->getItinerario() as $oficina)
+                        <option value="{{$oficina->nOrigen}}">{{$oficina->origen}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        @endif
 
+        <div class="col-12 justify-content-center">
             <!--  -->
             @if($corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C")
             <span class="btn-collap float-right mx-1" title="Guardar">

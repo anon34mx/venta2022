@@ -20,5 +20,6 @@ class CorridasDisponiblesHistorial extends Model
         'aEstadoNuevo',
         'nConductor',
         'user',
+        'nConsecutivo',
     ];
 }

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
+use Auth,Session;
+use App\Models\Oficinas;
+
 class LoginController extends Controller
 {
     /*
@@ -36,5 +39,17 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function authenticated(){
+        
+        $tipoPersona = Auth::user()->personas->aTipo;
+        if($tipoPersona=="EI" || $tipoPersona=="PA"){
+            $oficina=Auth::user()->personas->nOficina;
+            $oficina=Oficinas::find($oficina);
+            Session::put('oficinaNombre', $oficina->aNombre);
+            // session("oficinaNombre") // recuperar dato
+        }
+        
     }
 }

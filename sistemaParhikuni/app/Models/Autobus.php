@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Personas;
 use App\Models\CorridasDisponibles;
 use App\Models\Corridasprogramadas;
+use App\Models\DistribucionAsientos;
 
 class Autobus extends Model
 {
@@ -25,6 +26,10 @@ class Autobus extends Model
     // public function personas(){
     //     return $this->belongsTo(Personas::class, 'persona_nNumero', 'nNumeroPersona');
     // }
+    public function distribucionAsientos(){
+        return $this->hasOne(DistribucionAsientos::class, 'nNumero', 'nDistribucionAsientos');
+    }
+
     public function corridasDisponibles(){
         return $this->belongsTo(
             CorridasDisponibles::class,

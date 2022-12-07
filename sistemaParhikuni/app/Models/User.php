@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'persona_nNumero',
     ];
+    private $oficinaNombre="";
 
     /**
      * The attributes that should be hidden for serialization.
@@ -49,5 +50,12 @@ class User extends Authenticatable
 
     public function personas(){
         return $this->belongsTo(Personas::class, 'persona_nNumero', 'nNumeroPersona');
+    }
+
+    public function setOficinaNombre($nvaOfi){
+        return $this->oficinaNombre=$nvaOfi;
+    }
+    public function getOficinaNombre(){
+        return $this->oficinaNombre;
     }
 }

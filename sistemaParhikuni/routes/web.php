@@ -126,6 +126,11 @@ Route::get('/corridas/disponibles/{corridaDisponible}/puntosDeControl', [App\Htt
     ->middleware('permission:corridas.disponibles.puntosDeControl');
 Route::post('/corridas/disponibles/{corridaDisponible}/puntosDeControl/registrar', [App\Http\Controllers\CorridasDisponiblesController::class, 'registrarPuntoDeControl'])
     ->name('corridas.disponibles.registrarPuntoDeControl');
+// informacion sobre la corrida
+Route::get('/corridas/disponibles/{corridaDisponible}/itinerario', [App\Http\Controllers\CorridasDisponiblesController::class, 'itinerario'])
+    ->name('corridas.disponibles.itinerario');
+Route::get('/corridas/disponibles/{corridaDisponible}/recorrido/{origen}/{destino}', [App\Http\Controllers\CorridasDisponiblesController::class, 'recorrido'])
+    ->name('corridas.disponibles.recorrido/{origen}/{destino}');
     // ->middleware('permission:corridas.disponibles.registrarPuntoDeControl');
 
 
@@ -135,10 +140,13 @@ ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVe
     ->middleware("permission:boletos.limbo.show");
 
 //  VENTA
-Route::get('/venta/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
+Route::get('/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
     ->name("corridas.disponibles.filtros");//->middleware('permission:corridas.disponibles.index');//pendiente
-Route::get('/venta/corridas', [App\Http\Controllers\CorridasDisponiblesController::class, 'corridasFiltradas'])
+
+Route::get('/ventaInterna/corridas', [App\Http\Controllers\CorridasDisponiblesController::class, 'corridasFiltradas'])
     ->name("corridas.disponibles.corridasFiltradas");//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::get('/ventaInterna/asientos', [App\Http\Controllers\CorridasDisponiblesController::class, 'asientos'])
+    ->name("corridas.disponibles.asientos");//->middleware('permission:corridas.disponibles.index');//pendiente
 //
 Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])
 // Route::post('/oficina/destinos', [App\Http\Controllers\OficinasController::class, 'destinos'])
@@ -162,8 +170,14 @@ Route::get('/phpinfo', function() {
 });
 
 Route::get('/logout', function(Request $request){
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/');
+    try {
+        //code...
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
+    } catch (\Throwable $th) {
+        //throw $th;
+        return redirect('/');
+    }
 })->name("logout");
