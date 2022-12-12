@@ -29,136 +29,6 @@ where 1
 -- and ddp.tra_origen=8 -- and ddp.tra_destinoo=10
 ORDER BY ddp.iti_consecutivo, ddp.tra_consecutivo
 
--- TRAMOS DONDE SE DEBE RESTRINGIR LA VENTA
--- CUANDO SE COMPRA UN BOLETO DESDE tra_origen HASTA tra_destino
--- de URUA a CCAM 10->5
-SELECT
-vis.iti_consecutivo, vis.tra_consecutivo, vis.tramo, vis.tra_origen, vis.tra_destino
-FROM vw_iti_tra vis
-where
-vis.itinerario=3 AND 
-(
-    -- cuando el origen es el mismo
-    vis.iti_consecutivo = (
-        SELECT svw.iti_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=vis.itinerario and svw.tra_origen=8 -- parametro
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo LIMIT 1)
-    OR 
-    (
-        vis.tra_consecutivo >= (SELECT svw.tra_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=vis.itinerario and svw.tra_destino=1 -- parametro
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo LIMIT 1)
-    )
-)
-ORDER BY vis.itinerario ASC, vis.iti_consecutivo ASC, vis.tra_consecutivo ASC
-
-
-
-/*
- OR vis.iti_consecutivo <= (
-            SELECT svw.iti_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=vis.itinerario and svw.tra_destino=1 -- parametro
-            ORDER BY svw.iti_consecutivo DESC, svw.tra_consecutivo LIMIT 1
-*/
--- AQUI     #############################################################################   AQUi
--- ################################################################################################
-SELECT
-vis.iti_consecutivo, vis.tra_consecutivo, vis.tramo, vis.tra_origen, vis.tra_destino
-FROM vw_iti_tra vis
-where
-vis.itinerario=3 AND 
-(
-    -- cuando el origen es el mismo
-    vis.iti_consecutivo = (
-        SELECT svw.iti_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=vis.itinerario and svw.tra_origen=8 -- parametro
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo LIMIT 1)
-    OR 
-    (
-        vis.tra_consecutivo >= (SELECT svw.tra_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=3 AND svw.tra_origen=8
-            AND svw.tra_destino=1 -- parametro
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo)
-    )
-)
-ORDER BY vis.itinerario ASC, vis.iti_consecutivo ASC, vis.tra_consecutivo ASC
-
-
-
-
-
-
-
-
-
-
-(
-    vis.iti_consecutivo IN (
-        SELECT DISTINCT(vw.iti_consecutivo) FROM `vw_iti_tra` vw
-        WHERE vw.itinerario=vis.itinerario AND (vw.tra_origen=10)
-        ORDER BY vw.iti_consecutivo, vw.tra_consecutivo
-    )
-    OR
-    (
-        vis.tra_consecutivo >= (
-            SELECT min(svw.tra_consecutivo)
-            FROM `vw_iti_tra` svw
-            WHERE svw.itinerario=vis.itinerario AND (svw.tra_origen=10)
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo
-        )
-        AND
-        vis.tra_consecutivo < (
-            SELECT max(svw.tra_consecutivo)
-            FROM `vw_iti_tra` svw
-            WHERE svw.itinerario=vis.itinerario AND (svw.tra_destino=1)
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo
-        )
-    )
-)
-
--- esta NO es la buena
--- hacer join con la tabla que nos dice los asientos ocupados para no repetirlos
-SELECT
-vis.iti_consecutivo, vis.tra_consecutivo, vis.tramo, vis.tra_origen, vis.tra_destino
-FROM vw_iti_tra vis
-where
-vis.itinerario=6 AND 
-(
-    -- cuando el origen es el mismo
-    vis.iti_consecutivo = (
-        SELECT svw.iti_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=vis.itinerario and svw.tra_origen=10 -- parametro
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo LIMIT 1)
-    OR 
-    (
-        tra_consecutivo<=(
-            SELECT svw.tra_consecutivo
-            from vw_iti_tra svw
-            where svw.itinerario=vis.itinerario
-            AND svw.tra_destino=1 -- parametro
-            ORDER BY svw.iti_consecutivo, svw.tra_consecutivo DESC
-            LIMIT 1
-        )
-        AND
-        tra_consecutivo>=(
-            SELECT svw.tra_consecutivo
-                from vw_iti_tra svw
-                where svw.itinerario=vis.itinerario
-                AND svw.tra_origen=10
-                ORDER BY svw.iti_consecutivo, svw.tra_consecutivo ASC
-			    LIMIT 1
-        )
-    )
-)
-ORDER BY vis.itinerario ASC, vis.iti_consecutivo ASC, vis.tra_consecutivo ASC
-
-
 SELECT -- EDITAR AQUI 1
 vis.iti_consecutivo, vis.tra_consecutivo, vis.tramo, vis.tra_origen, vis.tra_destino
 FROM vw_iti_tra vis
@@ -206,21 +76,131 @@ AND (
             AND iti.nConsecutivo >= (
                 SELECT itiSub.nConsecutivo FROM itinerario as itiSub
                 INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=vis.itinerario and trSub.nOrigen=5 -- mi origen
+                WHERE itiSub.nItinerario=vis.itinerario and trSub.nOrigen=8 -- mi origen
             )
             AND iti.nConsecutivo <= (
                 SELECT itiSub.nConsecutivo FROM itinerario as itiSub
                 INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=vis.itinerario and trSub.nDestino=9 -- mi destino
+                WHERE itiSub.nItinerario=vis.itinerario and trSub.nDestino=1 -- mi destino
             )+1
         )
-        AND vis.tra_consecutivo>(
-            SELECT svw.tra_consecutivo FROM `vw_iti_tra` as svw
-            WHERE svw.itinerario=vis.itinerario and svw.tra_destino=5 LIMIT 1 -- su destino igual a mi origen, porque aun no le toca subir
-        )
-        AND vis.iti_consecutivo < (
-            SELECT svw.iti_consecutivo FROM `vw_iti_tra` as svw
-            WHERE svw.itinerario=vis.itinerario and svw.tra_origen=9 LIMIT 1 -- su destino igual a mi destino, porque ahí se libera
-        )
+        AND vis.tra_consecutivo > IFNULL(
+            (
+                SELECT IF(svw.tra_consecutivo IS NULL, 0, svw.tra_consecutivo) FROM `vw_iti_tra` as svw
+                WHERE svw.itinerario=vis.itinerario and svw.tra_destino=8 LIMIT 1 -- su destino igual a mi origen, porque aun no le toca subir
+            ), 0)
+        AND vis.iti_consecutivo < IFNULL(
+    		(
+                SELECT svw.iti_consecutivo FROM `vw_iti_tra` as svw
+                WHERE svw.itinerario=vis.itinerario and svw.tra_origen=1 LIMIT 1 -- su origen igual a mi destino, porque ahí se libera
+            ), 9999)
 )
 ORDER BY vis.itinerario ASC, vis.iti_consecutivo ASC, vis.tra_consecutivo ASC;
+-- ########################################################################################
+-- otro intento diferente
+-- 10 al 1
+-- 5 al 1
+
+SELECT * from
+vw_iti_tra as vw where vw.itinerario=6
+AND 
+(
+    vw.tra_origen=5 OR
+    (
+        vw.tra_origen IN (
+            SELECT tr.nOrigen FROM itinerario as iti
+            INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo
+            WHERE iti.nItinerario=vw.itinerario
+            AND iti.nConsecutivo >= (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nOrigen=5 -- mi origen
+            )
+            AND iti.nConsecutivo <= (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=1 -- mi destino
+            )+1
+        )
+        AND vw.iti_consecutivo < ( -- dónde acaba -- #revisar si es <= o =
+            SELECT iti.nConsecutivo FROM itinerario as iti
+            INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo 
+            WHERE iti.nItinerario=vw.itinerario AND tr.nOrigen=1 -- mi destino
+        )
+    )
+    OR 
+    (
+        vw.tra_destino IN (
+            SELECT tr.nOrigen FROM itinerario as iti
+            INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo
+            WHERE iti.nItinerario=vw.itinerario
+            AND iti.nConsecutivo >= (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nOrigen=5 -- mi origen
+            )
+            AND vw.iti_consecutivo < (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=1 -- mi destino
+            )+1
+        )
+    )
+)
+ORDER BY vw.itinerario, vw.iti_consecutivo ASC, vw.tra_consecutivo ASC
+-- 
+SELECT * from
+vw_iti_tra as vw where vw.itinerario=6 AND 
+(
+        vw.tra_destino IN (
+            SELECT tr.nOrigen FROM itinerario as iti
+            INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo
+            WHERE iti.nItinerario=6
+            AND iti.nConsecutivo >= (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nOrigen=5 -- mi origen
+            )
+            -- AND vw.iti_consecutivo <=4
+            AND vw.iti_consecutivo < (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=1 -- mi destino
+            )+1
+        )
+) ORDER BY vw.itinerario, vw.iti_consecutivo ASC, vw.tra_consecutivo ASC
+-- =============================================
+-- va ganando
+SELECT * from
+vw_iti_tra as vw where vw.itinerario=6 AND 
+(
+    (
+        vw.tra_consecutivo>=IFNULL((
+            SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+            INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+            WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=10 -- mi origen
+            ),
+            0
+        )
+        AND vw.tra_consecutivo>IFNULL(
+            (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=10 -- mi origen
+            ),
+            0
+        )
+    )
+    AND
+    (
+        vw.iti_consecutivo < IFNULL(
+            (
+                SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+                INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+                WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=5 -- mi destino
+            )+1,
+            9999
+        )
+        
+    )
+) ORDER BY vw.itinerario, vw.iti_consecutivo ASC, vw.tra_consecutivo ASC

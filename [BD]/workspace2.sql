@@ -77,50 +77,57 @@ and nConsecutivo<=(
     INNER JOIN tramos tr on tr.nNumero=itiSub.nTramo
     WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=5 -- parametroo
 )
--- **********
--- obtener el recorrido que se debe apartar
--- parece qie esta es la buena
--- consulta 1/2
--- !!!! FALTA OBTENER EL ITINERARIO
-SELECT origenes.nConsecutivo as "consOri", origenes.origen, "_", destinos.nConsecutivo as "consDes", destinos.destino
-FROM (
-    SELECT
-    iti.nItinerario, iti.nConsecutivo, tr.nOrigen "origen" 
-    FROM  `itinerario` iti
-    INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
-    WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=25) -- parametro 1 (CORRIDA)
-    and nConsecutivo>=(
-        SELECT nConsecutivo FROM  itinerario itiSub
-        INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-        WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=8 -- parametro 2 (ORIGEN)
-    )
-    and nConsecutivo<=(
-        SELECT nConsecutivo FROM  itinerario itiSub
-        INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-        WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=5 -- parametro 3 (destino)
-    )
-) as origenes
-JOIN (
-    SELECT
-    iti.nItinerario, iti.nConsecutivo, tr.nDestino "destino"
-    FROM  `itinerario` iti
-    INNER JOIN `tramos` tr on tr.nNumero=iti.nTramo
-    WHERE iti.nItinerario=(SELECT nItinerario from corridasdisponibles where corridasdisponibles.nNumero=25) -- parametro 1 (CORRIDA)
-    and nConsecutivo>=(
-        SELECT nConsecutivo FROM  itinerario itiSub
-        INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-        WHERE itiSub.nItinerario=iti.nItinerario and tr.nOrigen=8 -- parametro 2 (ORIGEN)
-    )
-    and nConsecutivo<=(
-        SELECT nConsecutivo FROM  itinerario itiSub
-        INNER JOIN `tramos` tr on tr.nNumero=itiSub.nTramo
-        WHERE itiSub.nItinerario=iti.nItinerario and tr.nDestino=5 -- parametro 3 (destino)
-    )
-) as destinos on origenes.nItinerario=destinos.nItinerario
-    and origenes.origen!=destinos.destino
-    and destinos.nConsecutivo>=origenes.nConsecutivo
+-- ################################################################################################################################################################################
+-- ################################################################################################################################################################################
+-- ################################################################################################################################################################################
+-- ################################################################################################################################################################################
 
 -- obtener que ocupaciones se necesitan
 SELECT nNumero FROM `disponibilidad`
 WHERE `nCorridaDisponible`=25
 AND `nOrigen`= 8 AND nDestino=10
+-- ################################################################################################################################################################################
+-- ################################################################################################################################################################################
+-- ################################################################################################################################################################################
+-- ################################################################################################################################################################################
+
+-- saber que puntos toca, invluyendo inicio y destino
+SELECT tr.nOrigen
+FROM itinerario as iti
+INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo
+WHERE iti.nItinerario=6
+AND iti.nConsecutivo >= (
+    SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+    INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+    WHERE itiSub.nItinerario=6 and trSub.nOrigen=8 -- mi origen
+)
+AND iti.nConsecutivo <= (
+    SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+    INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+    WHERE itiSub.nItinerario=6 and trSub.nDestino=5 -- mi destino
+)+1
+-- FUNCION
+CREATE OR REPLACE FUNCTION puntosApartarAsiento_dev(
+    IN_origen SMALLINT,
+    IN_destino SMALLINT,
+    IN_itinerario INT
+)
+RETURNS int
+BEGIN
+    DECLARE var_oficinasToca int(10);
+
+    SELECT tr.nOrigen INTO var_oficinasToca FROM itinerario as iti
+        INNER JOIN tramos as tr ON tr.nNumero=iti.nTramo WHERE iti.nItinerario=IN_itinerario
+        AND iti.nConsecutivo >= (
+            SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+            INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+            WHERE itiSub.nItinerario=IN_itinerario and trSub.nOrigen=IN_origen -- mi origen
+        )
+        AND iti.nConsecutivo <= (
+            SELECT itiSub.nConsecutivo FROM itinerario as itiSub
+            INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
+            WHERE itiSub.nItinerario=IN_itinerario and trSub.nDestino=IN_destino -- mi destino
+        )+1;
+    
+RETURN 1;
+END;
