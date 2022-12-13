@@ -317,33 +317,3 @@ BEGIN
     AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;
 END;
 
-CREATE TABLE `corridas_versiones` (
-  `nNumero` int(10) UNSIGNED NOT NULL,
-  `nItinerario` int(10) UNSIGNED NOT NULL,
-  `nTipoServicio` int(10) UNSIGNED NOT NULL,
-  `hSalida` time NOT NULL,
-  `lLunes` tinyint(1) NOT NULL,
-  `lMartes` tinyint(1) NOT NULL,
-  `lMiercoles` tinyint(1) NOT NULL,
-  `lJueves` tinyint(1) NOT NULL,
-  `lViernes` tinyint(1) NOT NULL,
-  `lSabado` tinyint(1) NOT NULL,
-  `lDomingo` tinyint(1) NOT NULL,
-  `fInicio` date NOT NULL,
-  `fFin` date NOT NULL,
-  `deleted_at` datetime DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-ALTER TABLE `corridas_versiones`
-  ADD PRIMARY KEY (`nNumero`),
-  ADD UNIQUE KEY `nNumero` (`nNumero`),
-  ADD KEY `nTipoServicio` (`nTipoServicio`),
-  ADD KEY `corridas_versiones_IN` (`nNumero`,`nItinerario`);
-  
-ALTER TABLE `corridas_versiones`
-  ADD CONSTRAINT `corridas_versiones_ibfk_1` FOREIGN KEY (`nTipoServicio`) REFERENCES `tiposervicio` (`nNumero`);
-
-ALTER TABLE `corridas_versiones`
-    ADD COLUMN user_id bigint(20) unsigned NOT NULL,
-    ADD CONSTRAINT `corridas_versiones_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
