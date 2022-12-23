@@ -34,6 +34,7 @@
         'resources/css/sidebar.css',
         'resources/css/parhikuni.css',
         'resources/js/controller.js',
+        'resources/js/controlador_venta.js',
     ])
 </head>
 

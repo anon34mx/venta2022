@@ -78,7 +78,7 @@
                     <button class="cantidadPasajeros" value="+">+</button>
                 </div>
                 <div class="col-6">
-                    <input class="col-12" type="text" value="{{$adultos}}" step="1" min="0" max="10">
+                    <input readonly id="inpt-adultos" name="adultos" class=" contadorPasajeros col-12" type="text" value="{{$adultos}}" step="1" min="0" max="10">
                 </div>
                 <div class="col-3">
                     <button class="cantidadPasajeros" value="-">-</button>
@@ -90,7 +90,7 @@
                     <button class="cantidadPasajeros" value="+">+</button>
                 </div>
                 <div class="col-6">
-                    <input class="col-12" type="text" value="{{$niños}}" step="1" min="0" max="10">
+                    <input readonly id="inpt-niños" name="niños" class=" contadorPasajeros col-12" type="text" value="{{$niños}}" step="1" min="0" max="10">
                 </div>
                 <div class="col-3">
                     <button class="cantidadPasajeros" value="-">-</button>
@@ -102,7 +102,7 @@
                     <button class="cantidadPasajeros" value="+">+</button>
                 </div>
                 <div class="col-6">
-                    <input class="col-12" type="text" value="{{$insen}}" step="1" min="0" max="10">
+                    <input readonly id="inpt-insen" name="insen" class=" contadorPasajeros col-12" type="text" value="{{$insen}}" step="1" min="0" max="10">
                 </div>
                 <div class="col-3">
                     <button class="cantidadPasajeros" value="-">-</button>
@@ -116,7 +116,7 @@
 
 
     <div class="col-12 col-sm-9 row pr-0">
-        <form id="tbl-corridas" action="{{route('corridas.disponibles.asientos')}}" class="pr-0">
+        <form id="tbl-corridas" action="{{route('corridas.disponibles.asientos')}}" class="pr-0" onsubmit="return validarFiltros()">
             <table class="table table-parhi" style="">
                 <thead style="position: sticky;top: 69px;">
                     <tr>
@@ -154,8 +154,8 @@
                             <td>{{$corrida->origen}}<br>{{$corrida->destino}}</td>
                             <td>${{number_format($corrida->tarifaBase + $corrida->iva,2)}}</td>
                             <td>
-                                <span class="ocupados">{{$corrida->ocupados}}</span>
-                                /
+                                <span class="ocupados">{{($corrida->ocupados)}}</span>
+                                //
                                 <span class="totalAsientos">{{$corrida->totalAsientos}}</span>
                             </td>
                             <td><button onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >Ver</button></td>
@@ -163,8 +163,12 @@
                     @endforeach
                 </tbody>
             </table>
-            <input id="corr" name="cor" type="" value="x">
-            <input id="disp" name="disp" type="" value="s">
+            <input id="corr" name="cor" type="" value="0">
+            <input id="disp" name="disp" type="" value="0">
+            <input id="adultos" name="adultos" type="" value="0">
+            <input id="niños" name="niños" type="" value="0">
+            <input id="insen" name="insen" type="" value="0">
+            <!-- especial owo -->
             <div class="col-12">
                 <span class="btn-collap float-right mx-1" title="Continuar">
                     <label for="Continuar" class="btn btn-sm btn-parhi-primary">

@@ -1,37 +1,6 @@
-// const { forEach } = require("lodash")
-
 (function () {
     'use strict'
 
-    $(".cantidadPasajeros").on("click",(event)=>{
-        event.preventDefault();
-        var inp = $(event.target.parentElement.parentElement).find("input");
-        var step = parseInt($(inp).attr("step"));
-        var min = parseInt($(inp).attr("min"));
-        var max = parseInt($(inp).attr("max"));
-        console.log(inp);
-
-        switch (event.target.value) {
-            case "+":
-                console.log("+");
-                $(inp).val(parseInt($(inp).val()) + step);
-                if (parseInt($(inp).val()) > max) {
-                    $(inp).val(max);
-                }
-                break;
-            case "-":
-                console.log("-");
-                $(inp).val(parseInt($(inp).val()) - step);
-                if (parseInt($(inp).val()) < min){
-                    $(inp).val(min);
-                }
-                break;
-        
-            default:
-                break;
-        }
-    });
-    // console.log("validaciones activadas");
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
     var forms = document.querySelectorAll('.needs-validation')
 
@@ -69,6 +38,7 @@
         document.getElementById('xyz').printMe();
         document.getElementsByClassName('xyz')[0].printMe();
     */
+
     HTMLElement.prototype.printMe = printMe;
     function printMe(query) {
         var myframe = document.createElement('IFRAME');
@@ -112,76 +82,3 @@ window.toggler=function(inpt, target){
         $(target + " input").removeAttr("required");
     }
 }
-
-window.cargarDestinos=function(origen,comprimir){
-    $.ajax({
-        url: "/oficina/"+origen+"/destinos/"+comprimir,
-        method: "get",
-        success: function (response) {
-            $("#destino").empty();
-            $("#destino").append('<option value="">Seleccione Destino</option>');
-            response.forEach(element => {
-                console.log(element);
-                $("#destino").append('<option value="' + element.nDestino +'">' + element.destino +'</option>');
-            });
-        }
-    });
-}
-window.seleccionarCorrida = function (fila, corr, disp) {
-    $(".selected").removeClass("selected");
-    $("#corr").val(corr);
-    $("#disp").val(disp);
-    // (fila)=>{
-        $(fila).addClass("selected");
-        // }
-}
-window.getRecorrido = function (corridaDisponible, origen, destino) {
-    // http://localhost:8000/corridas/disponibles/63/itinerario
-    $.ajax({
-        "url": `/corridas/disponibles/${corridaDisponible}/recorrido/${origen}/${destino}`,
-        success:function(response){
-            $("#exampleModalLong .modal-body").html(response);
-            $("#exampleModalLong").modal('show');
-            console.log(response);
-            // let htmlR="";
-            // let long=0;
-            // let cont=0;
-            // response=JSON.parse(response);
-            // long = response.length;
-
-            // response.forEach(tramo => {
-            //     if (cont==0){
-            //         htmlR = htmlR + "" + tramo.origenNombre + "_" + tramo.hSalida + "";
-            //         htmlR = htmlR + "" + tramo.destinoNombre +"_"+tramo.hLlegada + "<br>";
-            //     } else {
-            //         htmlR = htmlR + "" + tramo.destinoNombre + "_" + tramo.hLlegada + "<br>";
-            //     }
-            //     cont++;
-            // });
-
-            // $("#exampleModalLong .modal-body").html(htmlR);
-            // $("#exampleModalLong").modal('show');
-        }
-    });
-}
-/*
- * cuando va en la plantilla
- *         
- *
-    window.cargarDestinos=function(origen){
-        $.ajax({
-            url: "{{route('corridas.disponibles.destinos')}}",
-            method: "post",
-            data:{
-                "_token" : "{{csrf_token()}}",
-                "origen": origen
-            },
-            success: function (response) {
-                $("#destino").empty();
-                $("#destino").append('<option value="">Seleccione Destino</option>');
-                response.forEach(element => {
-                    $("#destino").append('<option value="' + element.nDestino +'">' + element.destino +'</option>');
-                });
-            }
-        });
- */

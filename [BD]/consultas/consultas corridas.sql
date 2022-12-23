@@ -99,16 +99,14 @@ WHERE last_update
 AND aEstadoAsiento='a' -- v esta es la parte que sirve
 AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15 
 -- [3] Eliminar los apartados del punto [2]
-CREATE OR REPLACE EVENT liberar_apartados
-ON SCHEDULE
-EVERY 2 MINUTE
-STARTS CURRENT_TIMESTAMP
+
+CREATE OR REPLACE DEFINER = 'root'@'localhost' EVENT `liberar_apartados` ON SCHEDULE EVERY 2 MINUTE STARTS '2000-12-19 17:11:52'
+ON COMPLETION PRESERVE ENABLE
 DO
     DELETE FROM disponibilidadasientos
-    WHERE
-    AND aEstadoAsiento='a'
+    WHERE aEstadoAsiento='a'
     AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15;
-
+    
 -- [CANCELAR CORRIDA (y sus disponibilidades)]
 -- PENDIENTE (usar la funcion estadoAsientos() )
 /*

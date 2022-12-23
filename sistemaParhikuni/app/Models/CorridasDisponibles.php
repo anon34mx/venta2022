@@ -225,12 +225,13 @@ class CorridasDisponibles extends Model
                 'id' => $this->nNumero
             ]);
     }
-    public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null){
+    // --      (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
+    public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null){
+        // dd($pasajeros);
         $res=$this::from("corridasdisponibles as cordis")
             ->selectRaw("cordis.nNumero as 'corrida', cordis.aEstado as 'estado', hist.aEstadoNuevo,
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
-                --      (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
-                count(boletos.nNumero) as ocupados,
+                count(disa.nDisponibilidad) as ocupados,
                 disp.nNumero as disp, disp.nOrigen, disp.nDestino, ori.aNombre as origen, des.aNombre as destino, disp.fSalida ,disp.hSalida,
                 disp.fLlegada, disp.hLlegada,
                 iti.nItinerario as itinerario, iti.nConsecutivo,
@@ -251,25 +252,15 @@ class CorridasDisponibles extends Model
                 $join->on("reg.nCorrida", "=", "cordis.nNumero");
                 $join->on("iti.nConsecutivo", "=", "reg.nConsecutivo");
             })
-            // ->leftJoin(
-            //     DB::raw(
-            //         "boletosvendidos as boletos ON 1 = 1"
-            //     ),  "boletos.nCorrida","=","cordis.nNumero" //"boletos.nCorrida", "=", "cordis.nNumero"
-            // )
-            ->leftJoin("boletosvendidos as boletos", function($join){
-                $join->on("boletos.nCorrida", "=", "cordis.nNumero");
-                $join->whereRaw("iti.nConsecutivo >= (SELECT nConsecutivo FROM vw_iti_tra where nOrigen=boletos.nOrigen AND vw_iti_tra.nItinerario=iti.nItinerario)");
-                $join->whereRaw("iti.nConsecutivo <= (SELECT nConsecutivo FROM vw_iti_tra where nDestino=boletos.nDestino AND vw_iti_tra.nItinerario=iti.nItinerario)");
+            ->leftJoin("disponibilidadasientos as disa", function($join){
+                $join->on("disa.nDisponibilidad", "=", "disp.nNumero");
+                // $join->on("disa.aEstadoAsiento", "=", DB::raw("'O'"));
             })
-            // ->leftJoin("boletosvendidos as boletos", function($join){
-            //     $join->on("boletos.nCorrida", "=", "cordis.nNumero");
-            //     $join->on("boletos.nOrigen", "=", "disp.nOrigen");
-            //     $join->on("boletos.nDestino", "=", "disp.nDestino");
-            // })
             ->leftJoin("tarifastramos as tatr", function($join){
                 $join->on("tatr.nOrigen", "=", "disp.nOrigen");
                 $join->on("tatr.nDestino", "=", "disp.nDestino");
                 $join->on("tatr.nTipoServicio", "=", "cordis.nTipoServicio");
+                $join->on("tatr.nNumero", "=", DB::raw("(SELECT nNumero FROM `tarifastramos` where nOrigen=disp.nOrigen and nDestino=disp.nDestino ORDER BY nTipoServicio, fAplicacion DESC LIMIT 1)"));
             })
             ->leftJoin("corridas_disponibles_historial as hist", function($join){
                 $join->on("hist.corrida_disponible", "=", "cordis.nNumero");
@@ -288,7 +279,7 @@ class CorridasDisponibles extends Model
                 $res->whereRaw("cordis.fSalida>=$fechaSalida");
             }
             if($fechaMax==null){
-                $res->whereRaw("cordis.fSalida<= date_add(current_date(), interval 1 DAY) ");
+                $res->whereRaw("cordis.fSalida< date_add(current_date(), interval 1 DAY) ");
             }else{
                 $res->whereRaw("cordis.fSalida<= $fechaMax ");
             }
@@ -298,10 +289,19 @@ class CorridasDisponibles extends Model
             if($destino!=null){
                 $res->whereRaw("disp.nDestino=".$destino);
             }
+            $totalPasajeros=0;
+            foreach($pasajeros as $owo){
+                // dd($owo);
+                $totalPasajeros+=$owo;
+            }
+            // dd($totalPasajeros);
+            if($totalPasajeros>0){
+                $res->havingRaw("totalAsientos-count(disa.nDisponibilidad) >= $totalPasajeros");
+            }
 
             $res->whereRaw("reg.despachado IS NULL");
 
-            $res->groupByRaw("cordis.nNumero, disp.nOrigen , disp.nDestino")
+            $res->groupByRaw("cordis.nNumero, disp.nOrigen , disp.nDestino, dist.nAsientos")
             ->orderByRaw("cordis.nNumero, iti.nConsecutivo, disp.fSalida, disp.hSalida, tatr.fAplicacion DESC");
         // dd($res->toSql());
         $res=$res->get();

@@ -308,7 +308,7 @@ AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15
 -- [3] Eliminar los apartados del punto [2]
 CREATE OR REPLACE EVENT liberar_apartados
 ON SCHEDULE
-EVERY 1 MINUTE
+EVERY 2 MINUTE
 STARTS CURRENT_TIMESTAMP DO
 BEGIN
     DELETE FROM disponibilidadasientos

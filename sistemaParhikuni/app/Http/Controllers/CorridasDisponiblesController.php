@@ -14,6 +14,7 @@ use App\Models\CorridasDisponiblesHistorial;
 use App\Models\RegistroPasoPuntos;
 use App\Models\Oficinas;
 use App\Models\Disponibilidad;
+use App\Models\DisponibilidadAsientos;
 
 use App\Http\Controllers\SmsController;
 
@@ -230,9 +231,20 @@ class CorridasDisponiblesController extends Controller
         // }
         // var_dump($_COOKIE);
         $cordis=new CorridasDisponibles();
-        // dd($cordis->filtrar($request->origen, $request->destino, $request->fechaDeSalida));
-        return view('venta.corridasFiltradas',[
-            "corridas" => $cordis->filtrar($request->corrida, $request->origen, $request->destino, $request->fechaDeSalida),
+        // dd($cordis->filtrar($request->origen, $request->destino, $request->fechaDeSalida)[0]["ocupados"]);
+        // dd($request->adultos);
+        // dd($request->niños);
+        // dd($request->insen);
+        return view('venta.interna.corridasFiltradas',[
+            "corridas" => $cordis->filtrar($request->corrida, $request->origen, $request->destino, $request->fechaDeSalida, null,//fecha maxima
+                [
+                    "adultos" => $request->adultos ?: 0,
+                    "niños"=> $request->niños ?: 0,
+                    "insen"=> $request->insen ?: 0,
+                    "estudiantes"=> $request->estudiantes ?: 0,
+                    "profesores"=> $request->profesores ?: 0,
+                ]
+            ),
             "origen" => Oficinas::find($request->origen),
             "destino" => Oficinas::find($request->destino),
             "adultos"=> $request->adultos!=null ? $request->adultos : 0,
@@ -245,16 +257,81 @@ class CorridasDisponiblesController extends Controller
     }
 
     public function asientos(Request $request){
-        $disp=Disponibilidad::where($request->cor)->first();
-        // dd($disp);
-
-        // $cordis=CorridasDisponibles::find($request->cor);
+        $disp=Disponibilidad::find($request->disp);
+        $cordis=CorridasDisponibles::find($request->cor);
+        $asientos=new DisponibilidadAsientos();
+        // dd($asientos->ocupados($request->disp));
+        return view('venta.interna.asientos',[
+            "disponibilidad"=>$disp,
+            "cordis"=>$cordis,
+            "asientosOcupados"=>$asientos->ocupados($request->disp),
+            "pasajeros" => array(
+                "adulto" => $request->adultos ?: 0,
+                "niño" => $request->niños ?: 0,
+                "insen" => $request->insen ?: 0,
+                "profesores" => $request->profesores ?: 0,
+                "estudiantes" => $request->estudiantes ?: 0,
+            )
+        ]);
+    }
+    public function apartar(Request $request){
+        // dd(@$_COOKIE);
         // dd($request->all());
-        // dd($cordis);
-        // dd($cordis->autobus);
-        // dd($cordis->autobus->distribucionAsientos);
-        // dd($disp);
+        $disponibilidad=Disponibilidad::find($request->disp);
+        try {
+            $rs=DisponibilidadAsientos::apartarAsiento(
+                $request->cor,
+                $disponibilidad->nOrigen,
+                $disponibilidad->nDestino,
+                implode(",",$request->asiento),
+                Auth::user()->id
+            );
+            // dd($rs[0]->asientos);
 
+            // cookies disponibles 15 minutos
+            date_default_timezone_set("America/Mexico_City");
+            session_start();
+            $tiempoParaLaVenta=900;
+
+            $_SESSION["tiempoCompra"]=time() + ($tiempoParaLaVenta);
+            $_SESSION["corrida"]=$request->cor;
+            $_SESSION["disponibilidad"]=$request->disp;
+            $_SESSION["asientosID"]=$rs[0]->asientos;
+            $_SESSION["pasajerosTipos"]=json_encode($request->pasajeroTipo);
+            $_SESSION["pasajeros"]=json_encode($request->pasajero);
+            // TARIFAS            
+            
+            setcookie("asientos", json_encode($request->asiento), time() + ($tiempoParaLaVenta), "/");
+            setcookie("origen", $disponibilidad->nOrigen."", time() + ($tiempoParaLaVenta), "/");
+            setcookie("destino", $disponibilidad->nDestino."", time() + ($tiempoParaLaVenta), "/");
+            
+            return redirect(route("venta.interna.confirmacion"));
+        } catch (\Throwable $th) {
+            return back()->withErrors("Alguno de los asientos ya están ocupados");
+        }
+        
+    }
+
+    public function confirmacion(Request $request){
+        session_start();
+        $fVenta=Carbon::createFromTimestamp($_SESSION["tiempoCompra"]);
+        $fActual=Carbon::now();
+        $tiempoRestante=null;
+        if( $fActual->lte($fVenta) ){
+            $tiempoRestante=$fActual->diffInSeconds($fVenta);
+        }else{
+            dd("tiempo fin");
+        }
+        // dd($_COOKIE);
+        if(isset($_COOKIE["origen"]) && isset($_COOKIE["destino"]) && isset($_COOKIE["asientos"])){
+            return view("venta.interna.confirmacion",[
+                "tiempoRestante" => $tiempoRestante,
+                "corrida" => CorridasDisponibles::find($_SESSION["corrida"]),
+                "disponibilidad" => Disponibilidad::find($_SESSION["disponibilidad"]),
+            ]);
+        }else{
+            // return back();
+        }
     }
 
     public function itinerario(CorridasDisponibles $corridaDisponible){

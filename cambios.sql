@@ -294,3 +294,9 @@ ALTER TABLE `corridas_versiones`
 ALTER TABLE `corridas_versiones`
     ADD COLUMN user_id bigint(20) unsigned NOT NULL,
     ADD CONSTRAINT `corridas_versiones_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+    ALTER TABLE disponibilidadasientos
+ADD COLUMN user_id bigint(20) unsigned NOT NULL,
+ADD FOREIGN KEY (user_id) 
+REFERENCES users(id)
+ON UPDATE CASCADE ON DELETE RESTRICT

@@ -204,6 +204,46 @@ tr.selected td{
 .fecha{
 	white-space: nowrap;
 }
+.tbl-datosPasajeros{
+	border-collapse: separate;
+	border-spacing: 0 1em;	
+}
+.asiento{
+	content: url("../images/asientos/asientolibre.png");
+	width: 44px;
+}
+.asiento.tv{
+	content: url("../images/asientos/asientolibreTV.png");
+}
+
+.asiento.apartado{
+	content: url("../images/asientos/asientoSeleccionado.png");
+}
+.asiento.tv.apartado{
+	content: url("../images/asientos/asientoSeleccionadoTV.png");
+}
+
+.asiento.ocupado{
+	content: url("../images/asientos/asientoOcupado.png");
+}
+.asiento.tv.ocupado{
+	content: url("../images/asientos/asientoOcupadoTV.png");
+}
+/*
+.asiento .ocupado{
+	content: url("../images/asientos/asientoOcupado.png");
+}
+
+.asiento-tv .ocupado{
+	content: url("../images/asientos/asientoOcupadoTV.png");
+}
+.apartado{
+	content: url("../images/asientos/asientoSeleccionado.png");
+}
+.tv.apartado{
+	content: url("../images/asientos/asientoSeleccionadoTV.png");
+}
+*/
 /* ************************** */
 .centerVert {
 	position: absolute;
@@ -286,7 +326,7 @@ footer div{
 	.wrapper:before{
 		display: block;
 		width: 50px;
-		content:url('http://localhost:5173/resources/images/logo_parhikuni.png');
+		content:url('../images/logo_parhikuni.png');
 		float: right;
 	}
 	body{

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\RolesController;
-
+use Carbon\Carbon;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -147,6 +147,54 @@ Route::get('/ventaInterna/corridas', [App\Http\Controllers\CorridasDisponiblesCo
     ->name("corridas.disponibles.corridasFiltradas");//->middleware('permission:corridas.disponibles.index');//pendiente
 Route::get('/ventaInterna/asientos', [App\Http\Controllers\CorridasDisponiblesController::class, 'asientos'])
     ->name("corridas.disponibles.asientos");//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::post('/ventaInterna/apartar', [App\Http\Controllers\CorridasDisponiblesController::class, 'apartar'])
+    ->name("corridas.disponibles.apartar");//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\CorridasDisponiblesController::class, 'confirmacion'])
+    ->name("venta.interna.confirmacion");//->middleware('permission:corridas.disponibles.index');//pendiente
+
+// Route::post('/ventaInterna/resumen', [App\Http\Controllers\CorridasDisponiblesController::class, 'resumen'])
+//     ->name("corridas.disponibles.resumen");//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::get('/cookies', function(){
+    date_default_timezone_set("America/Mexico_City");
+    session_start();
+
+
+    echo "<pre>";
+    
+    echo $fVenta=Carbon::createFromTimestamp($_SESSION["tiempoCompra"]);
+    echo "<br>";
+    echo $fActual=Carbon::now(); 
+    echo "<br>";
+    // echo $fVenta->diff($fActual)->format("%S");
+    echo $diferencia=$fActual->diffInSeconds($fVenta);
+    echo "<br>";
+    echo $vencio=$fActual->gte($fVenta) ?: 0;
+
+    // var_dump($_SESSION["tiempoCompra"]);
+    // echo "<br>";
+    // echo date("Y-m-d H:i.s", $_SESSION["tiempoCompra"]);
+    // echo "<br>";
+    // echo date("Y-m-d H:i.s");
+    // echo "<br>";
+    // echo $totalDuration = $finishTime->diffInSeconds($startTime);
+    
+    echo "<br>______________________________________<br>";
+    echo var_dump($_SESSION)."</pre>";
+    
+
+    dd(@$_COOKIE);
+});
+Route::get('/deleteCookies', function(){
+    setcookie('tiempoCompra', null, -1);
+    setcookie('corrida', null, -1);
+    setcookie('origen', null, -1);
+    setcookie('destino', null, -1);
+    setcookie('asientos', null, -1);
+    setcookie('asientosID', null, -1);
+    setcookie('pasajeros', null, -1);
+    setcookie('pasajerosTipos', null, -1);
+    setcookie('pasajerosTipos', null, -1);
+});
 //
 Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])
 // Route::post('/oficina/destinos', [App\Http\Controllers\OficinasController::class, 'destinos'])
