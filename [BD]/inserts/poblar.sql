@@ -1,61 +1,3 @@
-/*
-DROP DATABASE venta2022b;
-CREATE DATABASE venta2022b;
-USE venta2022b;
-
-itinerario
-    cambiar llave primaria para que tenga ambas columnas
-    quitar las otras llaves
-corridasprogramadas
-    conductor puede ser nulo
-    autobus puede ser nulo
-disponibilidad
-    ncorridaprogramada quitar llave unica
-    + añadir ??
-disponibilidadasientos
-    quitar llave primaria
-    crear llave unica 
-        ALTER TABLE disponibilidadasientos ADD UNIQUE KEY (nDisponibilidad, nAsiento);
-venta
-    fCreacion debe tener por DEFAULT el valor
-        ALTER TABLE `venta` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
-ventapago
-    fCreacion debe tener el valor por defecto
-        ALTER TABLE `ventapago` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
-Boletosvendidos
-    ALTER TABLE `boletosvendidos` CHANGE `fCreacion` `fCreacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
-    ALTER TABLE `boletosvendidos` CHANGE `nPromocion` `nPromocion` INT(10) UNSIGNED NULL;
-    ALTER TABLE `boletosvendidos` DROP INDEX `nFactorPaqueteria`;
-    ALTER TABLE `descuentos` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_DATE;
-    ALTER TABLE `boletosvendidos` CHANGE `nAsiento` `nAsiento` CHAR(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
-    -- ALTER TABLE boletosvendidos
-    --     ADD FOREIGN KEY (nTerminal)
-    --     REFERENCES terminales(nNumero)
-    --     ON UPDATE CASCADE ON DELETE RESTRICT;
-    ALTER TABLE boletosvendidos 
-        ADD CONSTRAINT FK_terminales 
-        FOREIGN KEY (nTerminal) 
-        REFERENCES terminales(nNumero)
-        ON UPDATE CASCADE ON DELETE RESTRICT;
-    -- PENDIENTE RESTRICCION NUM ASIENTO Y NUM CORRIDA
-    -- ??????????????????????????????????????????????????????????????????????????
-    ALTER TABLE boletosvendidos ADD UNIQUE (nCorrida, nOrigen, nDestino, nAsiento);
-formaspago
-    ALTER TABLE `formaspago` CHANGE `aDescripcion` `aDescripcion` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
-    -- CREAR INDICES PARA QUE SEA MÁS RÁPIDO
-        -- ejemplo
-        -- ALTER TABLE pases ADD INDEX pases_IN (id,id_venta)
-    ALTER TABLE `itinerario` ADD INDEX itinerario_IN (nItinerario, nTramo);
-    ALTER TABLE `tramos` ADD INDEX tramos_IN (nNumero, nOrigen, nDestino);
-    ALTER TABLE `corridasdisponibles` ADD INDEX corridasdisponibles_IN
-        (nNumero, nProgramada, nItinerario, nNumeroAutobus);
-    ALTER TABLE `oficinas` ADD INDEX oficinas_IN (nNumero, aClave, lDestino);
-    ALTER TABLE `disponibilidad` ADD INDEX disponibilidad_IN (nNumero, nCorridaDisponible,nOrigen, nDestino);
-    ALTER TABLE `disponibilidadasientos` ADD INDEX disponibilidadasientos_IN (nDisponibilidad, nAsiento);
-    ALTER TABLE `corridasprogramadas` ADD INDEX corridasprogramadas_IN (nNumero, nItinerario);
-promociones
-    ALTER TABLE `promociones` CHANGE `fCreacion` `fCreacion` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP;
-*/
 INSERT INTO personas_estados VALUES
 ("AC", "Activo"),
 ("BA", "Proceso de Baja"),
@@ -107,6 +49,7 @@ INSERT INTO `oficinas` (`nNumero`,`aClave`, `aNombre`, `aTipo`, `lDestino`) VALU
 (10,'URUA','Uruapan', 'int', 1),
 (11,'ZIHUA','Zihuatanejo', 'int', 1),
 (12,'PEMO','Pensión morelia', 'int',0);
+(13,'INTE','INTERNET', 'int',0);
 
 INSERT into `origenesdestinos`(nOrigen, nDestino) VALUES
 (1, 3), (1, 4), (1, 5), (1, 8), (1, 9), (1, 10),
@@ -325,7 +268,8 @@ INSERT INTO tipopasajero VALUES
 ("SE", "SEDENA", 0.10);
 
 INSERT INTO terminales (aTerminal, nOficina, aDescripcion) VALUES
-("DTI", 12, "para pruebas");
+("DTI", 12, "para pruebas"),
+("Venta sitio web", 13, "parhikuni.com");
 
 INSERT INTO sesiones (nNumero,nNumeroPersona, nOficina, fContable) VALUES (1,1,8,"2022-08-31");
 INSERT INTO venta (nNumero,nSesion) VALUES(1,1);
@@ -353,15 +297,28 @@ INSERT INTO promociones (nNumero,aTipo, aDescripcion, nMaximos, nDescuento, fIni
 
 truncate tarifastramos;
 INSERT INTO `tarifastramos`
-(`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `nIVA`, `fAplicacion`)
+(`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
 VALUES
-('1', '8', '10', '150', '130', '11', '2021-01-01'),
-('2', '8', '10', '150', '130', '11', '2021-01-01'),
-('3', '8', '10', '150', '130', '11', '2021-01-01'),
+('1', '8', '10', '150', '130', '2021-01-01'),
+('2', '8', '10', '150', '130', '2021-01-01'),
+('3', '8', '10', '150', '130', '2021-01-01'),
 
-('1', '8', '10', '201', '190', '14', '2022-11-20'),
-('2', '8', '10', '202', '190', '14', '2022-11-20'),
-('3', '8', '10', '203', '140', '12', '2022-11-20')
+('1', '8', '10', '201', '190', '2022-11-20'),
+('2', '8', '10', '202', '190', '2022-11-20'),
+('3', '8', '10', '203', '140', '2022-11-20'),
+
+
+('1', '8', '5', '365.40', '140', '2022-11-20'), -- Platinum
+('2', '8', '5', '368.30', '140', '2022-11-20'), -- ultra
+('3', '8', '5', '321.30', '140', '2022-11-20'), -- express
+-- ('4', '8', '5', '203', '140', '2022-11-20'), -- premium
+('5', '8', '5', '384.30', '140', '2022-11-20'), -- business
+
+('1', '8', '1', '405.00', '140', '2022-11-20'),
+('2', '8', '1', '396.00', '140', '2022-11-20'),
+('3', '8', '1', '369.00', '140', '2022-11-20'),
+-- ('4', '8', '1', '369.00', '140', '2022-11-20'),
+('5', '8', '1', '369.00', '140', '2022-11-20'),
 ;
 -- HASTA AQUI VA BIEN
 

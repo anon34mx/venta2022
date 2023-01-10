@@ -47,8 +47,11 @@ class LoginController extends Controller
         if($tipoPersona=="EI" || $tipoPersona=="PA"){
             $oficina=Auth::user()->personas->nOficina;
             $oficina=Oficinas::find($oficina);
+            // dd($oficina->nNumero);
             Session::put('oficinaNombre', $oficina->aNombre);
+            Session::put('oficinaid', $oficina->nNumero);
             // session("oficinaNombre") // recuperar dato
+            // session("oficinaid") // recuperar dato
         }
         
     }

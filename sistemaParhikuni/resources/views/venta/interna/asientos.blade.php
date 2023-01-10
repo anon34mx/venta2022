@@ -13,12 +13,12 @@
     @endif
 
 @php
-$totalPasajeros=$pasajeros['adulto']+$pasajeros['niño']+$pasajeros['insen']+$pasajeros['profesores']+$pasajeros['estudiantes'];
+$totalPasajeros=$pasajeros['AD']+$pasajeros['NI']+$pasajeros['IN']+$pasajeros['MA']+$pasajeros['ES'];
 $contAuxPasajeros=0;
 @endphp
 <div class="col-12 row px-0 mx-0">
     <h3>ASIENTOS</h3>
-    <table style="width:200px">
+    <table style="width:200px" class="tbl-diagrama-bus">
         <tr>
             <td>
                 <img alt="" style="" width="34"
@@ -40,21 +40,17 @@ $contAuxPasajeros=0;
                         @if($col=="00")
                         __
                         @elseif($col=="BH")
-                        [bh]
+                            <div class="asiento_nmr">{{$col}}</div>
                         @elseif($col=="BM")
-                        [bm]
+                            <div class="asiento_nmr">{{$col}}</div>
                         @elseif($col=="CA")
-                        ca
+                            <div class="asiento_nmr">{{$col}}</div>
                         @else
                             @php
                             $numAsiento=substr($col,0,2);
                             $ocupado=0;
-                            // if($contAuxAsien<$sizeAsientos){
-                                // $ocupado=str_pad($asientosOcupados[$contAuxAsien], 2, "0", STR_PAD_LEFT);
-                            // }
+
                             @endphp
-                            <!-- {{$contAuxAsien}} / {{$sizeAsientos}} -->
-                            <!-- if( $numAsiento == $ocupado) -->
                             @if( @$asientosOcupados[$numAsiento])
                                 @if(strpos($col,"T")>0)
                                     <div id="asiento-{{$numAsiento}}" class="asiento tv  ocupado" numero="{{$numAsiento}}">
@@ -78,25 +74,17 @@ $contAuxPasajeros=0;
                                     <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
                                         <img alt="Libre" style=""
                                         class="logo-color mx-auto my-0">
-                                        <!-- src="{{ Vite::asset('resources/images/asientos/asientolibreTV.png') }}"> -->
                                         <span>{{$numAsiento}}</span>
                                     </div>
                                 @else
                                     <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
                                         <img alt="Libre" style=""
                                         class="logo-color mx-auto my-0">
-                                        <!-- src="{{ Vite::asset('resources/images/asientos/asientolibre.png') }}"> -->
                                         <span>{{$numAsiento}}</span>
                                     </div>
                                 @endif
                             @endif
-                            <!-- if(strpos($col,"T")=="")
-                                <img alt="" style="" width="34"
-                                class="logo-color mx-auto my-3" src="{{ Vite::asset('resources/images/asientos/asientolibre.png') }}">
-                            else
-                                <img alt="" style="" width="34"
-                                class="logo-color mx-auto my-3" src="{{ Vite::asset('resources/images/asientos/asientolibreTV.png') }}">
-                            endif -->
+                            <div class="asiento_nmr">{{$col}}</div>
                         @endif
                     </td>
                 @endforeach
@@ -107,15 +95,15 @@ $contAuxPasajeros=0;
         @endforeach
     </table>
     <div class="col-8">
-        <form id="pasajerosAsientos" action="{{route('corridas.disponibles.apartar')}}" method="post" >
+        <form id="pasajerosAsientos" action="{{route('corridas.disponibles.apartar')}}" method="post">
             @csrf
-            <input type="text" name="cor" value="{{ Request::get('cor') }}">
-            <input type="text" name="disp" value="{{ Request::get('disp') }}">
-            <input type="text" name="adultos" value="{{ Request::get('adultos') }}">
-            <input type="text" name="niños" value="{{ Request::get('niños') }}">
-            <input type="text" name="insen" value="{{ Request::get('insen') }}">
-            <input type="text" name="profesores" value="{{ Request::get('profesores') }}">
-            <input type="text" name="estudiantes" value="{{ Request::get('estudiantes') }}">
+            <input type="text" hidden name="cor" value="{{ Request::get('cor') }}">
+            <input type="text" hidden name="disp" value="{{ Request::get('disp') }}">
+            <input type="text" hidden name="adultos" value="{{ Request::get('adultos') }}">
+            <input type="text" hidden name="niños" value="{{ Request::get('niños') }}">
+            <input type="text" hidden name="insen" value="{{ Request::get('insen') }}">
+            <input type="text" hidden name="profesores" value="{{ Request::get('profesores') }}">
+            <input type="text" hidden name="estudiantes" value="{{ Request::get('estudiantes') }}">
             <table class="tbl-datosPasajeros">
                 <thead>
                     <tr>
@@ -129,10 +117,16 @@ $contAuxPasajeros=0;
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $aux=0;
+                    @endphp
                     @foreach($pasajeros as $tipo=>$cantidad)
                         @for($a=0; $a<$cantidad && $cantidad>0; $a++)
                             <tr id="pasajero-{{$a}}" class="pt-1 pb-1 pasajeroContainer">
-                                <td> <input class="pasajeroTipo form-control" readonly name="pasajeroTipo[]" value="{{$tipo}}"> </td>
+                                <td>
+                                    <label for="" class="pasajeroTipo form-control">{{$tipo}}</label>
+                                    <input hidden class="pasajeroTipo form-control" readonly name="pasajeroTipo[]" value="{{$tipo}}" tabindex="-1" style="pointer-events:none;">
+                                </td>
                                 <td>
                                     <select name="asiento[{{$contAuxPasajeros}}]" id="asiento[{{$contAuxPasajeros}}]" class="form-control pasajeroAsiento">
                                         <option value="">Seleccionar</option>
@@ -145,7 +139,8 @@ $contAuxPasajeros=0;
                                     </select>
                                 </td>
                                 <td >
-                                    <input class="form-control pasajeroNombre" type="text" name="pasajero[{{$contAuxPasajeros}}]" value="">
+                                    <input class="form-control pasajeroNombre" type="text" name="pasajero[{{$contAuxPasajeros}}]"
+                                        value="">
                                 </td>
                                 <!-- <td><button>delete</button></td> -->
                             </tr>
@@ -153,7 +148,11 @@ $contAuxPasajeros=0;
                                 $contAuxPasajeros++;
                             @endphp
                         @endfor
+                        @php
+                            $aux=$aux+1;
+                        @endphp 
                     @endforeach
+                    <!-- endif -->
                 </tbody>
             </table>
             <div class="col-12">
@@ -161,10 +160,25 @@ $contAuxPasajeros=0;
             </div>
         </form>
     </div>
-    <div class="col-12">
-        <label for="btn-apartar">
-            <span>Apartar</span>
-        </label>
+    <div class="col-12 justify-content-center">
+        <span class="btn-collap float-right mx-2" title="Guardar">
+            <label class="btn btn-sm btn-parhi-primary"
+                for="btn-apartar" tabindex="9999">
+                <i class="fa-solid fa-book"></i>
+                <span>Apartar</span>
+            </label>
+            <input id="guardar" type="submit"
+            class="btn">
+        </span>
+
+        <span class="btn-collap float-right mx-2" title="Eliminar">
+            <label class="btn btn-sm btn-danger float-right"
+                for="">
+                <i class="fa-solid fa-arrow-left-long"></i>
+                <span>Volver</span>
+            </label>
+        </span>
+    
     </div>
 </div>
 

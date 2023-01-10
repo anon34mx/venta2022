@@ -1,5 +1,4 @@
 @extends('layouts.parhikuni')
-
 @section('content')
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
     @if($errors->any())
@@ -42,8 +41,26 @@
             <div class="px-0 col-12">
                 <select class="form-control" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
                     <option value="" >Seleccione Origen</option>
+                    <option value="todos" 
+                        @if(request()->get('origen')=="todos")
+                            {{"selected"}}
+                        @endif
+                    >Todos</option>
+                    @php
+                    $origenEncontrado = false;
+                    @endphp
                     @foreach($oficinas as $key)
-                        <option value="{{$key["nNumero"]}}" {{@$key['nNumero']==@$origen->nNumero ? "selected": "" }} >{{@$key["origen"]}}</option>
+                        <option value="{{$key['nNumero']}}"
+                            @if(request()->get('origen')!=null)
+                               @if(request()->get('origen')==$key['nNumero'])
+                                    {{"selected"}}
+                               @endif
+                            @else
+                               @if($key['nNumero']==session("oficinaid"))
+                                    {{"selected"}}
+                               @endif
+                            @endif
+                        >{{@$key["origen"]}}</option>
                     @endforeach
                 </select>
             </div>
@@ -111,6 +128,9 @@
             <div class="col-6 col-sm-12 row mx-0">
                 <button>Filtrar</button>
             </div>
+            <div class="col-6 col-sm-12 row mx-0">
+                <input type="reset">
+            </div>
         <!-- </div> -->
     </form>
 
@@ -131,7 +151,7 @@
                             Destino</th>
                         <th>Tarifa</th>
                         <th>Ocupacion</th>
-                        <th>Itinerario</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -141,33 +161,44 @@
                     @elseif($corrida->aEstadoNuevo=="S")
                         <tr class="bg-warning text-warning">
                     @else
-                        <tr class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
+                        <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
                     @endif
                             <td>{{$corrida->corrida}}
                                 <br>
                                 {{$corrida->aEstadoNuevo!="" ? $corrida->aEstadoNuevo : $corrida->estado}}
                             </td>
-                            <!-- <td>{{$corrida->disp}}</td> -->
                             <td>{{($corrida->claseServicio)}}</td>
-                            <td class="fecha">{{($corrida->fSalida)}}<br>{{($corrida->hSalida)}}</td>
-                            <td class="fecha">{{($corrida->fLlegada)}}<br>{{($corrida->hLlegada)}}</td>
+                            @php
+                                $fechoraHoraSalida=\Carbon\Carbon::parse($corrida->fSalida." ".$corrida->hSalida);
+                                $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
+                            @endphp
+                            <td class="fecha">
+                                {{$fechoraHoraSalida->format("d/m/Y")}}
+                                <br>
+                                {{$fechoraHoraSalida->format("H:i:s")}}
+                            </td>
+                            <td class="hora">
+                                {{$fechaHoraLlegada->format("d/m/Y")}}
+                                <br>
+                                {{$fechaHoraLlegada->format("H:i:s")}}
+                            </td>
                             <td>{{$corrida->origen}}<br>{{$corrida->destino}}</td>
-                            <td>${{number_format($corrida->tarifaBase + $corrida->iva,2)}}</td>
+                            <td class="tarifa">$<span>{{number_format($corrida->tarifaBase + $corrida->iva,2)}}</span></td>
                             <td>
                                 <span class="ocupados">{{($corrida->ocupados)}}</span>
-                                //
+                                /
                                 <span class="totalAsientos">{{$corrida->totalAsientos}}</span>
                             </td>
-                            <td><button onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >Ver</button></td>
+                            <td><button onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >Itinerario</button></td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            <input id="corr" name="cor" type="" value="0">
-            <input id="disp" name="disp" type="" value="0">
-            <input id="adultos" name="adultos" type="" value="0">
-            <input id="niños" name="niños" type="" value="0">
-            <input id="insen" name="insen" type="" value="0">
+            <input id="corr" hidden name="cor" type="" value="{{ Request::get('cor') ?: 0 }}">
+            <input id="disp" hidden name="disp" type="" value="{{ Request::get('disp') ?: 0 }}">
+            <input id="adultos" hidden name="AD" type="" value="{{ Request::get('adultos') ?: 0 }}">
+            <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
+            <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
             <!-- especial owo -->
             <div class="col-12">
                 <span class="btn-collap float-right mx-1" title="Continuar">

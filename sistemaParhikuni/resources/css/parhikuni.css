@@ -57,7 +57,7 @@
 
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
-	outline: 1px solid tomato;
+	/* outline: 1px solid tomato; */
 }
 html{
 	/* background-color: #dbe6e7; */
@@ -208,9 +208,16 @@ tr.selected td{
 	border-collapse: separate;
 	border-spacing: 0 1em;	
 }
+.tbl-diagrama-bus{
+	transform: rotate(180deg);
+}
+.asiento_nmr{
+	transform: rotate(180deg);
+}
 .asiento{
 	content: url("../images/asientos/asientolibre.png");
 	width: 44px;
+	transform: rotate(180deg);
 }
 .asiento.tv{
 	content: url("../images/asientos/asientolibreTV.png");
@@ -228,6 +235,12 @@ tr.selected td{
 }
 .asiento.tv.ocupado{
 	content: url("../images/asientos/asientoOcupadoTV.png");
+}
+
+.textoTachado{
+	font-size: 0.8rem;
+	text-decoration-line: line-through;
+	color: tomato;
 }
 /*
 .asiento .ocupado{
