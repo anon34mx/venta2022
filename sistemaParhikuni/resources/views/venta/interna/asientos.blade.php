@@ -172,11 +172,15 @@ $contAuxPasajeros=0;
         </span>
 
         <span class="btn-collap float-right mx-2" title="Eliminar">
-            <label class="btn btn-sm btn-danger float-right"
-                for="">
-                <i class="fa-solid fa-arrow-left-long"></i>
-                <span>Volver</span>
-            </label>
+            <form action="{{route('venta.interna.cancelarCompra')}}" method="post">
+                @csrf
+                <input id="cancelarCompra" type="submit">
+                <label class="btn btn-sm btn-danger float-right"
+                    for="cancelarCompra">
+                    <i class="fa-solid fa-ban"></i>
+                    <span>Cancelar</span>
+                </label>
+            </form>
         </span>
     
     </div>

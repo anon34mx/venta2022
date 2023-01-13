@@ -37,7 +37,8 @@
         </tbody>
     </table>
     <h3>Pasajeros</h3>
-    <form action="{{route('venta.interna.pago')}}">
+    <form action="{{route('venta.interna.pago')}}" method="post">
+        @csrf
         <input type="submit" id="guardar" hidden>
         <table class="table table-parhi table-striped">
             <thead>
@@ -81,7 +82,6 @@
                     <td>
                         {{$pasajeros[$i]}}
                     </td>
-                    <!-- <td>{{$tipos[$i]}}</td> -->
                     <td class="tarifa">
                         $<span>{{$tarifas->tarifaRuta}}</span>
                     </td>
@@ -116,9 +116,15 @@
                     </td>
                     <td class="subtotal">
                         @php
-                            $importeTemp=$tarifas->tarifaRuta-($tarifas->tarifaRuta*($promocionTemp/100));
-                            $IVATemp=$importeTemp*(env("IVA")/100);
-                            $total=$total+$importeTemp+$IVATemp;
+                            $porcentajeAplicado=number_format(($promocionTemp/100), 2);
+                            $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado,2);
+
+                            $importeTemp=number_format($tarifas->tarifaRuta-($descuentoAplicado),2);
+                            $IVATemp=number_format($importeTemp*(env("IVA")/100), 2);
+
+
+
+                            $total=$total+number_format($importeTemp+$IVATemp,2);
                         @endphp
                         @if($promocionTemp!=0)
                             <span class="original textoTachado">${{number_format($tarifas->tarifaRuta+$tarifas->tarifaRutaIVA, 2)}}</span>
@@ -153,11 +159,15 @@
         </span>
 
         <span class="btn-collap float-right mx-2" title="Eliminar">
-            <label class="btn btn-sm btn-danger float-right"
-                for="">
-                <i class="fa-solid fa-ban"></i>
-                <span>Cancelar</span>
-            </label>
+            <form action="{{route('venta.interna.cancelarCompra')}}" method="post">
+                @csrf
+                <input id="cancelarCompra" type="submit">
+                <label class="btn btn-sm btn-danger float-right"
+                    for="cancelarCompra">
+                    <i class="fa-solid fa-ban"></i>
+                    <span>Cancelar</span>
+                </label>
+            </form>
         </span>
     
     </div>

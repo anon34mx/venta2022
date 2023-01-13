@@ -86,6 +86,7 @@ ORDER BY dis.fSalida, dis.hSalida
 -- [0] Añadir columna last_update
 ALTER TABLE disponibilidadasientos ADD COLUMN last_update DATETIME NOT NULL DEFAULT NOW();
 -- [1] Hacer un trigger que indique cuando se insertó/modificó el registro
+--DESACTIVADO
 CREATE OR REPLACE TRIGGER asiento_ultima_actualizacion
 BEFORE UPDATE ON disponibilidadasientos
 FOR EACH ROW

@@ -24,8 +24,6 @@ class DisponibilidadAsientos extends Model
             ]
         );
         foreach($rs as $asiento){
-            // array_push($retorno, $asiento->nAsiento);
-            // $retorno[$asiento->nAsiento]=true;
             $retorno[str_pad($asiento->nAsiento, 2, "0", STR_PAD_LEFT)]=true;
         }
         return $retorno;
@@ -43,5 +41,12 @@ class DisponibilidadAsientos extends Model
             DB::rollback();
             throw $e;
         }
+    }
+
+    public static function refrescar($asientos){
+        $sql_select="SELECT refrescar_asientos(:asientos) as actualizados";
+        return DB::select($sql_select,[
+            "asientos" => $asientos
+        ])[0]->actualizados;
     }
 }

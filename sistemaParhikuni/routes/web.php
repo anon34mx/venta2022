@@ -139,23 +139,25 @@ ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVe
     ->name("boletos.limbo.show")
     ->middleware("permission:boletos.limbo.show");
 
-//  VENTA
-Route::get('/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
+    Route::get('/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
     ->name("corridas.disponibles.filtros");//->middleware('permission:corridas.disponibles.index');//pendiente
+    
+//  VENTA INTERNA
+Route::get('/ventaInterna/corridas', [App\Http\Controllers\VentaInternaController::class, 'corridasFiltradas'])
+    ->name("corridas.disponibles.corridasFiltradas")->middleware(['ventaInterna']);
+Route::get('/ventaInterna/asientos', [App\Http\Controllers\VentaInternaController::class, 'asientos'])
+    ->name("corridas.disponibles.asientos")->middleware(['ventaInterna']);
+Route::post('/ventaInterna/apartar', [App\Http\Controllers\VentaInternaController::class, 'apartar'])
+    ->name("corridas.disponibles.apartar");
+Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\VentaInternaController::class, 'confirmacion'])
+    ->name("venta.interna.confirmacion")
+    ->middleware(['ventaInterna']);
+Route::post('/ventaInterna/pago', [App\Http\Controllers\VentaInternaController::class, 'pago'])
+    ->name("venta.interna.pago");
 
-Route::get('/ventaInterna/corridas', [App\Http\Controllers\CorridasDisponiblesController::class, 'corridasFiltradas'])
-    ->name("corridas.disponibles.corridasFiltradas");//->middleware('permission:corridas.disponibles.index');//pendiente
-Route::get('/ventaInterna/asientos', [App\Http\Controllers\CorridasDisponiblesController::class, 'asientos'])
-    ->name("corridas.disponibles.asientos");//->middleware('permission:corridas.disponibles.index');//pendiente
-Route::post('/ventaInterna/apartar', [App\Http\Controllers\CorridasDisponiblesController::class, 'apartar'])
-    ->name("corridas.disponibles.apartar");//->middleware('permission:corridas.disponibles.index');//pendiente
-Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\CorridasDisponiblesController::class, 'confirmacion'])
-    ->name("venta.interna.confirmacion");//->middleware('permission:corridas.disponibles.index');//pendiente
-Route::get('/ventaInterna/pago', [App\Http\Controllers\CorridasDisponiblesController::class, 'pago'])
-    ->name("venta.interna.pago");//->middleware('permission:corridas.disponibles.index');//pendiente
-
-// Route::post('/ventaInterna/resumen', [App\Http\Controllers\CorridasDisponiblesController::class, 'resumen'])
-//     ->name("corridas.disponibles.resumen");//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::post('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])
+    ->name("venta.interna.cancelarCompra");
+    
 Route::get('/cookies', function(){
     // session_start();
     echo "variables de sesion";

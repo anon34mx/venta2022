@@ -166,6 +166,7 @@ class CorridasDisponiblesController extends Controller
             return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
         }
     }
+    
     public function guiaPasajeros(CorridasDisponibles $corridaDisponible){
         // if($request->mode=="Descargar"){
         //     $pdf = PDF::loadView('corridasDisponibles.guiaPasajeros', ["corridaDisponible" => $corridaDisponible]);
@@ -193,6 +194,7 @@ class CorridasDisponiblesController extends Controller
             ]);
         }
     }
+
     public function registrarPuntoDeControl(CorridasDisponibles $corridaDisponible, Request $request){
         $conductor=conductores::find(1);
         if($conductor->nNumeroConductor==$request->contraseñaDeCondutor){
@@ -207,147 +209,10 @@ class CorridasDisponiblesController extends Controller
         }
     }
 
-    public function filtros(){
-        return view("venta.filtros",[
-            "oficinas" => Oficinas::destinos(0,true),
-        ]);
-    }
-    public function corridasFiltradas(Request $request){
-        $cordis=new CorridasDisponibles();
-        $origen=$request->origen ?: session("oficinaid");
-        // dd($origen);
-        return view('venta.interna.corridasFiltradas',[
-            "corridas" => $cordis->filtrar($request->corrida, $origen, $request->destino, $request->fechaDeSalida, null,//fecha maxima
-                [
-                    "adultos" => $request->adultos ?: 0,
-                    "niños"=> $request->niños ?: 0,
-                    "insen"=> $request->insen ?: 0,
-                    "estudiantes"=> $request->estudiantes ?: 0,
-                    "profesores"=> $request->profesores ?: 0,
-                ]
-            ),
-            "origen" => Oficinas::find($request->origen),
-            "destino" => Oficinas::find($request->destino),
-            "adultos"=> $request->adultos!=null ? $request->adultos : 0,
-            "niños"=> $request->niños!=null ? $request->niños : 0,
-            "insen"=> $request->insen!=null ? $request->insen : 0,
-            "fechaDeSalida" => $request->fechaDeSalida,
-            "fechaMax" => $request->fechaMax,
-            "oficinas" => Oficinas::destinos(0,true),
-        ]);
-    }
-
-    public function asientos(Request $request){
-        $disp=Disponibilidad::find($request->disp);
-        $cordis=CorridasDisponibles::find($request->cor);
-        $asientos=new DisponibilidadAsientos();
-        // dd($disp->tarifas($cordis));
-        if($cordis->aEstado!="D"){
-            return back()->withError("La corrida no está disponible.");
-        }
-        return view('venta.interna.asientos',[
-            "disponibilidad"=>$disp,
-            "cordis"=>$cordis,
-            "asientosOcupados"=>$asientos->ocupados($request->disp),
-            "pasajeros" => array(
-                "AD" => $request->AD ?: 0,
-                "NI" => $request->NI ?: 0,
-                "IN" => $request->IN ?: 0,
-                "MA" => $request->MA ?: 0,
-                "ES" => $request->ES ?: 0,
-            )
-        ]);
-    }
-    public function apartar(Request $request){
-        date_default_timezone_set("America/Mexico_City");
-        $disponibilidad=Disponibilidad::find($request->disp);
-        
-        $venceCompra=null; // =strtotime($disponibilidad->fSalida." ".$disponibilidad->hSalida); // limite para hacer la compra a la hora de salida
-        if(Auth::user()->personas->aTipo=="EI"){
-            $venceCompra=strtotime($disponibilidad->fSalida." ".$disponibilidad->hSalida)+300; // limite para hacer la compra a la hora de salida + 5 minutos
-        }else{
-            $venceCompra=time() + ($tiempoParaLaVenta);
-        }
-        try {
-            $rs=DisponibilidadAsientos::apartarAsiento(
-                $request->cor,
-                $disponibilidad->nOrigen,
-                $disponibilidad->nDestino,
-                implode(",",$request->asiento),
-                Auth::user()->id
-            );
-            // session_start();
-            session([
-                "corrida" => $request->cor,
-                "disponibilidad" => $request->disp,
-                "asientosID" => $rs[0]->asientos,
-                "tiempoCompra" => $venceCompra,
-                "asientos" => json_encode($request->asiento), // numeros de asient,
-                "origen" => $disponibilidad->nOrigen."",
-                "destino" => $disponibilidad->nDestino."",
-                "pasajeros" => json_encode($request->pasajero), //nombre,
-                "pasajerosTipos" => json_encode($request->pasajeroTipo)
-            ]);
-            // cookies
-            setcookie("tiempoCompra", $venceCompra, $venceCompra, "/");
-            return redirect(route("venta.interna.confirmacion"));
-        } catch (\Throwable $th) {
-            // dd($th);
-            return back()->withErrors("Alguno de los asientos ya están ocupados");
-        }
-        
-    }
-
-    public function confirmacion(Request $request){
-        date_default_timezone_set("America/Mexico_City");
-        
-        $fVenta=Carbon::createFromTimestamp(session("tiempoCompra"));
-        $fActual=Carbon::now();
-        $cordis=CorridasDisponibles::find(session("corrida"));
-        $disponibilidad=Disponibilidad::find(session("disponibilidad"));
-        $tarifas=($disponibilidad->tarifas());
-        $tiposPasAux="'".implode("','",json_decode(session("pasajerosTipos")))."'";
-        $promocionesAplicables=Promociones::aplicables($tiposPasAux, $disponibilidad->nOrigen, $disponibilidad->nDestino);
-        $tiempoRestante=null;
-        if( $fActual->lte($fVenta) ){
-            $tiempoRestante=$fActual->diffInSeconds($fVenta);
-        }else{
-            session_unset();
-            echo "TIEMPO FIN<br>";
-            echo $fVenta."<br>";
-            echo $fActual."<br>";
-            return back()->withErrors("La corrida ya salió");
-        }
-
-        if(session("origen")!="" && session("destino")!="" && session("asientos")!=""){
-            return view("venta.interna.confirmacion",[
-                "tiempoRestante" => $tiempoRestante,
-                "corrida" => $cordis,
-                "disponibilidad" => $disponibilidad,
-                "promociones" => $promocionesAplicables,
-                "tarifas" => $tarifas,
-
-                "tipos" => json_decode(session("pasajerosTipos")),
-                "asientoApartado" => json_decode(session("asientos")),
-                "pasajeros" => json_decode(session("pasajeros")),
-
-
-            ]);
-        }else{
-            // return back();
-        }
-    }
-    public function pago(Request $request){
-        // dd($request->all());
-        $cordis=CorridasDisponibles::find(session("corrida"));
-        $disponibilidad=Disponibilidad::find(session("disponibilidad"));
-        $tarifas=($disponibilidad->tarifas());
-        dd($tarifas);
-    }
-
     public function itinerario(CorridasDisponibles $corridaDisponible){
         return json_encode($corridaDisponible->getItinerario());
     }
+
     public function recorrido(CorridasDisponibles $corridaDisponible, $origen, $destino){
         // return json_encode($corridaDisponible->getRecorrido());
         $html="";

@@ -13,5 +13,28 @@
     @endif
 
 <div class="col-12 row px-0 mx-0">
-PAGOOOOO
+    <div>
+        <h3>PAGO</h3>
+        <br>
+        <b>Total ${{$total}}</b>
+
+        <div class="col-12">
+            <h5>Forma de pago</h5>
+            <div class="col-6">
+                <label for="pagoEnEfectivo">Efectivo</label>
+                <input id="pagoEnEfectivo" type="radio" name="formaDePago">
+            </div>
+            <div class="col-6">
+                <label for="pagoConTarjeta">Tarjeta</label>
+                <input id="pagoConTarjeta" type="radio" name="formaDePago">
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="12">
+                <!-- Pago en efectivo -->
+                <div>asd</div>
+            </div>
+        </div>
+    </div>
 </div>
+@endsection
