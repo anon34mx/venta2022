@@ -44,15 +44,6 @@ class CorridasDisponibles extends Model
     public function estado(){
         return $this->hasOne(CorridasEstados::class, 'id', 'aEstado');
     }
-    // public function tarifa(){
-        // return $this->hasOne(TarifasTramo::class, '', '')
-        // return DB::select('SELECT * FROM `tarifastramos`
-        //     where nOrigen=:origen
-        //     and nDestino=:destino
-        //     ORDER BY fAplicacion DESC LIMIT 1;',[
-        //         "origen" => $this->
-        // ]);
-    // }
 
     public function promociones(){
         return $rs=json_encode(collect(
@@ -194,7 +185,6 @@ class CorridasDisponibles extends Model
         }
     }
     public function cambiarEstado($edo){
-
         CorridasDisponiblesHistorial::create([
             "corrida_disponible" => $this->nNumero,
             "aEstadoAnterior" => $this->aEstado,
@@ -256,7 +246,6 @@ class CorridasDisponibles extends Model
     }
     // --      (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
     public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null){
-        // dd($pasajeros);
         $res=$this::from("corridasdisponibles as cordis")
             ->selectRaw("cordis.nNumero as 'corrida', cordis.aEstado as 'estado', hist.aEstadoNuevo,
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,

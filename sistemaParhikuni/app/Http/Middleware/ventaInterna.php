@@ -17,27 +17,20 @@ class ventaInterna
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next){
+        if(!session()->has("sesionVenta")){
+            // echo "Abrir sesion de venta";
+        }
         if(session("asientosID")!=null){
             $act=DisponibilidadAsientos::refrescar(session("asientosID"));
-            if($act<0){
-                echo ("cancelar venta 1");
+            if($act<=0){
+                dd("cancelar venta 1");
             }
-        }else{
-            echo ("No hay venta activa");
-            // return redirect(route("corridas.disponibles.corridasFiltradas"));
-            // dd(session()->all());
         }
-        if(!$request->session()->has('pasoCompra')){
-            session(["pasoCompra"=>1]);
-        }else{
-            echo (session("pasoCompra"));
-        }
-        
+
         if(true){
             return $next($request);
         }else{
-            return back();
+            return redirect(route('corridas.disponibles.corridasFiltradas'));
         }
-        // return $next($request);
     }
 }

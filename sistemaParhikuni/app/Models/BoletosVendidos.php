@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\TipoPasajero;
 use App\Models\Oficinas;
+use App\Models\Venta;
 
+use DB,PDF;
 class BoletosVendidos extends Model
 {
     use HasFactory;
@@ -43,6 +45,24 @@ class BoletosVendidos extends Model
     }
     public function destino(){
         return $this->hasOne(Oficinas::class, "nNumero", "nDestino");
+    }
+
+    public static function porVenta(Venta $venta){
+        $sql="SELECT *
+            FROM boletosvendidos
+            WHERE nVenta=:venta";
+        $rs=DB::select($sql,[
+            "venta" => $venta->nNumero
+        ]);
+
+        // return var_dump($rs);
+        // return view('PDF.boleto.2020_porNadia');
+        return $pdf = PDF::loadView('PDF.boleto.2020_porNadia',[
+            
+        ])
+        ->setPaper('letter', 'portrait')
+        ->stream('filename.pdf');;
+        //->download('pdfview.pdf');
     }
 }
 

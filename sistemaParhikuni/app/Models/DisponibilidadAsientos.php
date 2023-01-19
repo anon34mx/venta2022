@@ -30,23 +30,48 @@ class DisponibilidadAsientos extends Model
     }
 
     public static function apartarAsiento($corrida, $origen, $destino, $asientos, $usuario){
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try{
-            $rs=DB::SELECT("SELECT apartar_asiento(?,?,?,?,? ) as asientos",[
-                $corrida, $origen, $destino, $asientos, $usuario
-            ]);
-            DB::commit();
+            $rs=collect(
+                DB::SELECT("SELECT apartar_asiento(?,?,?,?,?) as asientos",[
+                    $corrida, $origen, $destino, $asientos, $usuario
+                ])
+            )->first()->asientos;
+            // DB::commit();
             return $rs;
         }catch(\Exception $e){
-            DB::rollback();
+            // DB::rollback();
             throw $e;
         }
     }
 
-    public static function refrescar($asientos){
-        $sql_select="SELECT refrescar_asientos(:asientos) as actualizados";
+    public static function desocupar(){
+        DB::select("delete from `disponibilidadasientos`
+            WHERE id IN (:ids)",[
+                ids => ""
+        ]);
+    }
+
+    public static function refrescar($asientos, $tiempo=null){
+        $sql_select="SELECT refrescar_asientos(:asientos, :tiempo) as actualizados";
         return DB::select($sql_select,[
-            "asientos" => $asientos
+            "asientos" => $asientos,
+            "tiempo" => $tiempo,
         ])[0]->actualizados;
+    }
+
+    public static function registrarBoleto($asientos, $idBoleto, $fhSalida){
+        $sql="UPDATE `disponibilidadasientos`
+            SET aEstadoAsiento='V',
+            nBoleto=:idBoleto,
+            last_update=:fhSalida
+        WHERE id in ($asientos) "; // AND aEstadoAsiento='A'
+        // dd($sql);
+        $rs=DB::statement($sql, [
+            "idBoleto" => $idBoleto,
+            // "asientos" => $asientos,
+            "fhSalida" => $fhSalida,
+        ]);
+        return($rs);
     }
 }

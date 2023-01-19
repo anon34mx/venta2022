@@ -70,7 +70,7 @@ window.seleccionarAsiento=(asientoAnt,asientoNvo)=>{
         $("#asiento-" + asientoNvo.value).addClass("apartado");
         anterior.removeClass("apartado")
     }else{
-        alert("no se puede");
+        alert("El asiento ya está ocupado");
         $(asientoNvo).val(asientoAnt);
     }
 }
@@ -109,6 +109,18 @@ window.calcularTiempoRestante = (tiempo) => {
     var minutos = Math.floor((tiempo / 60)-horas*60);
     var segundos = (tiempo % 60 + "").padStart(2, "0");
     return (horas + ":" + minutos + "." + segundos);
+}
+
+window.calcularCambio = ()=>{
+    var recibido = $("#recibido").val();
+    var total = $("#total").val();
+    var calc = (total - recibido).toFixed(2);
+    $("#cambio").val(Math.abs(calc));
+    if(calc>0){
+        $("#cambio-lbl").html("faltan");
+    }else{
+        $("#cambio-lbl").html("Cambio");
+    }
 }
 $(document).ready(()=>{
     window.tiempoRestante = $("#tiempoRestante").attr("initial");
@@ -212,5 +224,10 @@ $(document).ready(()=>{
             window.location.href = "/ventaInterna/corridas";
         }
     },1000);
+
+    $("#recibido")
+        .change(calcularCambio)
+        .keydown(calcularCambio)
+        .keyup(calcularCambio);
 });
 

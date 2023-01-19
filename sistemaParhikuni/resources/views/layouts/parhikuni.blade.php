@@ -171,6 +171,15 @@
                                     <a class="dropdown-item" href="{{route('users.edit', Auth::user()->id)}}">
                                         Mi perfil
                                     </a>
+                                    @if(!session()->has("sesionVenta"))
+                                        <a class="dropdown-item" href="{{route('venta.interna.abrirSesionVenta')}}">
+                                            Abrir sesión de venta
+                                        </a>
+                                    @else
+                                        <a class="dropdown-item" href="{{route('venta.interna.cerrarSesionVenta')}}">
+                                            Corte de venta #{{session("sesionVenta")}}
+                                        </a>
+                                    @endif
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

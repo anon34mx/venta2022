@@ -37,7 +37,7 @@
         </tbody>
     </table>
     <h3>Pasajeros</h3>
-    <form action="{{route('venta.interna.pago')}}" method="post">
+    <form action="{{route('venta.interna.confirmacionGuardar')}}" method="post">
         @csrf
         <input type="submit" id="guardar" hidden>
         <table class="table table-parhi table-striped">
@@ -55,19 +55,18 @@
                 @php
                     $total=0;
                 @endphp
-                @for($i=0;$i<sizeof($asientoApartado);$i++)
-                <tr id="asiento-{{$asientoApartado[$i]}}" class="my-2">
+                @for($i=0;$i<sizeof($pasajeros);$i++)
+                <tr id="asiento-{{$pasajeros[$i]->asiento}}" class="my-2">
                     @php
                         $importeTemp=0;
                         $IVATemp=0;
                         $promocionTemp=0;
                     @endphp
     
-                    @if($tipos[$i] != "AD")
+                    @if($pasajeros[$i]->tipoID != "AD")
                         @foreach($promociones as $promocion)
                             @php
-                                
-                            if($promocion->tipoPasajero==$tipos[$i]){
+                                if($promocion->tipoPasajero==$pasajeros[$i]->tipoID){
                                     $promocionTemp=$promocion->porcentProm;
                                     break;
                                 }
@@ -75,12 +74,12 @@
                         @endforeach
                     @endif
                     <td>
-                        {{$asientoApartado[$i]}}
+                        {{$pasajeros[$i]->asiento}}
                         <br>
-                        {{$tipos[$i]}}
+                        {{$pasajeros[$i]->tipo}}
                     </td>
                     <td>
-                        {{$pasajeros[$i]}}
+                        {{$pasajeros[$i]->pasajero}}
                     </td>
                     <td class="tarifa">
                         $<span>{{$tarifas->tarifaRuta}}</span>
@@ -90,10 +89,10 @@
                     </td>
                     <td>
                         @if(sizeof($promociones)>0)
-                            @if($tipos[$i]!="AD")
-                                <select name="promo[{{$i}}]" id="listProm-{{$asientoApartado[$i]}}" class="form-control form-control-sm promociones" row="{{$asientoApartado[$i]}}" readonly>
+                            @if($pasajeros[$i]->tipoID!="AD")
+                                <select name="promo[{{$i}}]" id="listProm-{{$pasajeros[$i]->asiento}}" class="form-control form-control-sm promociones" row="{{$pasajeros[$i]->asiento}}" readonly>
                                     @foreach($promociones as $promocion)
-                                        @if($promocion->tipoPasajero == $tipos[$i])
+                                        @if($promocion->tipoPasajero == $pasajeros[$i]->tipoID)
                                             <option value="{{$promocion->id}}" selected>
                                                 <p>{{str_pad($promocion->porcentProm, 2, "0", STR_PAD_LEFT)}}</p>    % - {{$promocion->descripPromo}}
                                             </option>
@@ -101,10 +100,10 @@
                                     @endforeach
                                 </select>
                             @else
-                                <select name="promo[{{$i}}]" id="listProm-{{$asientoApartado[$i]}}" class="form-control form-control-sm promociones" row="{{$asientoApartado[$i]}}">
+                                <select name="promo[{{$i}}]" id="listProm-{{$pasajeros[$i]->asiento}}" class="form-control form-control-sm promociones" row="{{$pasajeros[$i]->asiento}}">
                                     <option value="NA">Seleccione</option>
                                     @foreach($promociones as $promocion)
-                                        @if($promocion->tipoPasajero == $tipos[$i])
+                                        @if($promocion->tipoPasajero == $pasajeros[$i]->tipoID)
                                             <option value="{{$promocion->id}}">
                                                 <p>{{str_pad($promocion->porcentProm, 2, "0", STR_PAD_LEFT)}}</p>    % - {{$promocion->descripPromo}}
                                             </option>

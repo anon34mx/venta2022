@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleto - parhikuni</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <style>
+        *{
+            padding: 0px;
+            margin: 0px;
+            outline: 1px solid tomato;
+        }
+        html{
+            background: lightgray;
+        }
+        body{
+            /* background: red; */
+            padding:0.3cm;
+            width: 21.6cm;
+            height:27.94cm;
+            /* outline: 2px solid black !important; */
+        }
+        .boleto{
+            background:white;
+            width: 21.0cm;
+            height: 27.34cm;
+            /* outline: 2px solid red !important; */
+        }
+        .contenedor{
+            height: 9.7cm;
+            width: 21cm;
+            /* background:blue; */
+            position: relative;
+            /* display: inline-flex; */
+        }
+        .contenedor .legal{
+            width:10.9cm;
+            height: 9.5cm;
+            /* background: pink; */
+            border: 0.1cm solid cyan;
+            border-radius: 0 0.5cm 0.5cm 0;
+            /* border-radius: 0.5cm 0 0 0.5cm; */
+        }
+        .contenedor .legal span{
+            position: relative;
+            top: 4.46cm;
+            left: -4.5cm;
+            transform: rotate(-90deg);
+            background: green;
+            width: 9.60cm;
+            display: inline-block;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .contenedor .legal .condiciones{
+            position: relative;
+            width: 10.1cm;
+            left: 27px;
+            top: -20px;
+            line-height: 0.9;
+            font-size: 10.1px;
+            /* font-weight: bold; */
+        }
+        .contenedor .datos{
+            width:9.7cm;
+            height: 9.5cm;
+            /* background: pink; */
+            border: 0.1cm solid cyan;
+            border-radius: 0.5cm 0 0 0.5cm;
+            position: absolute;
+            top:0cm;
+            left:11.1cm;
+        }
+        .contenedor .datos .logo-bar{
+            background: red;
+            height:1.2cm;
+            border-radius:12px 0 0 0;
+        }
+        .contenedor .datos .logo-bar img{
+            position: relative;
+            height:0.7cm;
+            left:0.4cm;
+            top:0.2cm;
+        }
+        .contenedor .datos .logo-bar .nit{
+            position: relative;
+            width: 4cm;
+            left: 5.4cm;
+            top: -0.4cm;
+            font-size:14px;
+            text-align:right;
+            line-height:1;
+            color: white;
+            /* outline:1px solid blue; */
+        }
+        .contenedor .origen-destino{
+            line-height: 1;
+            padding: 0.1cm 0 0 0;
+            width: 9.7cm;
+            height: auto;
+            position: absolute;
+            display:block;
+            text-align:center;
+            font-size: 12px;
+        }
+         .origen{
+            width: 50%;
+            float:left;
+        }
+         .destino{
+            width: 50%;
+            float:left;
+        }
+        .contenedor .separador{
+            position: absolute;
+            left: 20%;
+            width: 60%;
+            height: 3px;
+            background: blue;
+            top: 1.95cm;
+        }
+        .contenedor .origen-destino-lbl{
+            /* line-height: 1; */
+            /* background: red; */
+            width: 9.7cm;
+            height: auto;
+            /* padding: 0 0.5cm; */
+            position: absolute;
+            left: 0cm;
+            top: 2.1cm;
+            display: block;
+            text-align:center;
+            font-size: 12px;
+        }
+        .contenedor .salida{
+            font-size: 12px;
+            text-align:center;
+            text-transform: uppercase;
+            /* line-height:1.1; */
+        }
+        .contenedor .claseServicio{
+            text-align:center;
+            font-size:12px;
+            font-weight:bold;
+
+        }
+        .datospago{
+            width: 100%;
+            font-size: 12px;
+            line-height:1.1;
+        }
+        .datospago tr td:first-child{
+            width: 50;
+            text-align:right;
+            padding-right:8px;
+        }
+        .datospago tr td:nth-child(2){
+            width: 50;
+            text-align:left;
+            padding-left:8px;
+        }
+        .boleto .corteLinea,
+        .boleto .facturacion{
+            background: yellow;
+            height: 0.75cm;
+        }
+        .boleto .corteLinea{
+            background: url({{ Vite::asset('resources/images/Boletos/2020_porNadia/cut-line.png') }});
+            background-repeat: repeat-x;
+            background-position: center;
+        }
+        .boleto .tijeras{
+            height: 0.5cm;
+            top:0.1cm;
+            position: relative;
+            left: 0.1cm;
+        }
+        .boleto .facturacion{
+            font-weight: bold;
+            font-size: 11px;
+            line-height: 1.0;
+            padding: 0.06cm;
+        }
+        .banner{
+            display:block;
+            background:yellow;
+            width: 21.0cm;
+        }
+    </style>
+</head>
+<body>
+    <div id="" class="boleto">
+        @for($i=0; $i<2;$i++)
+            <div class="contenedor">
+                <div class="legal">
+                    @if($i==0)
+                        <span>Copia del conductor</span>
+                    @else
+                        <span>Copia del cliente</span>
+                    @endif
+                    <div class="condiciones">
+                        <b>1.</b> Sírvase conservar este boleto hasta el término de su viaje ya que le da derecho al seguro del viajero y a 25 kilos de equipaje sin costo, condicionado al volumen de carga y a la capacidad del autobús.
+                        <br>
+                        <b>2.</b> Este boleto es válido únicamente para la hora y fecha anotados en el mismo, verifíquese al adquirirlo, porque no hay cancelaciones en esta modalidad de compra.
+                        <br>
+                        <b>3.</b> Boletos adquiridos con descuento (Estudiantes, Maestros, Discapacitados, Menor, IMSS, ISSTE, INAPAM, INM, etcétera) no son canjeables, ni transferibles, ni cancelables.
+                        <br>
+                        <b>4.</b> Si desea realizar algún cambio en este boleto, sólo podrá efectuarlo en taquillas y/o puntos de venta directos, antes del día y hora de salida, presentado una identificación oficial además del boleto. (30 minutos antes de su salida) .
+                        <br>
+                        <b>5.</b> La empresa no se responsabiliza por equipajes no documentados, sin talón o por bultos u otras pertenencias de mano que el pasajero lleve consigo en el interior del autobús.
+                        <br>
+                        <b>6.</b> En caso de perdida y/o extravió de equipaje documentado o registrado, se pagara una indemnización hasta por el equivalente a 15 veces de salario mínimo general vigente en la cdmx, de conformidad con lo dispuesto por el artículo 66 fracción V, de la Ley de Caminos, Puentes y Autotransporte Federal.
+                        <br>
+                        <b>7.</b> Queda estrictamente prohibido transportar como equipaje explosivos, sustancias tóxicas, enervantes, psicotrópicas o peligrosas, piezas de arte o arqueológicas, materiales inflamables, instrumentos o títulos negociables o al portador, materiales obscenos o pornográficos, animales, objetos de fácil descomposición o de mal olor, productos perecederos, y en general todo artículo prohibido por la ley o que requiera de permiso especial, así como cualquier envío que requiera de declaración aduanal o permiso de importación. Al efecto, DESTINOS PARHIKUNI, S.A. DE C.V., se reserva el derecho de revisar el equipaje que transporta el pasajero y se deslinda de toda responsabilidad por la Total: $65.00 transportación de materiales, sustancias y objetos que se prohíben de manera enunciativa, no así limitativa.
+                        <br>
+                        <b>8.</b> Los alcances del presente consumo quedan regulados por las leyes y reglamentos Mexicanos aplicables en la materia, así como por todas y cada una de las cláusulas contenidas en el boleto de sistema y/o autorizado por las autoridades competentes.
+                        <br>
+                        <b>9.</b> El pasajero admite y reconoce la validez de las leyes y reglamentos Mexicanos y competencia de los tribunales del mismo país, por lo que se somete expresamente a la jurisdicción de los Tribunales del Fuero Común y/o Federales con sede en la Ciudad donde se ubica el domicilio matriz y fiscal de DESTINOS PARHIKUNI, S.A. DE C.V., situado en Morelia, Michoacán, renunciando a aquél que pudiere corresponderle en razón de su domicilio presente o futuro
+                        <br>
+                    </div>
+                </div>
+                <div class="datos">
+                    <div class="logo-bar">
+                        <img class=""
+                            src="{{ Vite::asset('resources/images/logo_parhikuni_blanco.png') }}">
+                        <div class="nit">
+                            FOLIO
+                            <br>
+                            9223372036854775807
+                        </div>
+                    </div>
+                    <div class="origen-destino">
+                        <div class="origen">
+                            <b>LÁZARO CARDENAS,</b>
+                            <BR>MICH.
+                        </div>
+                        <div class="destino">
+                            <b>LÁZARO CARDENAS,</b>
+                            <BR>MICH.
+                        </div>
+                    </div>
+                    <div class="separador"></div>
+                    <div class="origen-destino-lbl">
+                        <div class="origen">ORIGEN</div>
+                        <div class="destino">DESTINO</div>
+                    </div>
+                    <div class="salida">
+                        SALIDA
+                        <b>domingo, 15 de enero de 2023
+                        <br>
+                        a las 06:00hr </b>
+                    </div>
+                    <div class="claseServicio">
+                        SERVICIO EXPRESS
+                    </div>
+                    <div class="salida">
+                        <b>PASAJERO</b>
+                        <span>ADRIANA SANDOVAL LOPEZ PEREZ ANDOVAL LOPEZ PEREZ</span>
+                    </div>
+                    <table class="datospago">
+                        <tr>
+                            <td>TIPO:</td>
+                            <td>adulto</td>
+                        </tr>
+                        <tr>
+                            <td>asiento:</td>
+                            <td>23</td>
+                        </tr>
+                        <tr>
+                            <td>forma de pago:</td>
+                            <td>23</td>
+                        </tr>
+                        <tr>
+                            <td>subtotal:</td>
+                            <td>$343.33</td>
+                        </tr>
+                        <tr>
+                            <td>iva:</td>
+                            <td>$33.33</td>
+                        </tr>
+                        <tr>
+                            <td>total:</td>
+                            <td>$666.66</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            @if($i==0)
+                <div class="corteLinea">
+                    <img class="tijeras"
+                        src="{{ Vite::asset('resources/images/Boletos/2020_porNadia/cut_here.png') }}">
+                </div>
+            @else
+                <div class="facturacion">
+                    DESTINOS PARHIKUNI S.A. DE C.V. 27603587. MARTING MONGE #112 COL. NUEVA VALLADOLID, C.P. 58189, MORELIA, MICHOACÁN. RFC DPA1910303P4. "CONTRIBUYENTE DEL RÉGIMEN SIMPLIFICADO" "EFECTOS FISCALES AL PAGO" {{date("Y-m-d H:i:s")}}
+                </div>
+            @endif
+        @endfor
+        <img src="{{ Vite::asset('resources/images/Boletos/2020_porNadia/banners/default.jpg') }}"
+            alt="banner" class="banner">
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+</body>
+</html>

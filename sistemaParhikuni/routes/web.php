@@ -148,42 +148,52 @@ Route::get('/ventaInterna/corridas', [App\Http\Controllers\VentaInternaControlle
 Route::get('/ventaInterna/asientos', [App\Http\Controllers\VentaInternaController::class, 'asientos'])
     ->name("corridas.disponibles.asientos")->middleware(['ventaInterna']);
 Route::post('/ventaInterna/apartar', [App\Http\Controllers\VentaInternaController::class, 'apartar'])
-    ->name("corridas.disponibles.apartar");
+    ->name("corridas.disponibles.apartar")->middleware(['ventaInterna']);
 Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\VentaInternaController::class, 'confirmacion'])
-    ->name("venta.interna.confirmacion")
-    ->middleware(['ventaInterna']);
-Route::post('/ventaInterna/pago', [App\Http\Controllers\VentaInternaController::class, 'pago'])
-    ->name("venta.interna.pago");
+    ->name("venta.interna.confirmacion")->middleware(['ventaInterna']);
+Route::post('/ventaInterna/confirmacion/guardar', [App\Http\Controllers\VentaInternaController::class, 'confirmacionGuardar'])
+    ->name("venta.interna.confirmacionGuardar");
+Route::get('/ventaInterna/pago', [App\Http\Controllers\VentaInternaController::class, 'pago'])
+    ->name("venta.interna.pago")->middleware(['ventaInterna']);
+Route::post('/ventaInterna/abonar', [App\Http\Controllers\VentaInternaController::class, 'abonar'])
+    ->name("venta.interna.abonar"); //->middleware(['ventaInterna']);
+Route::get('/ventaInterna/{idventa}/boletos', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
+    ->name("venta.interna.boletos"); //->middleware(['ventaInterna']);
 
 Route::post('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])
     ->name("venta.interna.cancelarCompra");
+Route::get('/ventaInterna/abrirSesionVenta', [App\Http\Controllers\VentaInternaController::class, 'abrirSesionVenta'])
+    ->name("venta.interna.abrirSesionVenta");
+Route::get('/ventaInterna/cerrarSesionVenta', [App\Http\Controllers\VentaInternaController::class, 'cerrarSesionVenta'])
+    ->name("venta.interna.cerrarSesionVenta");
     
 Route::get('/cookies', function(){
     // session_start();
-    echo "variables de sesion";
-    date_default_timezone_set("America/Mexico_City");
-    echo "corrida_"         .session("corrida")."<br>";
-    echo "disponibilidad_"  .session("disponibilidad")."<br>";
-    echo "asientosID_"      .session("asientosID")."<br>";
-    echo "tiempoCompra_"    .session("tiempoCompra")."<br>";
-    echo "asientos_"        .session("asientos")."<br>";
-    echo "origen_"          .session("origen")."<br>";
-    echo "destino_"         .session("destino")."<br>";
-    echo "pasajeros_"       .session("pasajeros")."<br>";
-    echo "pasajerosTipos_"  .session("pasajerosTipos")."<br>";
+    // echo "variables de sesion<br>";
+    // date_default_timezone_set("America/Mexico_City");
+    // echo "corrida: "         .session("corrida")."<br>";
+    // echo "disponibilidad: "  .session("disponibilidad")."<br>";
+    // echo "asientosID: "      .(session("asientosID"))."<br>";
+    // echo "tiempoCompra: "    .session("tiempoCompra")."<br>";
+    // // echo "asientos: "        .session("asientos")."<br>";
+    // echo "origen: "          .session("origen")."<br>";
+    // echo "destino: "         .session("destino")."<br>";
+    // echo "pasajeros: "       .session("pasajeros")."<br>";
+    // echo "pasajerosTipos: "  .session("pasajerosTipos")."<br>";
+    // echo "<br>IDventa: "  .session("IDventa")."<br>";
+    // echo "<br>key: "  .session("key")."<br>";
+    dd(session()->all(), Auth()->user(), Auth::user()->personas);
 });
 Route::get('/deleteCookies', function(){
-    session_start();
-    session_unset();
     setcookie('tiempoCompra', null, -1);
-    // setcookie('corrida', null, -1);
-    // setcookie('origen', null, -1);
-    // setcookie('destino', null, -1);
-    // setcookie('asientos', null, -1);
-    // setcookie('asientosID', null, -1);
-    // setcookie('pasajeros', null, -1);
-    // setcookie('pasajerosTipos', null, -1);
-    // setcookie('pasajerosTipos', null, -1);
+    session()->forget("corrida");
+    session()->forget("disponibilidad");
+    session()->forget("pasajeros");
+    session()->forget("asientosID");
+    session()->forget("tiempoCompra");
+    session()->forget("origen");
+    session()->forget("destino");
+    session()->forget("IDventa");
 });
 //
 Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])

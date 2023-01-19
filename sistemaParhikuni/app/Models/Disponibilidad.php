@@ -26,25 +26,7 @@ class Disponibilidad extends Model
     public function destino(){
         return $this->hasOne(Oficinas::class, "nNumero", "nDestino");
     }
-
-    // public function tarifas($cordis){
-    //     $rs = DB::table("tarifastramos as tatr")
-    //         ->join("disponibilidad as disp", function($join){
-    //             $join->on("disp.nOrigen","=","tatr.nOrigen");
-    //             $join->on("disp.nDestino","=","tatr.nDestino");
-    //         })
-    //         ->join("corridasdisponibles as cordis", function($join){
-    //             $join->on("cordis.nNumero", "=", "disp.nCorridaDisponible");
-    //         })
-
-    //         ->where("disp.nOrigen", "=", $this->nOrigen)
-    //         ->where("disp.nDestino", "=", $this->nDestino)
-    //         ->where("cordis.nNumero", "=", $cordis->nNumero)
-    //         ->where("tatr.nTipoServicio", "=", $cordis->nTipoServicio)
-    //         ->whereRaw("tatr.fAplicacion<=CURRENT_DATE")
-    //         ->first();
-    //     return $rs;
-    // }
+    
     public function tarifas(){
         // [?] se necesita redondear??
         $rs = collect(\DB::select("SELECT

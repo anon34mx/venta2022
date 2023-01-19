@@ -11,5 +11,5 @@ class TipoPasajero extends Model
 
     protected $table = 'tipopasajero';
     protected $primaryKey = 'aClave';
-
+    
 }

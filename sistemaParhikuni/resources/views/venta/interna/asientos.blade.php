@@ -13,7 +13,7 @@
     @endif
 
 @php
-$totalPasajeros=$pasajeros['AD']+$pasajeros['NI']+$pasajeros['IN']+$pasajeros['MA']+$pasajeros['ES'];
+$totalPasajeros=$pasajerosSolic['AD']+$pasajerosSolic['NI']+$pasajerosSolic['IN']+$pasajerosSolic['MA']+$pasajerosSolic['ES'];
 $contAuxPasajeros=0;
 @endphp
 <div class="col-12 row px-0 mx-0">
@@ -120,7 +120,7 @@ $contAuxPasajeros=0;
                     @php
                         $aux=0;
                     @endphp
-                    @foreach($pasajeros as $tipo=>$cantidad)
+                    @foreach($pasajerosSolic as $tipo=>$cantidad)
                         @for($a=0; $a<$cantidad && $cantidad>0; $a++)
                             <tr id="pasajero-{{$a}}" class="pt-1 pb-1 pasajeroContainer">
                                 <td>
@@ -139,8 +139,8 @@ $contAuxPasajeros=0;
                                     </select>
                                 </td>
                                 <td >
-                                    <input class="form-control pasajeroNombre" type="text" name="pasajero[{{$contAuxPasajeros}}]"
-                                        value="">
+                                    <input class="form-control pasajeroNombre" type="text" name="pasajero[{{$contAuxPasajeros}}]" id="pasajero[{{$contAuxPasajeros}}]"
+                                        value="" autocomplete="off" list="listaPasajeros">
                                 </td>
                                 <!-- <td><button>delete</button></td> -->
                             </tr>
@@ -153,6 +153,19 @@ $contAuxPasajeros=0;
                         @endphp 
                     @endforeach
                     <!-- endif -->
+                    <datalist id="listaPasajeros">
+                        @php
+                        $pasajeros=json_decode(session("pasajeros"));
+                        if($pasajeros!=null){
+                            for($i=0; $i<sizeof(@$pasajeros); $i++){
+                                echo '<option value="'.$pasajeros[$i]->pasajero.'">';
+                            }
+                        }
+                        @endphp
+                        <!-- <option value="EDUARDO ESPINOSA">
+                        <option value="JOSE ANTONIO BADIA">
+                        <option value="MARIO LOPEZ"> -->
+                    </datalist>
                 </tbody>
             </table>
             <div class="col-12">
