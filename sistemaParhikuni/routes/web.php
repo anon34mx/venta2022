@@ -157,7 +157,7 @@ Route::get('/ventaInterna/pago', [App\Http\Controllers\VentaInternaController::c
     ->name("venta.interna.pago")->middleware(['ventaInterna']);
 Route::post('/ventaInterna/abonar', [App\Http\Controllers\VentaInternaController::class, 'abonar'])
     ->name("venta.interna.abonar"); //->middleware(['ventaInterna']);
-Route::get('/ventaInterna/{idventa}/boletos', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
+Route::get('/ventaInterna/{venta}/boletos', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
     ->name("venta.interna.boletos"); //->middleware(['ventaInterna']);
 
 Route::post('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])

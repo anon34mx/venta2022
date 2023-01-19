@@ -15,11 +15,10 @@ use App\Models\BoletosVendidos;
 use App\Models\VentaPago;
 use App\Models\Sesiones;
 
-use DB;
 use Auth;
 use Carbon\Carbon;
-use PDF;
 use Exception;
+use DB,PDF,DNS1D,DNS2D;
 /**
  * Pasos para la venta
  * 1    - Ver corridas
@@ -297,7 +296,35 @@ class VentaInternaController extends Controller
 
     }
     function boletos(Venta $venta){
-        return $boletos=BoletosVendidos::porVenta($venta);
+        $boletos = new BoletosVendidos();
+        $boletos=$boletos->where("nVenta","=",$venta->nNumero)->get();
+
+        // generar codigo de barras para cada boleto
+        for($i=0; $i<sizeof($boletos); $i++){
+            $boletos[$i]->setCodbarAttribute(DNS1D::getBarcodePNG($boletos[$i]->nNumero."", 'C128'));
+        }
+        // dd($boletos[0]);
+        // dd($boletos[0]->corrida->disponibilidad);
+        // dd($boletos[0]->corrida->servicio->aDescripcion);
+
+
+        if(false){ // vista previa html
+            return view('PDF.boleto.2020_porNadia',[
+                "venta" => $venta,
+                "boletos" => $boletos,
+                "tipoPuntoVenta" => "taquilla",
+                "color" => 'rgb(170,40,37)'
+            ]);
+        }else{
+            return $pdf = PDF::loadView('PDF.boleto.2020_porNadia',[
+                "venta" => $venta,
+                "boletos" => $boletos,
+                "tipoPuntoVenta" => "taquilla",
+                "color" => '#aa2825'
+            ])
+            ->setPaper('letter', 'portrait')
+            ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+        }
     }
     function enviarBoletos(){
         //
