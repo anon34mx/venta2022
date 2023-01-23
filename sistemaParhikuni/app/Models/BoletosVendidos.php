@@ -54,6 +54,9 @@ class BoletosVendidos extends Model
     public function corrida(){
         return $this->hasOne(CorridasDisponibles::class, "nNumero", "nCorrida");
     }
+    public function venta(){
+        return $this->belongsTo(Venta::class, "nVenta", "nNumero");
+    }
 
     // SET GET
     public function getCodbarAttribute(){

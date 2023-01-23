@@ -162,10 +162,19 @@ Route::get('/ventaInterna/{venta}/boletos', [App\Http\Controllers\VentaInternaCo
 
 Route::post('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])
     ->name("venta.interna.cancelarCompra");
-Route::get('/ventaInterna/abrirSesionVenta', [App\Http\Controllers\VentaInternaController::class, 'abrirSesionVenta'])
-    ->name("venta.interna.abrirSesionVenta");
-Route::get('/ventaInterna/cerrarSesionVenta', [App\Http\Controllers\VentaInternaController::class, 'cerrarSesionVenta'])
-    ->name("venta.interna.cerrarSesionVenta");
+// SESIONES DE VENTA
+Route::get('/sesionesVenta', [App\Http\Controllers\sesionesVentaController::class, 'index'])
+    ->name("sesionesventa.index"); //admin
+Route::get('/sesionesVenta/usuario/{user}', [App\Http\Controllers\sesionesVentaController::class, 'porUsuario'])
+    ->name("sesionesventa.usuario");
+    //cierre de sesion
+Route::get('/sesionesVenta/{sesion}/edit', [App\Http\Controllers\sesionesVentaController::class, 'edit'])
+    ->name("sesionesventa.edit");
+Route::post('/sesionesVenta/{sesion}/update', [App\Http\Controllers\sesionesVentaController::class, 'update'])
+    ->name("sesionesventa.update");
+
+Route::post('/sesionesVenta/abrir', [App\Http\Controllers\sesionesVentaController::class, 'store'])
+    ->name("sesionesventa.abrir");
     
 Route::get('/cookies', function(){
     // session_start();

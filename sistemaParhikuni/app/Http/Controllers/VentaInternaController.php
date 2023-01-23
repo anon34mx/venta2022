@@ -295,6 +295,15 @@ class VentaInternaController extends Controller
     function guardarDatosCompra(){
 
     }
+    /*
+        $boletos=$venta->boletos();
+        for($i=0; $i<sizeof($boletos); $i++){
+            $boletos[$i]=array_merge((array)$boletos[$i], array(
+                "codbar" =>
+                    DNS1D::getBarcodePNG($boletos[$i]->idVenta."", 'C128')
+            ));
+        }
+    */
     function boletos(Venta $venta){
         $boletos = new BoletosVendidos();
         $boletos=$boletos->where("nVenta","=",$venta->nNumero)->get();
@@ -303,11 +312,6 @@ class VentaInternaController extends Controller
         for($i=0; $i<sizeof($boletos); $i++){
             $boletos[$i]->setCodbarAttribute(DNS1D::getBarcodePNG($boletos[$i]->nNumero."", 'C128'));
         }
-        // dd($boletos[0]);
-        // dd($boletos[0]->corrida->disponibilidad);
-        // dd($boletos[0]->corrida->servicio->aDescripcion);
-
-
         if(false){ // vista previa html
             return view('PDF.boleto.2020_porNadia',[
                 "venta" => $venta,
@@ -316,7 +320,7 @@ class VentaInternaController extends Controller
                 "color" => 'rgb(170,40,37)'
             ]);
         }else{
-            return $pdf = PDF::loadView('PDF.boleto.2020_porNadia',[
+            return $pdf = \PDF::loadView('PDF.boleto.2020_porNadia',[
                 "venta" => $venta,
                 "boletos" => $boletos,
                 "tipoPuntoVenta" => "taquilla",
@@ -324,6 +328,10 @@ class VentaInternaController extends Controller
             ])
             ->setPaper('letter', 'portrait')
             ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+            // ->download("a.pdf");
+
+            // return $pdf->download("boletos.pdf");
+            // return $pdf;
         }
     }
     function enviarBoletos(){
@@ -341,17 +349,17 @@ class VentaInternaController extends Controller
         session()->forget("pasoVenta");
         session()->forget("IDventa");
     }
-    function abrirSesionVenta(){
-        if(!session()->has("sesionVenta")){
-            $sesionVenta=Sesiones::create([
-                "nNumeroPersona"=>Auth::user()->id,
-                "fContable"=>date('Y-m-d'),
-                "nOficina"=>session("oficinaid"),
-            ]);
-            session(["sesionVenta" => $sesionVenta->nNumero]);
-        }
-        return back();
-    }
+    // function abrirSesionVenta(){
+    //     if(!session()->has("sesionVenta")){
+    //         $sesionVenta=Sesiones::create([
+    //             "nNumeroPersona"=>Auth::user()->id,
+    //             "fContable"=>date('Y-m-d'),
+    //             "nOficina"=>session("oficinaid"),
+    //         ]);
+    //         session(["sesionVenta" => $sesionVenta->nNumero]);
+    //     }
+    //     return back();
+    // }
     function cerrarSesionVenta(){
         // session()->forget("sesionVenta");
         echo "mostrar corte de venta";

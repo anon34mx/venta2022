@@ -82,3 +82,6 @@ window.toggler=function(inpt, target){
         $(target + " input").removeAttr("required");
     }
 }
+window.quitarFiltros=()=>{
+    window.location = window.location.pathname;
+}

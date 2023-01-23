@@ -117,10 +117,12 @@
          .origen{
             width: 50%;
             float:left;
+            text-transform:uppercase;
         }
          .destino{
             width: 50%;
             float:left;
+            text-transform:uppercase;
         }
         .contenedor .separador{
             position: absolute;
@@ -278,13 +280,15 @@
                         <div class="origen-destino">
                             <div class="origen">
                                 <b>
-                                    {{($boletos[$contBol]->origen->aNombre)}}
+                                    {{$boletos[$contBol]->origen->aNombre}}
                                 </b>
-                                <BR>MICH.
+                                <BR>
+                                {{$boletos[$contBol]->origen->aEntidad}}
                             </div>
                             <div class="destino">
-                                <b>LÁZARO CARDENAS,</b>
-                                <BR>MICH.
+                                {{$boletos[$contBol]->destino->aNombre}}
+                                <BR>
+                                {{$boletos[$contBol]->destino->aEntidad}}
                             </div>
                         </div>
                         <div class="separador"></div>
@@ -294,9 +298,28 @@
                         </div>
                         <div class="salida">
                             SALIDA
-                            <b>domingo, 15 de enero de 2023
-                            <br>
-                            a las 06:00hr </b>
+                            <!-- 
+                                j - dia numerico del nes
+                                S - complemento del numero de dia (first)st, (second)nd, th, °
+                                l - dia
+                                d - dia abreviado
+                                M - mes (abreviado)
+                                F - mes (completo)
+                                m - minutos
+                                Y - año
+                                H - horas
+                                i - minutos
+                             -->
+                            @php
+                                $fSalida=\Carbon\Carbon::parse($boletos[$contBol]->fSalida." ".$boletos[$contBol]->hSalida);
+                                $format1 = 'l, j \\de F \\de Y';
+                                $format2 = 'H:i';
+                            @endphp
+                            <b>
+                                {{$fSalida->translatedFormat($format1)}}
+                                <br>
+                                a las {{$fSalida->translatedFormat($format2)}}
+                            </b>
                         </div>
                         <div class="claseServicio">
                             SERVICIO {{$boletos[$contBol]->corrida->servicio->aDescripcion}}
@@ -308,27 +331,37 @@
                         <table class="datospago">
                             <tr>
                                 <td>TIPO:</td>
-                                <td>adulto</td>
+                                <td>{{$boletos[$contBol]->tipo->aDescripcion}}</td>
                             </tr>
                             <tr>
                                 <td>asiento:</td>
-                                <td>23</td>
+                                <td>{{$boletos[$contBol]->nAsiento}}</td>
                             </tr>
                             <tr>
                                 <td>forma de pago:</td>
-                                <td>23</td>
+                                <td>
+                                    @php
+                                        $auxfp=sizeof((array)$boletos[$contBol]->venta->pagos);
+                                        for($bfp=0; $bfp<$auxfp; $bfp++){
+                                            echo $boletos[$contBol]->venta->pagos[$bfp]->aFormaPago;
+                                            if($auxfp>0 && $bfp<$auxfp-1){
+                                                echo ",";
+                                            }
+                                        }
+                                    @endphp
+                                </td>
                             </tr>
                             <tr>
                                 <td>subtotal:</td>
-                                <td>$343.33</td>
+                                <td>${{$boletos[$contBol]->nMontoBase}}</td>
                             </tr>
                             <tr>
                                 <td>iva:</td>
-                                <td>$33.33</td>
+                                <td>${{$boletos[$contBol]->nIVA}}</td>
                             </tr>
                             <tr>
                                 <td>total:</td>
-                                <td>$666.66</td>
+                                <td>${{$boletos[$contBol]->nMontoBase + $boletos[$contBol]->nIVA}}</td>
                             </tr>
                         </table>
                         <div class="codbar-cont">

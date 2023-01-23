@@ -109,7 +109,7 @@
                 </li>
                 @endcan
                 <li>
-                    <a href="#">Venta de boletos</a>
+                    <a href="{{route('corridas.disponibles.corridasFiltradas')}}">Venta de boletos</a>
                 </li>
                 <li>
                     <a href="#">About</a>
@@ -172,14 +172,18 @@
                                         Mi perfil
                                     </a>
                                     @if(!session()->has("sesionVenta"))
-                                        <a class="dropdown-item" href="{{route('venta.interna.abrirSesionVenta')}}">
+                                        <!-- <a class="dropdown-item" href="{{route('sesionesventa.abrir')}}">
                                             Abrir sesión de venta
-                                        </a>
+                                        </a> -->
                                     @else
-                                        <a class="dropdown-item" href="{{route('venta.interna.cerrarSesionVenta')}}">
+                                        <!-- <a class="dropdown-item" href="{{route('sesionesventa.edit', session("sesionVenta"))}}">
                                             Corte de venta #{{session("sesionVenta")}}
-                                        </a>
+                                        </a> -->
                                     @endif
+                                    <a class="dropdown-item" href="{{route('sesionesventa.usuario', Auth::user())}}">
+                                        Sesiones de venta
+                                    </a>
+
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

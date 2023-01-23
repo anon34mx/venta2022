@@ -129,7 +129,7 @@
                 <button>Filtrar</button>
             </div>
             <div class="col-6 col-sm-12 row mx-0">
-                <input type="reset">
+                <input type="button" onclick="quitarFiltros()" value="Quitar filtros">
             </div>
         <!-- </div> -->
     </form>

@@ -56,6 +56,11 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'personal.conductores.index']);
         Permission::create(['name' => 'personal.conductores.edit']);
         Permission::create(['name' => 'personal.conductores.update']);
+        
+        // sesiones de venta
+        Permission::create(['name' => 'sesionesVenta.create']);
+        Permission::create(['name' => 'sesionesVenta.update']);
+        Permission::create(['name' => 'sesionesVenta.show']);
 
         //======== [    ROLES    ] ========
         $admin = Role::create(['name' => 'Admin']); // sistemas

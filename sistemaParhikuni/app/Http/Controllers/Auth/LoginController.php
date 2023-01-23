@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Auth,Session;
 use App\Models\Oficinas;
+use App\Models\Sesiones;
 
 class LoginController extends Controller
 {
@@ -42,17 +43,21 @@ class LoginController extends Controller
     }
 
     public function authenticated(){
-        
         $tipoPersona = Auth::user()->personas->aTipo;
         if($tipoPersona=="EI" || $tipoPersona=="PA"){
             $oficina=Auth::user()->personas->nOficina;
             $oficina=Oficinas::find($oficina);
-            // dd($oficina->nNumero);
+
+            $sesion=Sesiones::where("user_id","=", Auth::user()->id)
+                ->orderBy("fContable", "desc")
+                ->first();
             Session::put('oficinaNombre', $oficina->aNombre);
             Session::put('oficinaid', $oficina->nNumero);
+            Session::put('sesionVenta', $sesion->nNumero);
             // session("oficinaNombre") // recuperar dato
             // session("oficinaid") // recuperar dato
         }
-        
+
+        // dd($sesion);
     }
 }
