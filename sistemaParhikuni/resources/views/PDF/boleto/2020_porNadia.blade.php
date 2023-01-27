@@ -341,11 +341,11 @@
                                 <td>forma de pago:</td>
                                 <td>
                                     @php
-                                        $auxfp=sizeof((array)$boletos[$contBol]->venta->pagos);
+                                    $auxfp=sizeof((array)$boletos[$contBol]->venta->pagos);
                                         for($bfp=0; $bfp<$auxfp; $bfp++){
-                                            echo $boletos[$contBol]->venta->pagos[$bfp]->aFormaPago;
-                                            if($auxfp>0 && $bfp<$auxfp-1){
-                                                echo ",";
+                                            echo @$boletos[$contBol]->venta->pagos[$bfp]->aFormaPago." ";
+                                            if($bfp>=4){
+                                                break;
                                             }
                                         }
                                     @endphp

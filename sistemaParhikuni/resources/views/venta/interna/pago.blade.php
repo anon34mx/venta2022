@@ -1,6 +1,13 @@
 @extends('layouts.parhikuni')
-
 @section('content')
+@if(session()->has("tiempoCompra")==true)
+<div class="tiempoRestanteCont">
+    <span class="mx-1">Tiempo para la compra</span>
+    <input id="tiempoRestante"
+        readonly
+        step="3600000" initial="{{session('tiempoCompra')-time()}}">
+</div>
+@endif
 <div class="col-11 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">
     @if($errors->any())
         <div class="card-body mt-2 mb-2 ">
@@ -56,6 +63,17 @@
                 </div>
             </div>
         </form>
+        <span class="btn-collap float-right mx-2" title="Eliminar">
+            <form action="{{route('venta.interna.cancelarCompra')}}" method="post">
+                @csrf
+                <input id="cancelarCompra" type="submit">
+                <label class="btn btn-sm btn-danger float-right"
+                    for="cancelarCompra">
+                    <i class="fa-solid fa-ban"></i>
+                    <span>Cancelar</span>
+                </label>
+            </form>
+        </span>
     </div>
 </div>
 @endsection

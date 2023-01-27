@@ -1,6 +1,13 @@
 @extends('layouts.parhikuni')
-
 @section('content')
+@if(session()->has("tiempoCompra")==true)
+<div class="tiempoRestanteCont">
+    <span class="mx-1">Tiempo para la compra</span>
+    <input id="tiempoRestante"
+        readonly
+        step="3600000" initial="{{session('tiempoCompra')-time()}}">
+</div>
+@endif
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
     @if($errors->any())
         <div class="card-body mt-2 mb-2 ">
@@ -9,6 +16,11 @@
                 - {{$error}}<br>
                 @endforeach
             </div>
+        </div>
+    @endif
+    @if(session()->has('status'))
+        <div>
+            <p class="alert alert-success">{{session('status')}}</p>
         </div>
     @endif
 
@@ -39,6 +51,8 @@ $contAuxPasajeros=0;
                     <td>
                         @if($col=="00")
                         __
+                        @elseif($col=="PU")
+                            <div class="asiento_nmr">[PU]</div>
                         @elseif($col=="BH")
                             <div class="asiento_nmr">{{$col}}</div>
                         @elseif($col=="BM")
@@ -95,7 +109,10 @@ $contAuxPasajeros=0;
         @endforeach
     </table>
     <div class="col-8">
-        <form id="pasajerosAsientos" action="{{route('corridas.disponibles.apartar')}}" method="post">
+        {{$disponibilidad->destino->aNombre." a ".$disponibilidad->origen->aNombre}}
+        {{\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("d/m/Y H:i")}}h
+
+        <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post">
             @csrf
             <input type="text" hidden name="cor" value="{{ Request::get('cor') }}">
             <input type="text" hidden name="disp" value="{{ Request::get('disp') }}">
@@ -124,7 +141,7 @@ $contAuxPasajeros=0;
                         @for($a=0; $a<$cantidad && $cantidad>0; $a++)
                             <tr id="pasajero-{{$a}}" class="pt-1 pb-1 pasajeroContainer">
                                 <td>
-                                    <label for="" class="pasajeroTipo form-control">{{$tipo}}</label>
+                                    <label for="" class="pasajeroTipo form-control my-0">{{$tipo}}</label>
                                     <input hidden class="pasajeroTipo form-control" readonly name="pasajeroTipo[]" value="{{$tipo}}" tabindex="-1" style="pointer-events:none;">
                                 </td>
                                 <td>
@@ -162,9 +179,9 @@ $contAuxPasajeros=0;
                             }
                         }
                         @endphp
-                        <!-- <option value="EDUARDO ESPINOSA">
+                        <option value="EDUARDO ESPINOSA">
                         <option value="JOSE ANTONIO BADIA">
-                        <option value="MARIO LOPEZ"> -->
+                        <option value="MARIO LOPEZ">
                     </datalist>
                 </tbody>
             </table>

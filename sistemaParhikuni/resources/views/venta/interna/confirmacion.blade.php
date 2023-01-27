@@ -1,6 +1,13 @@
 @extends('layouts.parhikuni')
-
 @section('content')
+@if(session()->has("tiempoCompra")==true)
+<div class="tiempoRestanteCont">
+    <span class="mx-1">Tiempo para la compra</span>
+    <input id="tiempoRestante"
+        readonly
+        step="3600000" initial="{{session('tiempoCompra')-time()}}">
+</div>
+@endif
 <div class="col-11 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">
     @if($errors->any())
         <div class="card-body mt-2 mb-2 ">
@@ -13,8 +20,7 @@
     @endif
 
 <div class="col-12 row px-0 mx-0">
-    <input id="tiempoRestante" hidden style="width:100px;float:right;" value="{{\Carbon\Carbon::parse($tiempoRestante)->format("m:s");}}" type=""
-        step="3600000" initial="{{$tiempoRestante}}">
+
     <h3>Confirmación</h3>
     <table class="table table-parhi table-striped">
         <thead>

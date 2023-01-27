@@ -40,7 +40,8 @@ class Venta extends Model
     }
 
     public function pagos(){
-        return $this->hasMany(VentaPago::class, 'nVenta', 'nNumero');
+        return $this->hasMany(VentaPago::class, 'nVenta', 'nNumero')
+            ->groupBy("aFormaPAgo");
     }
     public function boletos(){
         // si el metodo actual se pone lento usamos este

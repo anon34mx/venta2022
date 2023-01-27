@@ -45,19 +45,20 @@ class DisponibilidadAsientos extends Model
         }
     }
 
-    public static function desocupar(){
-        DB::select("delete from `disponibilidadasientos`
-            WHERE id IN (:ids)",[
-                ids => ""
-        ]);
+    public static function desocupar($ids){
+        if(substr($ids,strlen($ids)-1)){
+            $ids=substr($ids,0,strlen($ids)-1);
+        }
+        $ids=explode(",", $ids);
+        return DB::table('disponibilidadasientos')->whereIn("id", $ids)->delete();
     }
 
     public static function refrescar($asientos, $tiempo=null){
-        $sql_select="SELECT refrescar_asientos(:asientos, :tiempo) as actualizados";
+        $sql_select="SELECT refrescar_asientos(:asientos, :tiempo) as actualizados, now() as tiempo";
         return DB::select($sql_select,[
             "asientos" => $asientos,
             "tiempo" => $tiempo,
-        ])[0]->actualizados;
+        ])[0];
     }
 
     public static function registrarBoleto($asientos, $idBoleto, $fhSalida){

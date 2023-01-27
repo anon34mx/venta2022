@@ -53,7 +53,9 @@ class LoginController extends Controller
                 ->first();
             Session::put('oficinaNombre', $oficina->aNombre);
             Session::put('oficinaid', $oficina->nNumero);
-            Session::put('sesionVenta', $sesion->nNumero);
+            if($sesion["fCerrada"]==null){
+                Session::put('sesionVenta', $sesion->nNumero);
+            }
             // session("oficinaNombre") // recuperar dato
             // session("oficinaid") // recuperar dato
         }

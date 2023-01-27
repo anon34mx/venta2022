@@ -35,6 +35,8 @@
         'resources/css/parhikuni.css',
         'resources/js/controller.js',
         'resources/js/controlador_venta.js',
+        'resources/js/jquery.dataTables.min.js',
+        'resources/css/jquery.dataTables.min.css',
     ])
 </head>
 
@@ -109,7 +111,7 @@
                 </li>
                 @endcan
                 <li>
-                    <a href="{{route('corridas.disponibles.corridasFiltradas')}}">Venta de boletos</a>
+                    <a href="{{route('venta.interna.corridas')}}">Venta de boletos</a>
                 </li>
                 <li>
                     <a href="#">About</a>
@@ -148,7 +150,16 @@
                     <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <i class="fas fa-align-justify"></i>
                     </button>
+
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        @if(session()->has("asientosID")==true)
+                            <a href="{{ route('venta.interna.corridas') }}">
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                    continuar venta
+                                </button>
+                            </a>
+                        @endif
                         <ul class="nav navbar-nav ml-auto">
 						@guest
 							@if (Route::has('login'))
@@ -171,15 +182,6 @@
                                     <a class="dropdown-item" href="{{route('users.edit', Auth::user()->id)}}">
                                         Mi perfil
                                     </a>
-                                    @if(!session()->has("sesionVenta"))
-                                        <!-- <a class="dropdown-item" href="{{route('sesionesventa.abrir')}}">
-                                            Abrir sesión de venta
-                                        </a> -->
-                                    @else
-                                        <!-- <a class="dropdown-item" href="{{route('sesionesventa.edit', session("sesionVenta"))}}">
-                                            Corte de venta #{{session("sesionVenta")}}
-                                        </a> -->
-                                    @endif
                                     <a class="dropdown-item" href="{{route('sesionesventa.usuario', Auth::user())}}">
                                         Sesiones de venta
                                     </a>

@@ -16,7 +16,7 @@
     </h3>
 
 
-    <form action="{{route('corridas.disponibles.corridasFiltradas')}}" method="get" class="row needs-validation" novalidate>
+    <form action="{{route('venta.interna.corridas')}}" method="get" class="row needs-validation" novalidate>
         <div class="col-12 col-lg-6 col-xl-4 row mb-2">
             <div class="col-4 col-md-4">
                 <label for="tipoDeViaje" class="float-md-right text-md-right">Tipo de viaje*</label>

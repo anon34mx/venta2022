@@ -144,11 +144,13 @@ ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVe
     
 //  VENTA INTERNA
 Route::get('/ventaInterna/corridas', [App\Http\Controllers\VentaInternaController::class, 'corridasFiltradas'])
-    ->name("corridas.disponibles.corridasFiltradas")->middleware(['ventaInterna']);
+    ->name("venta.interna.corridas")->middleware(['ventaInterna']);
+Route::post('/ventaInterna/corridas/guardarFiltros', [App\Http\Controllers\VentaInternaController::class, 'guardarFiltros'])
+    ->name("venta.interna.guardarFiltros");
 Route::get('/ventaInterna/asientos', [App\Http\Controllers\VentaInternaController::class, 'asientos'])
-    ->name("corridas.disponibles.asientos")->middleware(['ventaInterna']);
+    ->name("venta.interna.asientos")->middleware(['ventaInterna']);
 Route::post('/ventaInterna/apartar', [App\Http\Controllers\VentaInternaController::class, 'apartar'])
-    ->name("corridas.disponibles.apartar")->middleware(['ventaInterna']);
+    ->name("venta.interna.apartar"); //->middleware(['ventaInterna']);
 Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\VentaInternaController::class, 'confirmacion'])
     ->name("venta.interna.confirmacion")->middleware(['ventaInterna']);
 Route::post('/ventaInterna/confirmacion/guardar', [App\Http\Controllers\VentaInternaController::class, 'confirmacionGuardar'])
@@ -156,17 +158,21 @@ Route::post('/ventaInterna/confirmacion/guardar', [App\Http\Controllers\VentaInt
 Route::get('/ventaInterna/pago', [App\Http\Controllers\VentaInternaController::class, 'pago'])
     ->name("venta.interna.pago")->middleware(['ventaInterna']);
 Route::post('/ventaInterna/abonar', [App\Http\Controllers\VentaInternaController::class, 'abonar'])
-    ->name("venta.interna.abonar"); //->middleware(['ventaInterna']);
+    ->name("venta.interna.abonar");
 Route::get('/ventaInterna/{venta}/boletos', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
-    ->name("venta.interna.boletos"); //->middleware(['ventaInterna']);
+    ->name("venta.interna.boletos");
 
 Route::post('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])
+    ->name("venta.interna.cancelarCompra");
+Route::get('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])
     ->name("venta.interna.cancelarCompra");
 // SESIONES DE VENTA
 Route::get('/sesionesVenta', [App\Http\Controllers\sesionesVentaController::class, 'index'])
     ->name("sesionesventa.index"); //admin
 Route::get('/sesionesVenta/usuario/{user}', [App\Http\Controllers\sesionesVentaController::class, 'porUsuario'])
     ->name("sesionesventa.usuario");
+Route::get('/sesionesVenta/store', [App\Http\Controllers\sesionesVentaController::class, 'store'])
+    ->name("sesionesventa.store");
     //cierre de sesion
 Route::get('/sesionesVenta/{sesion}/edit', [App\Http\Controllers\sesionesVentaController::class, 'edit'])
     ->name("sesionesventa.edit");
@@ -203,6 +209,7 @@ Route::get('/deleteCookies', function(){
     session()->forget("origen");
     session()->forget("destino");
     session()->forget("IDventa");
+    session()->forget("pasoVenta");
 });
 //
 Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])

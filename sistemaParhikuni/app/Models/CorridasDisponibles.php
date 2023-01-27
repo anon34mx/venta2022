@@ -245,7 +245,7 @@ class CorridasDisponibles extends Model
             ]);
     }
     // --      (select count(nAsiento) from disponibilidadasientos disa where disa.nDisponibilidad=disp.nNumero) as ocupados,
-    public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null){
+    public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null, $hInicio=null, $hFin=null){
         $res=$this::from("corridasdisponibles as cordis")
             ->selectRaw("cordis.nNumero as 'corrida', cordis.aEstado as 'estado', hist.aEstadoNuevo,
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
@@ -284,12 +284,11 @@ class CorridasDisponibles extends Model
                 $join->on("hist.corrida_disponible", "=", "cordis.nNumero");
                 $join->on("hist.nConsecutivo", "=", "iti.nConsecutivo");
             });
-
             $res->whereRaw("cordis.aEstado='D'");
             // $res->whereRaw("cordis.fSalida<= date_add(current_date(), interval 1 DAY) ");
-
             if($corrida!=null){
                 $res->whereRaw("cordis.nNumero=".$corrida);
+                return $res->get();
             }
             if($fechaSalida==null){
                 $res->whereRaw("cordis.fSalida>=current_date");
@@ -302,13 +301,11 @@ class CorridasDisponibles extends Model
             }else{
                 $res->whereRaw("cordis.fSalida<= '$fechaMax' ");
             }
-            
             if($origen=="todos"){
                 $res->whereRaw(" disp.nOrigen ");
             }elseif($origen!=null){
                 $res->whereRaw("disp.nOrigen=".$origen);
             }
-
             if($destino!=null){
                 $res->whereRaw("disp.nDestino=".$destino);
             }
@@ -319,11 +316,18 @@ class CorridasDisponibles extends Model
             if($totalPasajeros>0){
                 $res->havingRaw("totalAsientos-count(disa.nDisponibilidad) >= $totalPasajeros");
             }
-
+            if($hInicio!=null){
+                $res->whereRaw("disp.hSalida>='".$hInicio."'");
+            }
+            if($hFin!=null){
+                $res->whereRaw("disp.hSalida<='".$hFin."'");
+            }
             $res->whereRaw("reg.despachado IS NULL");
-
-            $res->groupByRaw("cordis.nNumero, disp.nOrigen , disp.nDestino, dist.nAsientos")
-            ->orderByRaw("cordis.nNumero, iti.nConsecutivo, disp.fSalida, disp.hSalida, tatr.fAplicacion DESC");
+            $res->groupByRaw("cordis.nNumero, disp.nOrigen , disp.nDestino, dist.nAsientos");
+            $res->orderBy("disp.fSalida");
+            $res->orderBy("disp.hSalida");
+            // ->orderByRaw("disp.fSalida ASC, disp.hSalida ASC");
+            // ->orderByRaw("cordis.nNumero, iti.nConsecutivo, disp.fSalida, disp.hSalida, tatr.fAplicacion DESC");
         // dd($res->toSql());
         $res=$res->get();
         return $res;

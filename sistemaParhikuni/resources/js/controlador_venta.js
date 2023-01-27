@@ -1,3 +1,9 @@
+// variables
+window.asientoAnt = 0;
+window.tiempoRestante = 0;
+window.tiempoTerminado = false;
+window.IntTiempoRestante = null;
+
 window.cargarDestinos = function (origen, comprimir) {
     $.ajax({
         url: "/oficina/" + origen + "/destinos/" + comprimir,
@@ -28,6 +34,43 @@ window.getRecorrido = function (corridaDisponible, origen, destino) {
         }
     });
 }
+
+window.cambiarHorario=(horario, ev, elementos)=>{
+    ev.preventDefault();
+    $("."+elementos).removeClass("selected");
+    $(ev.target).addClass("selected");
+
+    $("#horario"+horario).prop("checked", true);
+
+    console.log(horario);
+    var hInicio, hFin;
+    switch (horario) {
+        case "Madr":
+            hInicio = "00:00:00";
+            hFin = "06:00:00";
+            break;
+        case "Maña":
+            hInicio = "06:00:00";
+            hFin = "12:00:00";
+            break;
+        case "Tard":
+            hInicio = "12:00:00";
+            hFin = "18:00:00";
+            break;
+        case "Noch":
+            hInicio = "18:00:00";
+            hFin = "23:59";
+            break;
+        default:
+            hInicio="00:00:00";
+            hFin="23:59";
+            break;
+    }
+
+    $("#hInicio").val(hInicio);
+    $("#hFin").val(hFin);
+}
+
 window.validarFiltros=()=>{
     var corrida = $("#corr").val();
     var disponibilidad = $("#disp").val();
@@ -43,10 +86,13 @@ window.validarFiltros=()=>{
     if(adultos+niños+insen+estudiantes+profesores == 0){
         errorMsg+="*Selecciona el número de pasajeros\n";
     }
+    if (adultos + insen + estudiantes + profesores == 0 && niños>0){
+        errorMsg+="*Los niños deben viajar acompañados de un adulto\n";
+    }
     if(corrida==0 || disponibilidad==0){
         errorMsg+="*Selecciona una corrida\n";
     }
-    if(tarifa==0){
+    if (tarifa == 0 && corrida!=0){
         errorMsg+="*La corrida no cuenta con una tarifa.\n";
     }
 
@@ -99,16 +145,24 @@ window.validarPasajerosAsientos=()=>{
         return true;
     }
 }
-
-window.asientoAnt = 0;  // var
-window.tiempoRestante =0 ;
-window.IntTiempoRestante = null ;
-
-window.calcularTiempoRestante = (tiempo) => {
+// recibe segundos
+window.convertirSegundosaTiempo = (tiempo) => {
     var horas = Math.floor(tiempo / 3600);
     var minutos = Math.floor((tiempo / 60)-horas*60);
-    var segundos = (tiempo % 60 + "").padStart(2, "0");
-    return (horas + ":" + minutos + "." + segundos);
+    var segundos = (tiempo % 60 );
+    var milisegundos =0;// = ((segundos - Math.floor(segundos))*100).toFixed(0);
+
+    var retorno="";
+    if(horas>0)
+        retorno += (horas+"").padStart(2, "0")+":";
+    // if(minutos>0)
+        retorno += (minutos+"").padStart(2, "0")+":";
+    // if(segundos>0)
+        retorno += (Math.floor(segundos) + "").padStart(2, "0");
+    // if(milisegundos>0)
+        // retorno += ("." + milisegundos).padStart(2, "0");
+    return retorno;
+    // return (horas + ":" + minutos + "." + segundos);
 }
 
 window.calcularCambio = ()=>{
@@ -123,6 +177,10 @@ window.calcularCambio = ()=>{
     }
 }
 $(document).ready(()=>{
+    setTimeout(() => {
+        $(".alert").hide(666);
+    }, 10000);
+
     window.tiempoRestante = $("#tiempoRestante").attr("initial");
 
     $(".pasajeroAsiento, .pasajeroAsiento input").on("focus", function () {
@@ -163,7 +221,7 @@ $(document).ready(()=>{
         }
 
         if(totalPasajeros>10){
-            alert("maximo 10");
+            alert("Máximo 10 pasajeros");
         }else{
             if(nxtVal<min){
                 $(inputActual).val(min);
@@ -194,7 +252,7 @@ $(document).ready(()=>{
         }else{
             var idsel = $(selectList).children()[selectList.selectedIndex].value; // la fila
             var importe = $("#asiento-"+row+" .tarifa span").html(); //columna importe
-            var importeSinDescConIVA=importe*1.16;
+            var importeSinDescConIVA=(importe*1.16).toFixed(2);
             if (ev.target.value!=""){
                 var descuentoAplicado = $("#promo-" + idsel + " span").html(); // descuento seleccionado de la lista
                 var importeConDescuentoConIva = ((importe - (importe * descuentoAplicado)) * 1.16).toFixed(2);
@@ -215,13 +273,17 @@ $(document).ready(()=>{
         
     });
 
-    $("#tiempoRestante").val(calcularTiempoRestante(window.tiempoRestante));
+    $("#tiempoRestante").val(convertirSegundosaTiempo(window.tiempoRestante));
     window.IntTiempoRestante=setInterval(()=>{
         window.tiempoRestante = window.tiempoRestante-1;
-        $("#tiempoRestante").val(calcularTiempoRestante(window.tiempoRestante));
-        if (tiempoRestante<=0){
-            clearInterval(window.IntTiempoRestante);
-            window.location.href = "/ventaInterna/corridas";
+        $("#tiempoRestante").val(convertirSegundosaTiempo(window.tiempoRestante));
+        if (tiempoRestante <= 0 && window.tiempoTerminado==false){
+            $("input").prop("disabled", true);
+            $("buton").prop("disabled", true);
+            $("a").prop("disabled", true);
+            $("#cancelarCompra").prop("disabled", false);
+            window.location.href = "/ventaInterna/cancelarCompra";
+            window.tiempoTerminado = true;
         }
     },1000);
 

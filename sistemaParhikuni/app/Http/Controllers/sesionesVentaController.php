@@ -39,12 +39,14 @@ class sesionesVentaController extends Controller
         
         // $sesiones=$sesiones->toSql();
         // dd($sesiones);
-        $sesiones=$sesiones->get();
+        $sesiones=$sesiones->paginate(20);
+        //->get();
         $usuarios=$usuarios->get();
         return view('sesionesVEnta.index',[
             "sesiones" => $sesiones,
             "usuarios" => $usuarios,
             "oficinas" => $oficinas,
+            "mostrarFiltros" => true
         ]);
     }
 
@@ -159,17 +161,16 @@ class sesionesVentaController extends Controller
     }
 
     public function porUsuario(){
-        // dd(Auth()->user());
-        // dd(Auth::user()->id);
         $sesiones=Sesiones::where("user_id","=", Auth::user()->id)
             ->orderBy("fContable", "desc")
-            ->get();
+            ->limit(20)
+            ->paginate(20);
+            // ->get();
         return view('sesionesVenta.index',[
-            "sesiones" => $sesiones
+            "sesiones" => $sesiones,
+            "usuarios" => [],
+            "oficinas" => [],
+            "mostrarFiltros" => false
         ]);
     }
-    public function cerrar(Request $request, $id){
-        
-    }
-
 }

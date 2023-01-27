@@ -199,8 +199,5 @@
     </div>
     <div class="mt-3 d-flex justify-content-center">
         {!! $users->appends(Request::all())->links("pagination::bootstrap-5") !!}
-        <!-- !! $users->appends(['search' => $request->get('search')]); !! -->
-        <!-- <br> -->
-        <!-- !! $users->links() !! -->
     </div>
 @endsection
