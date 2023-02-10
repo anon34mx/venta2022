@@ -39,6 +39,7 @@ class VentaInternaController extends Controller
     }
     // paso 0
     public function corridasFiltradas(Request $request){
+        // dd($request->usarPromocion);
         $cordis=new CorridasDisponibles();
         
         $origen=$request->origen ?: session("oficinaid");
@@ -52,7 +53,7 @@ class VentaInternaController extends Controller
                     "estudiantes"=> $request->estudiantes ?: 0,
                     "profesores"=> $request->profesores ?: 0,
                 ],
-                $request->hInicio, $request->hFin, 
+                $request->hInicio, $request->hFin, $request->usarPromocion
             );
         $request->request->add(['pasoCompra' => 1]); //add request
         return view('venta.interna.corridasFiltradas',[
@@ -76,13 +77,9 @@ class VentaInternaController extends Controller
 
     // Paso 0.1 // guardar la corrida seleccionada
     public function guardarFiltros(Request $request){
+        // dd($request->usarPromocion==true);
         $disponibilidad=Disponibilidad::find($request->disp);
         $venceCompra=time() + ENV("TIEMPO_PARA_LA_COMPA")*60;
-        // =strtotime($disponibilidad->fSalida." ".$disponibilidad->hSalida); // limite para hacer la compra a la hora de salida
-        // if(Auth::user()->personas->aTipo=="EI"){
-        //     $venceCompra=strtotime($disponibilidad->fSalida." ".$disponibilidad->hSalida)+300; // limite para hacer la compra a la hora de salida + 5 minutos
-        // }else{
-        // }
         $now=Carbon::now();
         $salidaCorrida=Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida);
         if($salidaCorrida->lte($now)){
@@ -96,6 +93,7 @@ class VentaInternaController extends Controller
             "disponibilidad"=>$request->disp,
             "origen" => $disponibilidad->nOrigen."",
             "destino" => $disponibilidad->nDestino."",
+            "usarPromocion" => $request->usarPromocion,
             
             "pasoVenta"=>1,
             "tiempoCompra" => $venceCompra,
@@ -109,6 +107,8 @@ class VentaInternaController extends Controller
             "sedena"=>$request->SE ?: 0,
         ]);
         session()->save();
+        // cookies
+        setcookie("tiempoCompra", time()+900, time()+900, "/");
         return redirect(route('venta.interna.asientos'));
     }
 
@@ -121,12 +121,14 @@ class VentaInternaController extends Controller
         $fVenta=Carbon::createFromFormat("Y-m-d H:i:s", $disp->fSalida." ".$disp->hSalida);
         $fActual=Carbon::now();
         if( $fActual->gte($fVenta) ){
+            dd("corrida pasada");
             return back()->withErrors("La corrida ya salió");
         }
 
-        if($cordis->aEstado!="D"){
-            return back()->withError("La corrida no está disponible.");
-        }
+        // if($cordis->aEstado!="D"){
+            // dd($cordis->aEstado);
+            // return back()->withError("La corrida no está disponible.");
+        // }
         return view('venta.interna.asientos',[
             "disponibilidad"=>$disp,
             "cordis"=>$cordis,
@@ -179,11 +181,7 @@ class VentaInternaController extends Controller
             "asientosID" => $dispAsiento,
             "pasoVenta" => 3,
         ]);
-        
-        // cookies
-        // setcookie("tiempoCompra", $venceCompra, $venceCompra, "/");
         return redirect(route("venta.interna.confirmacion"));
-        
     }
 
     // paso 3 confirmacion(vista)
@@ -230,11 +228,11 @@ class VentaInternaController extends Controller
         $disp=Disponibilidad::find(session("disponibilidad"));
         $pasajeros=json_decode(session("pasajeros"));
 
-        $promociones=$request->except("_token")["promo"];
+        $promociones=@$request->except("_token")["promo"];
         $tarifas=$disp->tarifas();
         if(!session()->has("IDventa")){
             $ventaID=Venta::create([
-                "nSesion" => 1,
+                "nSesion" => session("sesionVenta"),
             ]);
             session([
                 "IDventa" => $ventaID->nNumero,
@@ -249,7 +247,7 @@ class VentaInternaController extends Controller
                 $costo=null;
                 $iva=null;
                 $total=null;
-                if($promociones[$i]!="NA"){
+                if($promociones!=null){
                     $promoAplicada=Promociones::where("nNumero", "=", $promociones[$i])->get()->first(); // registro en BD
                     $porcentajeAplicado=number_format(($promoAplicada->nDescuento/100),2); // porcentaje de descuento ya en formato 00.00
                     $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado, 2); // Cantidad que se descuenta de la tarifa base $00.00
@@ -277,12 +275,12 @@ class VentaInternaController extends Controller
                     'nMontoDescuento' => $descuentoAplicado,
                     'nIva' => $iva,
                     'aEstado' => "VE",
-                    'nTerminal' => 1,
+                    'nTerminal' => 3,
                 ]);
                 $dispUpdt=DisponibilidadAsientos::registrarBoleto($pasajeros[$i]->disponibilidad, $boleto->nNumero, $cordis->fSalida." ".$cordis->hSalida);
                 $pasajeros[$i] = (object) array_merge((array) $pasajeros[$i], (array) array(
                     "boleto"=>$boleto->nNumero,
-                    "IDpromo"=>$promociones[$i],
+                    "IDpromo"=>@$promociones[$i] ?: null,
                     )
                 );
                 session([ //regresar

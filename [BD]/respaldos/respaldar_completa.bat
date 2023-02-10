@@ -1,0 +1,1 @@
+C:\xampp\mysql\bin\mysqldump -u "root" -p laravel>completa_funciona_2023-02-08__10-22h.sql

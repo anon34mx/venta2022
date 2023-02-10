@@ -12,7 +12,6 @@ window.cargarDestinos = function (origen, comprimir) {
             $("#destino").empty();
             $("#destino").append('<option value="">Seleccione Destino</option>');
             response.forEach(element => {
-                console.log(element);
                 $("#destino").append('<option value="' + element.nDestino + '">' + element.destino + '</option>');
             });
         }
@@ -42,7 +41,6 @@ window.cambiarHorario=(horario, ev, elementos)=>{
 
     $("#horario"+horario).prop("checked", true);
 
-    console.log(horario);
     var hInicio, hFin;
     switch (horario) {
         case "Madr":
@@ -176,6 +174,9 @@ window.calcularCambio = ()=>{
         $("#cambio-lbl").html("Cambio");
     }
 }
+window.mirrorCheck=()=>{
+
+}
 $(document).ready(()=>{
     setTimeout(() => {
         $(".alert").hide(666);
@@ -189,6 +190,11 @@ $(document).ready(()=>{
     .on("change", function(){
         seleccionarAsiento(window.asientoAnt,this);
         window.asientoAnt = this.value;
+    });
+
+    $("#usarPromocionF").on("change", function(){
+        // console.log($(this).prop("checked"));
+        $("#" + $(this).attr("target")).prop("checked", $(this).prop("checked"));
     });
 
     $("#pasajerosAsientos").on("submit", ()=>{

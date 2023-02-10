@@ -80,6 +80,46 @@ Route::post('/permisos/add', [App\Http\Controllers\PermissionController::class, 
     ->name("permission.store")->middleware('role:Admin');
 Route::delete('/permisos/{permission}', [App\Http\Controllers\PermissionController::class, 'destroy'])
     ->name("permission.destroy")->middleware('role:Admin');
+    
+// Tarifas
+Route::get('/tarifas', [App\Http\Controllers\TarifasController::class, 'index'])
+    ->name("tarifas.index")->middleware('permission:tarifas.index');
+    
+Route::get('/tarifas/nueva/', [App\Http\Controllers\TarifasController::class, 'create'])
+    ->name("tarifas.create")->middleware('permission:tarifas.create');
+Route::get('/tarifas/{idTarifa}', [App\Http\Controllers\TarifasController::class, 'show'])
+    ->name("tarifas.show")->middleware('permission:tarifas.show');
+
+Route::post('/tarifas/store}', [App\Http\Controllers\TarifasController::class, 'store'])
+    ->name("tarifas.store")->middleware('permission:tarifas.store');
+Route::get('/tarifas/{idTarifa}/edit', [App\Http\Controllers\TarifasController::class, 'edit'])
+    ->name("tarifas.edit")->middleware('permission:tarifas.edit');
+Route::post('/tarifas/{idTarifa}/update', [App\Http\Controllers\TarifasController::class, 'update'])
+    ->name("tarifas.update")->middleware('permission:tarifas.update');
+
+    // tramos
+Route::get('/tramos/', [App\Http\Controllers\TramosController::class, 'index'])
+    ->name("tramos.index")->middleware('role:Admin');
+Route::get('/tramos/nuevo', [App\Http\Controllers\TramosController::class, 'create'])
+    ->name("tramos.create")->middleware('role:Admin');
+Route::post('/tramos/guardar', [App\Http\Controllers\TramosController::class, 'store'])
+    ->name("tramos.store")->middleware('role:Admin');
+Route::get('/tramos/{id}/edit', [App\Http\Controllers\TramosController::class, 'edit'])
+    ->name("tramos.edit")->middleware('role:Admin');
+Route::get('/tramos/{id}', [App\Http\Controllers\TramosController::class, 'update'])
+    ->name("tramos.update")->middleware('role:Admin');
+
+    // Itinerarios
+Route::get('/itinerarios/', [App\Http\Controllers\ItinerariosController::class, 'index'])
+    ->name("itinerarios.index")->middleware('role:Admin');
+Route::get('/itinerarios/{id}/edit', [App\Http\Controllers\ItinerariosController::class, 'edit'])
+    ->name("itinerarios.edit")->middleware('role:Admin');
+Route::post('/itinerarios/{id}/update', [App\Http\Controllers\ItinerariosController::class, 'update'])
+    ->name("itinerarios.update")->middleware('role:Admin');
+Route::get('/itinerarios/nuevo', [App\Http\Controllers\ItinerariosController::class, 'create'])
+    ->name("itinerarios.create")->middleware('role:Admin');
+Route::post('/itinerarios/guardar', [App\Http\Controllers\ItinerariosController::class, 'store'])
+    ->name("itinerarios.store")->middleware('role:Admin');
 
 // CORRIDAS PROGRAMADAS
 Route::get('/corridas/programadas', [App\Http\Controllers\corridasProgramadasController::class, 'index'])
@@ -213,7 +253,6 @@ Route::get('/deleteCookies', function(){
 });
 //
 Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])
-// Route::post('/oficina/destinos', [App\Http\Controllers\OficinasController::class, 'destinos'])
     ->name("corridas.disponibles.destinos");
 
 //  Personal

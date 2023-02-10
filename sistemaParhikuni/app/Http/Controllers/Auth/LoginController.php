@@ -49,17 +49,17 @@ class LoginController extends Controller
             $oficina=Oficinas::find($oficina);
 
             $sesion=Sesiones::where("user_id","=", Auth::user()->id)
-                ->orderBy("fContable", "desc")
+                ->orderBy("created_at", "desc")
                 ->first();
             Session::put('oficinaNombre', $oficina->aNombre);
             Session::put('oficinaid', $oficina->nNumero);
-            if($sesion["fCerrada"]==null){
-                Session::put('sesionVenta', $sesion->nNumero);
+            if($sesion){
+                if($sesion["fCerrada"]==null){
+                    Session::put('sesionVenta', $sesion->nNumero);
+                }
             }
             // session("oficinaNombre") // recuperar dato
             // session("oficinaid") // recuperar dato
         }
-
-        // dd($sesion);
     }
 }

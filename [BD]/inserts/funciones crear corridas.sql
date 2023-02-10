@@ -43,7 +43,7 @@ BEGIN
                 IF( SUM(tr.nEstancia) IS NULL, 0, SUM(tr.nEstancia))
                 FROM  itinerario as itiSub
                 INNER JOIN tramos tr on tr.nNumero=itiSub.nTramo
-                WHERE itiSub.nItinerario=3 -- parametro
+                WHERE itiSub.nItinerario=cordis.nItinerario -- parametro -- lo cambié, estaba en 3
                 AND itiSub.nConsecutivo<(
                     SELECT itiSub2.nConsecutivo FROM itinerario as itiSub2
                     INNER JOIN tramos trSub on trSub.nNumero=itiSub2.nTramo

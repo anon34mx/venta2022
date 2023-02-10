@@ -29,11 +29,8 @@ class ventaSeeder extends Seeder
         DB::unprepared($sql_poblar);
 
         // sobre la tabla de usuarios
-        DB::unprepared("ALTER TABLE users
-            ADD FOREIGN KEY FK_p (`persona_nNumero`)
-                REFERENCES personas(nNumeroPersona)
-                ON UPDATE CASCADE ON DELETE RESTRICT,
-            ADD UNIQUE (persona_nNumero)
+        DB::unprepared("ALTER TABLE users ADD FOREIGN KEY (persona_nNumero) REFERENCES personas(nNumeroPersona)
+            ON UPDATE CASCADE ON DELETE RESTRICT, ADD UNIQUE (persona_nNumero);
         ");
         DB::unprepared("ALTER TABLE `corridas_versiones`
             ADD FOREIGN KEY (user_id)

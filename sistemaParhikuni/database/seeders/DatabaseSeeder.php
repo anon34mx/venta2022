@@ -62,6 +62,14 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'sesionesVenta.update']);
         Permission::create(['name' => 'sesionesVenta.show']);
 
+        // tarifas
+        Permission::create(['name' => 'tarifas.index']);
+        Permission::create(['name' => 'tarifas.show']);
+        Permission::create(['name' => 'tarifas.create']);
+        Permission::create(['name' => 'tarifas.store']);
+        Permission::create(['name' => 'tarifas.edit']);
+        Permission::create(['name' => 'tarifas.update']);
+
         //======== [    ROLES    ] ========
         $admin = Role::create(['name' => 'Admin']); // sistemas
         $publicoGeneral = Role::create(['name' => 'publicoGeneral']);
@@ -114,14 +122,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('123456'),
             'persona_nNumero' => 1,
             ]);
-        // $conductor1 = User::create([
-        //     'name' => 'DTI sistemas',
-        //     'email' => 'dti_parhikuni@parhikuni.com.mx',
-        //     'password' => bcrypt('123456'),
-        //     'persona_nNumero' => 1,
-        //     ]);
         $user = User::find(1); 
         $user->assignRole('Admin');
+        // dd($usuarioAdmin);
         
         $usuarioSergio = User::create([
             'name' => 'Sergio Medrano',
@@ -146,6 +149,6 @@ class DatabaseSeeder extends Seeder
             ventaSeeder::class,
         ]);
 
-        DB::unprepared('SELECT corridasPorDia("2022-11-01", 60);');
+        DB::unprepared('SELECT corridasPorDia("2023-02-08", 60);');
     }
 }

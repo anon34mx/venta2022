@@ -1,5 +1,7 @@
+@vite([
+    'resources/js/controlador_admin.js'
+    ])
 @extends('layouts.parhikuni')
-
 @section('content')
 <div class="col-12">
     <h3 class="titleWithAnchor" id="nuevoUsuario">
@@ -125,43 +127,50 @@
                 <table class="col-12 col-sm-10 px-4 text-center">
                     <tr>
                         <td class="col-auto px-4">
-                            <input id="lunes" type="checkbox" class="form-check-input" name="dias[lLunes]"
+                            <input id="lunes" type="checkbox" class="form-check-input" name="dias[todos]"
+                                {{ isset(old("dias")["todos"]) ? "checked" : "" }}
+                                onclick="toggleCheckboxesByClass(this, 'check-dias')"
+                            >
+                            <label for="lunes" class="px-2">Todos</label>
+                        </td>
+                        <td class="col-auto px-4">
+                            <input id="lunes" type="checkbox" class="form-check-input check-dias" name="dias[lLunes]"
                                 {{ isset(old("dias")["lLunes"]) ? "checked" : "" }}
                             >
                             <label for="lunes" class="px-2">L</label>
                         </td>
                         <td class="col-auto px-4">
-                            <input id="martes" type="checkbox" class="form-check-input" name="dias[lMartes]"
+                            <input id="martes" type="checkbox" class="form-check-input check-dias" name="dias[lMartes]"
                                 {{ isset(old("dias")["lMartes"]) ? "checked" : "" }}
                             >
                             <label for="martes" class="px-2">M</label>
                         </td>
                         <td class="col-auto px-4">
-                            <input id="miercoles" type="checkbox" class="form-check-input" name="dias[lMiercoles]"
+                            <input id="miercoles" type="checkbox" class="form-check-input check-dias" name="dias[lMiercoles]"
                                 {{ isset(old("dias")["lMiercoles"]) ? "checked" : "" }}
                             >
                             <label for="miercoles" class="px-2">I</label>
                         </td>
                         <td class="col-auto px-4">
-                            <input id="jueves" type="checkbox" class="form-check-input" name="dias[Jueves]"
+                            <input id="jueves" type="checkbox" class="form-check-input check-dias" name="dias[lJueves]"
                                 {{ isset(old("dias")["Jueves"]) ? "checked" : "" }}
                             >
                             <label for="jueves" class="px-2">J</label>
                         </td>
                         <td class="col-auto px-4">
-                            <input id="viernes" type="checkbox" class="form-check-input" name="dias[lViernes]"
+                            <input id="viernes" type="checkbox" class="form-check-input check-dias" name="dias[lViernes]"
                                 {{ isset(old("dias")["lViernes"]) ? "checked" : "" }}
                             >
                             <label for="viernes" class="px-2">V</label>
                         </td>
                         <td class="col-auto px-4">
-                            <input id="sabado" type="checkbox" class="form-check-input" name="dias[lSabado]"
+                            <input id="sabado" type="checkbox" class="form-check-input check-dias" name="dias[lSabado]"
                                 {{ isset(old("dias")["lSabado"]) ? "checked" : "" }}
                             >
                             <label for="sabado" class="px-2">S</label>
                         </td>
                         <td class="col-auto px-4">
-                            <input id="domingo" type="checkbox" class="form-check-input" name="dias[lDomingo]"
+                            <input id="domingo" type="checkbox" class="form-check-input check-dias" name="dias[lDomingo]"
                                 {{ isset(old("dias")["lDomingo"]) ? "checked" : "" }}
                             >
                             <label for="domingo" class="px-2">D</label>

@@ -88,14 +88,11 @@
             </div>
         </div>
         <div class="col-6 col-sm-12 row mx-0 my-1">
-            <div class="">Horario</div>
-            <div class="px-0 col-12">
-                <input class="form-control" type="time" id="hInicio" name="hInicio" value="{{@Request::get('hInicio')}}" hidden>
-                <input class="form-control" type="time" id="hFin" name="hFin" value="{{@Request::get('hFin')}}" hidden>
+                <div class="custom-control custom-checkbox px-4">
+                    <input class="form-check-input" id="usarPromocionF" name="usarPromocion" type="checkbox" target="usarPromocion" {{ Request::get('usarPromocion') ? "checked": ""}}>
+                    <label class="form-check-label" for="usarPromocionF">Utilizar promoción</label>
+                </div>
             </div>
-        </div>
-        <!-- <div class="col-12 col-sm-3 row px-0 mx-0 pt-4" style="height: fit-content;display: block;position: sticky;top: 0px;"> -->
-
         <div class="col-6 col-sm-12 row mx-0 my-1">
             <div class="col-12">Adultos</div>
             <div class="col-3">
@@ -158,7 +155,20 @@
                 </div>
             </div>
         @endif
+        <div class="col-6 col-sm-12 row mx-0 my-1">
+            <div class="">Horario</div>
+            <div class="px-0 col-12">
+                <input class="form-control" type="time" id="hInicio" name="hInicio" value="{{@Request::get('hInicio')}}" hidden>
+                <input class="form-control" type="time" id="hFin" name="hFin" value="{{@Request::get('hFin')}}" hidden>
+            </div>
+        </div>
         <div class="col-12 row mx-0 my-1 no-padding btn-group" role="group" aria-label="horario">
+            <div class="col-12 lbl-radio">
+                <input id="horarioMadr" class="" value="Madr" type="radio" name="horario" {{@Request::get('horario')=='Madr' ? 'checked':''}} hidden autocomplete="off">
+                <label for="horarioMadr" class="col-12 btn lbl-horario {{Request::get('horario')=='Madr' ? 'selected' : ''}}" onclick="cambiarHorario('',event, 'lbl-horario')">
+                    Todo el día
+                </label>
+            </div>
             <div class="col-12 col-lg-6 lbl-radio">
                 <input id="horarioMadr" class="" value="Madr" type="radio" name="horario" {{@Request::get('horario')=='Madr' ? 'checked':''}} hidden autocomplete="off">
                 <label for="horarioMadr" class="col-12 btn lbl-horario {{Request::get('horario')=='Madr' ? 'selected' : ''}}" onclick="cambiarHorario('Madr',event, 'lbl-horario')">
@@ -199,12 +209,10 @@
     <div class="col-12 col-sm-9 row pr-0">
         <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="pr-0" onsubmit="return validarFiltros()" method="post">
             @csrf
-            <table class="table table-parhi" style="">
+            <table class="table table-stripe.d table-parhi" style="">
                 <thead style="position: sticky;top: 69px;">
                     <tr>
-                        <th>corrida</th>
-                        <!-- <th>estado</th> -->
-                        <!-- <th>disp</th> -->
+                        <th></th>
                         <th>Servicio</th>
                         <th >Salida</th>
                         <th>Llegada</th>
@@ -223,16 +231,18 @@
                         </tr>
                     @endif
                     @foreach($corridas as $corrida)
-                    @if($corrida->estado=='B' || $corrida->estado=='C' || $corrida->estado=='T' || $corrida->estado=='L')
+                    @if($corrida->aEstado=='B' || $corrida->aEstado=='C' || $corrida->aEstado=='T' || $corrida->aEstado=='L')
                         <tr class="bg-danger text-danger">
-                    @elseif($corrida->aEstadoNuevo=="S")
+                    @elseif($corrida->aEstado=="S")
                         <tr class="bg-warning text-warning">
                     @else
                         <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
                     @endif
                             <td>{{$corrida->corrida}}
                                 <br>
-                                {{$corrida->aEstadoNuevo!="" ? $corrida->aEstadoNuevo : $corrida->estado}}
+                                <sub>
+                                    {{$corrida->estadoCorrida}}
+                                </sub>
                             </td>
                             <td>{{($corrida->claseServicio)}}</td>
                             @php
@@ -252,11 +262,17 @@
                             <td>{{$corrida->origen}}<br>{{$corrida->destino}}</td>
                             <td class="tarifa">$<span>{{number_format($corrida->tarifaBase + $corrida->iva,2)}}</span></td>
                             <td>
+                                <span class="ocupados">{{($corrida->boletosVendidos)}}</span>
                                 <span class="ocupados">{{($corrida->ocupados)}}</span>
                                 /
                                 <span class="totalAsientos">{{$corrida->totalAsientos}}</span>
                             </td>
-                            <td><button onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >Itinerario</button></td>
+                            <td>
+                                <button class="btn btn-success btn-samall" onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >
+                                    <i class="fa-solid fa-map-location-dot"></i>
+                                    Itinerario
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -270,6 +286,12 @@
             <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
             <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
             <!-- especial owo -->
+            <div class="col-6 col-sm-12 row mx-0 my-1">
+                <div class="custom-control custom-checkbox px-4 hidden">
+                    <input class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox">
+                    <label class="form-check-label" for="usarPromocion">Utilizar promoción</label>
+                </div>
+            </div>
             <div class="col-12">
                 @if(sizeof($corridas)>0)
                 <span class="btn-collap float-right mx-1" title="Continuar">

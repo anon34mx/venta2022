@@ -28,7 +28,7 @@ class Oficinas extends Model
             ->join("oficinas as ori", "ori.nNumero", "=", "od.nOrigen")
             ->join("oficinas as des", "des.nNumero", "=", "od.nDestino")
             ->whereRaw("ori.lDisponible=1 AND des.lDisponible=1");
-        if($origen!=0){
+        if($origen!=0 && $origen!="todos"){
             $origenesDestinos->whereRaw("od.nOrigen=".$origen);
         }
         $origenesDestinos=$origenesDestinos->get();

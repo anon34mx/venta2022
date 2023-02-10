@@ -79,25 +79,41 @@
                         </li>
                     @endif
                 @endif
-                @can([
-                    "corridas.programadas.index",
-                    "corridas.disponibles.index"
-                    ])
+                
                     <li class="active">
                         <a href="#corridasSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Corridas</a>
                         <ul class="collapse list-unstyled" id="corridasSubmenu">
-                            <li>
-                                <a href="{{route('corridas.programadas.index')}}">Programadas</a>
-                            </li>
-                            <li>
-                                <a href="{{route('corridas.disponibles.index')}}">Disponibles</a>
-                            </li>
+                            @if(Auth::user()->hasRole("Admin"))
+                                <li>
+                                    <a href="{{route('tramos.index')}}">Tramos</a>
+                                    <a href="{{route('itinerarios.index')}}">Itinerarios</a>
+                                </li>
+                            @endif
+                            @can("tarifas.index")
+                                <li>
+                                    <a href="{{route('tarifas.index')}}">Tarifas</a>
+                                </li>
+                            @endcan
+                            @can([
+                                "corridas.programadas.index",
+                                ])
+                                <li>
+                                    <a href="{{route('corridas.programadas.index')}}">Programadas</a>
+                                </li>
+                            @endcan
+                            @can([
+                                "corridas.disponibles.index"
+                                ])
+                                <li>
+                                    <a href="{{route('corridas.disponibles.index')}}">Disponibles</a>
+                                </li>
+                            @endcan
                             <li>
                                 <a href="{{route('corridas.disponibles.index')}}">Firmas</a>
                             </li>
                         </ul>
                     </li>
-                @endcan
+                
                 @can([
                     "personal.conductores.index"
                     ])
@@ -113,6 +129,7 @@
                 <li>
                     <a href="{{route('venta.interna.corridas')}}">Venta de boletos</a>
                 </li>
+
                 <li>
                     <a href="#">About</a>
                 </li>

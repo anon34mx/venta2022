@@ -91,10 +91,14 @@
                     <select name="estado" id="estado" class="form-control">
                         <option value="" disabled>Seleccione</option>
                         @foreach($estados as $estado)
-                            @if($corridaDisponible->aEstado == $estado->id)
-                            <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} selected>{{$estado->aEstado}}</option>
+                            @if($corridaDisponible->nNumeroConductor==null && $estado->id=="S")
+                                <option disabled>{{$estado->aEstado}}</option>
                             @else
-                            <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} >{{$estado->aEstado}}</option>
+                                @if($corridaDisponible->aEstado == $estado->id)
+                                <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} selected>{{$estado->aEstado}}</option>
+                                @else
+                                <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} >{{$estado->aEstado}}</option>
+                                @endif
                             @endif
                         @endforeach
                     </select>
@@ -159,7 +163,10 @@
                 <select class="form-control" name="oficina" id="oficina" required>
                     <option value="" >Seleccionar oficina</option>
                     @foreach($corridaDisponible->getItinerario() as $oficina)
-                        <option value="{{$oficina->nOrigen}}">{{$oficina->origen}}</option>
+                        <option value="{{$oficina->nOrigen}}"
+                            {{$oficinaOrigen==$oficina->nOrigen ? "selected" : ""}}
+                            >{{$oficina->origen}}
+                    </option>
                     @endforeach
                 </select>
             </div>
@@ -195,7 +202,7 @@
     <div class="col-12">
 
     </div>
-    @if($corridaDisponible->aEstado=="S")
+    @if($corridaDisponible->aEstado=="S" && false)
         <form class="float-right" action="{{route('corridas.disponibles.despachar',$corridaDisponible)}}" method="POST">
             @csrf
             @method('')

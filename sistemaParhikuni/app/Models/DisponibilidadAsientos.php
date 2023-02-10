@@ -60,6 +60,25 @@ class DisponibilidadAsientos extends Model
             "tiempo" => $tiempo,
         ])[0];
     }
+    public static function comprobar($ids){
+        $ids=substr($ids, 0, strlen($ids)-1);
+        $ids=explode(",", $ids);
+        $rs=DB::table("disponibilidadasientos")
+            ->whereIn("id", $ids)->get();
+        if(sizeof($rs)==sizeof($ids)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public function enProcesoCompra($cordis, $origen){
+        return $rs=DB::table("disponibilidadasientos as disa")
+            ->join("disponibilidad as disp", "disa.nDisponibilidad", "=", "disp.nNumero")
+            ->where("disp.nCorridaDisponible", "=", $cordis)
+            ->where("disa.aEstadoAsiento", "=", "A")
+            ->get();
+    }
+
 
     public static function registrarBoleto($asientos, $idBoleto, $fhSalida){
         $sql="UPDATE `disponibilidadasientos`

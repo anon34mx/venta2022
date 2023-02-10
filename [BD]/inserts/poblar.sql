@@ -48,7 +48,7 @@ INSERT INTO `oficinas` (`nNumero`,`aClave`, `aNombre`, `aTipo`, `lDestino`) VALU
 (9,'TEPA','Tepalcatepec', 'int', 1),
 (10,'URUA','Uruapan', 'int', 1),
 (11,'ZIHUA','Zihuatanejo', 'int', 1),
-(12,'PEMO','Pensión morelia', 'int',0);
+(12,'PEMO','Pensión morelia', 'int',0),
 (13,'INTE','INTERNET', 'int',0);
 
 INSERT into `origenesdestinos`(nOrigen, nDestino) VALUES
@@ -64,12 +64,12 @@ INSERT into `origenesdestinos`(nOrigen, nDestino) VALUES
 (10, 1), (10, 2), (10, 3), (10, 5), (10, 4), (10, 6), (10, 7), (10, 8), (10, 9), (10, 11),
 (11, 5), (11, 6), (11, 8), (11, 10);
 
-INSERT INTO `tiposervicio`(`nNumero`, `aClave`, `aDescripcion`, `nDistribucionAsientos`, ocupacionMinima) VALUES
-(1,"PL",'Platinum',2, 8),
-(2,"UL",'Ultra',3, 7),
-(3,"EX",'Express',4, 6),
-(4,"PC",'Premium Class',5, 6),
-(5, "CP", 'Business Class',5, 7);
+INSERT INTO `tiposervicio`(`nNumero`, `aClave`, `aDescripcion`, `nDistribucionAsientos`, ocupacionMinima, descuentosMax) VALUES
+(1,"PL",'Platinum',2, 8, 8),
+(2,"UL",'Ultra',3, 7, 0),
+(3,"EX",'Express',4, 6, 0),
+(4,"PC",'Premium Class',5, 6, 0),
+(5, "CP", 'Business Class',5, 7, 0);
 
 INSERT INTO `autobuses`(`nNumeroEconomico`, nTipoServicio, nDistribucionAsientos) VALUES
 -- business
@@ -164,7 +164,7 @@ INSERT INTO `personas`(`nNumeroPersona`,`aNombres`, `aApellidos`, `nOficina`, `a
 (3,'FRANCISCO JAVIER','ALVARADO LEMUS',12,'EI'),
 (4,'PASCUAL','ESTEBAN GABRIEL',12,'EI'),
 (5,'JESUS','CORNEJO MAULE',12,null),
-(6, 'sergio', 'medrano', '8', 'EI')
+(6, 'sergio', 'medrano', '8', 'EI');
 
 INSERT INTO `conductores`(`nNumeroConductor`, `nNumeroPersona`, `aLicencia`, `fVigenciaLicencia`, `aEstado`, `nNumeroAutobus`)
 VALUES
@@ -175,6 +175,7 @@ VALUES
 (3,4,'LIC026','2025-07-26','BA',
     (select nNumeroAutobus from autobuses where nNumeroEconomico="7002"));
 
+/*
 INSERT INTO `tramos`(`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`)
 VALUES
 (1,8,10,112,90,10), -- more-urua
@@ -188,7 +189,8 @@ VALUES
 
 (8,5,7,166,120,0), -- ccam-lazaro
 (9,5,6,200,140,15), -- ccam-ixta
-(10,6,11,9,20,0), -- ixta-zihu
+(10,6,11,9,20,0); -- ixta-zihu
+
 -- regreso
 INSERT INTO `tramos`(`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`)
 VALUES
@@ -237,7 +239,7 @@ false,false,false,false,false,true,true,'2022-01-01','2022-06-30',null),
 true,true,true,true,true,true,true,'2022-03-01','2022-12-31',null),
 (3,3,'23:30:00',
 true,false,false,true,true,true,true,'2022-03-01','2022-12-31',null);
-
+*/
 INSERT INTO tiposboletos (nNumero, aTipo, aDescripcion, nCantidad)
 VALUES
 (1, "V", "Venta", 1000), -- 5,000 5,999
@@ -267,14 +269,14 @@ INSERT INTO tipopasajero VALUES
 ("PQ", "Paquetería", 0.10),
 ("SE", "SEDENA", 0.10);
 
-INSERT INTO terminales (aTerminal, nOficina, aDescripcion) VALUES
-("DTI", 12, "para pruebas"),
-("Venta sitio web", 13, "parhikuni.com");
+INSERT INTO terminales (nNumero, aTerminal, nOficina, aDescripcion) VALUES
+(3, "DTI", 12, "para pruebas"),
+(2, "Venta sitio web", 13, "parhikuni.com");
 
+/*
 INSERT INTO sesiones (nNumero,nNumeroPersona, nOficina, fContable) VALUES (1,1,8,"2022-08-31");
 INSERT INTO venta (nNumero,nSesion) VALUES(1,1);
-
-
+*/
 
 -- insertar forma de pago y subtipos de formas de pago
 INSERT INTO formaspago VALUES ("EF","Efectivo");
@@ -291,11 +293,12 @@ INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 
 
 -- para venta al publico
-INSERT INTO promociones (nNumero,aTipo, aDescripcion, nMaximos, nDescuento, fInicio, fFin) VALUES
-(1,"ES", "Desc INSEN", 8, 12, "2022-09-01", "2022-12-31");
+-- INSERT INTO promociones (nNumero,aTipo, aDescripcion, nDescuento, fInicio, fFin) VALUES
+-- (1,"ES", "Desc INSEN", 12, "2022-09-01", "2022-12-31");
 
 
-truncate tarifastramos;
+-- truncate tarifastramos;
+/*
 INSERT INTO `tarifastramos`
 (`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
 VALUES
@@ -318,52 +321,6 @@ VALUES
 ('2', '8', '1', '396.00', '140', '2022-11-20'),
 ('3', '8', '1', '369.00', '140', '2022-11-20'),
 -- ('4', '8', '1', '369.00', '140', '2022-11-20'),
-('5', '8', '1', '369.00', '140', '2022-11-20'),
+('5', '8', '1', '369.00', '140', '2022-11-20')
 ;
--- HASTA AQUI VA BIEN
-
-/*
--- INSERTAR información del pago
-INSERT INTO ventapago (nNumero,nVenta, aFormaPago, nFormaPagoSubtipo, nMonto, aFolioDocumento, aAutorizacionBanco)
-VALUES (1,1, "TB", 4, 99.99, 0, 0);
--- INSERTAR PASAJERO
--- pasajero normal
-INSERT INTO Boletosvendidos
-(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
-aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
-(1,1, "2022-08-31", "12:00:00", 8, 1, "AD", "Juan Lopez Perez", 1,
-"CO", "500", "15", 30, "VE",1
-);
-INSERT INTO Boletosvendidos
-(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
-aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
-(1,1, "2022-08-31", "12:00:00", 8, 1, "AD", "ADRIAN Lopez Perez", 1,
-"CO", "500", "15", 30, "VE",1
-);
-/*
--- pasajero con promocion
-INSERT INTO Boletosvendidos
-(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
-aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
-(1,
-    (SELECT nNumero FROM `corridasdisponibles` WHERE `fSalida`="2022-08-31" and `hSalida` ="12:00:00" LIMIT 1)
-, "2022-08-31", "12:00:00", 8, 1, "IN", "Hernán Lopez Perez", 2,
-"CO", "500", "15", 30, "VE",
-    (SELECT nNumero from terminales where aTerminal="DTI")
-);
-*/
-/*
-INSERT INTO boletosvendidos_promociones (nBoletoVendido, nPromocion) VALUES (9,1);
--- pasajero con descuento de empleado
-INSERT INTO descuentos(nNumero, aClaveConfirmacion, fInicio, fFin, nOrigen, nDestino,
-    dDescuento, nPasajero, nSolicita, nOtorga) VALUES
-    (1, "ABCD", "2022-09-01", "2024-09-01", 8, 1,
-        100, 6, 5, 1);
-INSERT INTO `boletosvendidos_descuentos`(`nBoletoVendido`, `nDescuento`)
-    VALUES (10,1);
-INSERT INTO Boletosvendidos
-(nVenta, nCorrida, fSalida, hSalida, nOrigen, nDestino, aTipoPasajero, aPasajero, nAsiento,
-aTipoVenta, nMontoBase, nMontoDescuento, nIva, aEstado, nTerminal) VALUES
-(1,37, "2022-08-31", "12:00:00", 8, 1, "AD", "Ana P. Rico", 2,
-"CO", "0", "100", 0, "VE",0);
 */

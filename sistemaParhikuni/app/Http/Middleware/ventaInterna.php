@@ -18,23 +18,30 @@ class ventaInterna
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next){
+        // dd($request->all());
         if(!session()->has("sesionVenta")){
             return redirect(route('sesionesventa.usuario',[
                 "user" => Auth::user()->id
             ]))->with('status', "Necesitas abrir sesion de venta para poder vender");
         }
-        
+        // dd($request->all());
+        if($request->has('cancelada')){
+            return redirect(route('venta.interna.corridas'))->with('status', $request->cancelada);
+        }
         if($request->has('cancelada')){
             return redirect(route('venta.interna.corridas'))->with('status', $request->cancelada);
         }
         //  VER SI LOS ASIENTOS SIGUEN APARTADOS
         if(session()->has("asientosID")==true){
-            $asientosApartados=DisponibilidadAsientos::refrescar(session("asientosID"));
-            if($asientosApartados->actualizados<=0){
-                return redirect(route('venta.interna.cancelarCompra'));
+            $asientosApartados=DisponibilidadAsientos::comprobar(session("asientosID"));
+            // dd($asientosApartados);
+            if($asientosApartados==false){
+                return redirect(route('venta.interna.cancelarCompra',[
+                    "cancelada" => "No se encontraron los asientos apartados"
+                ]));
             }
                                                                 // 15 * 60 - Quince minutos
-            session(["tiempoCompra" => strtotime($asientosApartados->tiempo) + (15 * 60)]);
+            // session(["tiempoCompra" => strtotime($asientosApartados->tiempo) + (15 * 60)]);
             session()->save();
         }
         //      REDIRIGIR SEGUN EN QUE PARTE DE LA COMPRA SE ENCUENTRA

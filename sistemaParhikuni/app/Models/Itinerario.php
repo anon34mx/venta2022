@@ -13,6 +13,7 @@ class Itinerario extends Model
     use HasFactory;
     protected $table = 'itinerario';
     protected $primaryKey = 'nItinerario';
+    public $timestamps = false;
     protected $fillable = [
         'nItinerario',
         'nConsecutivo',
@@ -40,7 +41,7 @@ class Itinerario extends Model
             FROM itinerario as iti
             GROUP by iti.nItinerario ASC");
     }
-    static public  function unicosDetallado(){
+    static public function unicosDetallado(){
         $itinerarios = DB::select("SELECT
             iti.nItinerario as 'id'
             FROM itinerario as iti
@@ -61,7 +62,6 @@ class Itinerario extends Model
                     'id' => $itinerario->id,
                 ]);
         }
-
         return $retorno;
     }
     public function itinerarios(){
@@ -90,5 +90,20 @@ class Itinerario extends Model
             order by iti.nItinerario ASC,iti.nConsecutivo ASC",[
                 'id' => (isset($id) ? $id: $this->nItinerario),
             ]);
+    }
+    public static function añadirTramo($itinerario, $tramo){
+        // dd("d", $tramo);
+        $last=DB::table('itinerario as iti')
+            ->selectRaw("iti.nItinerario, iti.nConsecutivo")
+            // ->join("tramos as tr", "tr.nNumero", "=", "iti.nTramo")
+            ->where("iti.nItinerario", "=", $itinerario)
+            ->orderBy("nConsecutivo", "Desc")
+            ->first();
+        // dd($last->nItinerario);
+        return DB::table("itinerario")->insert([
+            "nItinerario" => $last->nItinerario,
+            "nConsecutivo" => $last->nConsecutivo+1,
+            "nTramo" => $tramo,
+        ]);
     }
 }

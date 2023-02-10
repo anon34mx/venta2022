@@ -24,6 +24,7 @@ class corridasProgramadasController extends Controller
     }
 
     public function store(Request $request){
+        // dd($request->all());
         $validated = $request->validate([
             'itinerario' => 'required|integer',
             'tipoDeServicio' => 'required|integer',

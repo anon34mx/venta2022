@@ -16,6 +16,7 @@ class CorridasDisponiblesHistorial extends Model
     ];
     protected $fillable = [
         'corrida_disponible',
+        'nNumeroOficina',
         'aEstadoAnterior',
         'aEstadoNuevo',
         'nConductor',
