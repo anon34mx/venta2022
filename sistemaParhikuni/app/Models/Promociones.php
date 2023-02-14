@@ -10,20 +10,21 @@ class Promociones extends Model
 {
     use HasFactory;
 
-    public static function aplicables($tiposPasajeros, $origen, $destino){
+    public static function aplicables($origen, $destino, $oficina, $corrida, $viajeRedondo, $claseServicio){
         $rs=collect(\DB::select("(
                 SELECT
                 tipa.aClave as tipoPasajero, tipa.aDescripcion, tipa.descuento as descuentoPorTipo,
                 prom.nNumero as id, prom.aDescripcion as descripPromo, prom.nDescuento porcentProm, prom.fInicio, prom.fFin
                 FROM tipopasajero tipa
                 LEFT JOIN `promociones` as prom
-                    ON prom.aTipo=tipa.aClave and prom.fInicio<=CURRENT_DATE and prom.fFin>=CURRENT_DATE -- vigentes
+                    ON prom.fInicio<=CURRENT_DATE and prom.fFin>=CURRENT_DATE -- vigentes
                     AND (
-                        nCorridaProgramada=6
-                        OR prom.nOficina=13
+                        nCorridaProgramada=:corrida
+                        OR prom.nOficina=:oficina
                         OR (nOrigen=:origen and nDestino=:destino)
-                        OR viajeRedondo=true
-                        OR nTipoServicio=1
+                        OR viajeRedondo=:viajeRedondo
+                        OR nTipoServicio=:claseServicio
+                        OR prom.aTipo=tipa.aClave -- fijo
                     )
                 WHERE tipa.aClave='AD'
                 AND prom.nNumero IS NOT NULL
@@ -44,6 +45,10 @@ class Promociones extends Model
             )",[
                 "origen" => $origen,
                 "destino" => $destino,
+                "corrida" => $corrida,
+                "oficina" => $oficina,
+                "viajeRedondo" => $viajeRedondo,
+                "claseServicio" => $claseServicio,
             ]));
         return $rs;
     }

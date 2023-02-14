@@ -516,7 +516,7 @@ CREATE TABLE `disponibilidadasientos` (
   `nBoleto` bigint(20) unsigned DEFAULT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `nDisponibilidad` (`nDisponibilidad`,`nAsiento`),
+  -- UNIQUE KEY `nDisponibilidad` (`nDisponibilidad`,`nAsiento`),
   UNIQUE KEY `id` (`id`) USING BTREE,
   KEY `disponibilidadasientos_IN` (`nDisponibilidad`,`nAsiento`),
   KEY `nBoleto` (`nBoleto`),

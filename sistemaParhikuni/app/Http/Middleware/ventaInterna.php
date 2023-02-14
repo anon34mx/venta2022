@@ -18,50 +18,47 @@ class ventaInterna
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next){
-        // dd($request->all());
+        // dd(@session("ida")["asientosID"]);
         if(!session()->has("sesionVenta")){
             return redirect(route('sesionesventa.usuario',[
                 "user" => Auth::user()->id
             ]))->with('status', "Necesitas abrir sesion de venta para poder vender");
         }
-        // dd($request->all());
-        if($request->has('cancelada')){
-            return redirect(route('venta.interna.corridas'))->with('status', $request->cancelada);
-        }
         if($request->has('cancelada')){
             return redirect(route('venta.interna.corridas'))->with('status', $request->cancelada);
         }
         //  VER SI LOS ASIENTOS SIGUEN APARTADOS
-        if(session()->has("asientosID")==true){
-            $asientosApartados=DisponibilidadAsientos::comprobar(session("asientosID"));
-            // dd($asientosApartados);
+        if(session()->has("ida_asientosID") == true){
+            $asientosApartados=DisponibilidadAsientos::comprobar(session("ida_asientosID"));
             if($asientosApartados==false){
                 return redirect(route('venta.interna.cancelarCompra',[
                     "cancelada" => "No se encontraron los asientos apartados"
                 ]));
             }
-                                                                // 15 * 60 - Quince minutos
             // session(["tiempoCompra" => strtotime($asientosApartados->tiempo) + (15 * 60)]);
             session()->save();
         }
         //      REDIRIGIR SEGUN EN QUE PARTE DE LA COMPRA SE ENCUENTRA
         
-        if(!session()->has("pasoVenta")){
+        if(!session()->has("cmpra_pasoVenta")){
             session([
-                "pasoVenta" => 0,
+                "cmpra_pasoVenta"=>0,
             ]);
             session()->save();
             return redirect(route('venta.interna.corridas'));
         }
-        
         $pasoSig=null;
-        $lastUrl=substr(url()->previous(), strpos(url()->previous(), $_SERVER["HTTP_HOST"])+strlen($_SERVER["HTTP_HOST"]), 99);
-        $nextUrl=substr(url()->current(), strpos(url()->current(), $_SERVER["HTTP_HOST"])+strlen($_SERVER["HTTP_HOST"]), 99);
+        $lastUrl=substr(url()->previous(),strpos(url()->previous(), $_SERVER["HTTP_HOST"])+strlen($_SERVER["HTTP_HOST"]));
+        $lastUrl=substr($lastUrl, 0, strpos($lastUrl, "?")?:strlen($lastUrl));
+
+        // $nextUrl=substr(url()->current(), strpos(url()->current(), $_SERVER["HTTP_HOST"])+strlen($_SERVER["HTTP_HOST"]));
+        $nextUrl=substr(url()->current(),strpos(url()->current(), $_SERVER["HTTP_HOST"])+strlen($_SERVER["HTTP_HOST"]));
+        $nextUrl=substr($nextUrl, 0, strpos($nextUrl, "?")?:strlen($nextUrl));
         switch ($nextUrl) {
             case '/ventaInterna/corridas':
                 $pasoSig=0;
                 break;
-            case '/ventaInterna/asientos':
+            case '/ventaInterna/asientosIda':
                 $pasoSig=1;
                 break;
             case '/ventaInterna/apartar':
@@ -79,16 +76,18 @@ class ventaInterna
             case '/ventaInterna/abonar':
                 $pasoSig=4.1;
                 break;
+            default:
+                $pasoSig="?";
+                break;
         }
-
-        if($pasoSig!=session("pasoVenta")){
-            if(session("pasoVenta")==0){
+        if($pasoSig!=session("cmpra_pasoVenta")){
+            if(session("cmpra_pasoVenta")==0){
                 return redirect(
-                        route($this->pasoARuta(session("pasoVenta")))
+                        route($this->pasoARuta(session("cmpra_pasoVenta")))
                     )
                     ->withErrors('No estás en un proceso de venta. [cod:79]');
             }
-            return redirect(route($this->pasoARuta(session("pasoVenta"))));
+            return redirect(route($this->pasoARuta(session("cmpra_pasoVenta"))));
         }
         return $next($request);
     }

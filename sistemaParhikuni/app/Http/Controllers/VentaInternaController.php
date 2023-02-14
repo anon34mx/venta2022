@@ -39,7 +39,7 @@ class VentaInternaController extends Controller
     }
     // paso 0
     public function corridasFiltradas(Request $request){
-        // dd($request->usarPromocion);
+        // dd($request->has("tipoDeViaje"));
         $cordis=new CorridasDisponibles();
         
         $origen=$request->origen ?: session("oficinaid");
@@ -66,65 +66,70 @@ class VentaInternaController extends Controller
             "insen"=> $request->insen!=null ? $request->insen : 0,
             "estudiantes"=> $request->estudiantes!=null ? $request->estudiantes : 0,
             "profesores"=> $request->profesores!=null ? $request->profesores : 0,
-            "promociones"=>false,
+            "promociones"=>$request->has("usarPromocion"),
             "fechaDeSalida" => $fechaSalida,
             "fechaMax" => $request->fechaMax,
             "oficinas" => Oficinas::destinos(0,true),
             "horario" => $request->horario,
-            "tipoDeViaje" => $request->tipoDeViaje ?: "sencillo",
+            // "tipoDeViaje" => $request->tipoDeViaje ?: "sencillo",
+            "viajeRedondo" => $request->has("tipoDeViaje"),
         ]);
     }
 
     // Paso 0.1 // guardar la corrida seleccionada
     public function guardarFiltros(Request $request){
-        // dd($request->usarPromocion==true);
-        $disponibilidad=Disponibilidad::find($request->disp);
-        $venceCompra=time() + ENV("TIEMPO_PARA_LA_COMPA")*60;
-        $now=Carbon::now();
-        $salidaCorrida=Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida);
-        if($salidaCorrida->lte($now)){
-            return redirect(route('venta.interna.cancelarCompra', [
-                "cancelada" => "La corrida ya salió"
-            ]));
+        if(!session()->has("cmpra_tiempoCompra")){ // para evitar sobreescribir
+            $disponibilidad=Disponibilidad::find($request->disp);
+            $venceCompra=time() + ENV("TIEMPO_PARA_LA_COMPA")*60;
+            $now=Carbon::now();
+            $salidaCorrida=Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida);
+            if($salidaCorrida->lte($now)){
+                return redirect(route('venta.interna.cancelarCompra', [
+                    "cancelada" => "La corrida ya salió"
+                ]));
+            }
+            session([
+                "cmpra_viajeRedondo" => $request->tipoDeViaje,
+                "cmpra_pasoVenta"=>1,
+                "cmpra_tiempoCompra" => $venceCompra,
+                "cmpra_usarPromocion" => $request->has("usarPromocion"),
+    
+                "cmpra_adultos"=>$request->AD ?: 0,
+                "cmpra_estudiantes"=>$request->ES ?: 0,
+                "cmpra_insen"=>$request->IN ?: 0,
+                "cmpra_maestros"=>$request->MA ?: 0,
+                "cmpra_niños"=>$request->NI ?: 0,
+                "cmpra_sedena"=>$request->SE ?: 0,
+                
+                "ida_corrida"=>$request->cor,
+                "ida_disponibilidad"=>$request->disp,
+                "ida_origen" => $disponibilidad->nOrigen."",
+                "ida_destino" => $disponibilidad->nDestino."",
+                
+                // "cmpra_paqueteria"=>$request->PQ ?: 0,
+                // "reg_corrida"=> null,
+                // "reg_disponibilidad"=> null,
+                // "reg_origen" => $disponibilidad->nDestino,
+                // "reg_destino" => $disponibilidad->nOrigen,
+            ]);
         }
-        session([
-            "tipoDeViaje" => $request->tipoDeViaje,
-            "corrida"=>$request->cor,
-            "disponibilidad"=>$request->disp,
-            "origen" => $disponibilidad->nOrigen."",
-            "destino" => $disponibilidad->nDestino."",
-            "usarPromocion" => $request->usarPromocion,
-            
-            "pasoVenta"=>1,
-            "tiempoCompra" => $venceCompra,
-
-            "adultos"=>$request->AD ?: 0,
-            "estudiantes"=>$request->ES ?: 0,
-            "insen"=>$request->IN ?: 0,
-            "maestros"=>$request->MA ?: 0,
-            "niños"=>$request->NI ?: 0,
-            "paqueteria"=>$request->PQ ?: 0,
-            "sedena"=>$request->SE ?: 0,
-        ]);
         session()->save();
-        // cookies
-        setcookie("tiempoCompra", time()+900, time()+900, "/");
         return redirect(route('venta.interna.asientos'));
     }
 
     // paso 1
-    public function asientos(Request $request){
+    public function asientosIda(Request $request){
         
-        $disp=Disponibilidad::find(session("disponibilidad"));
-        $cordis=CorridasDisponibles::find(session("corrida"));
+        $disp=Disponibilidad::find(session("ida_disponibilidad"));
+        $cordis=CorridasDisponibles::find(session("ida_corrida"));
         $asientos=new DisponibilidadAsientos();
         $fVenta=Carbon::createFromFormat("Y-m-d H:i:s", $disp->fSalida." ".$disp->hSalida);
         $fActual=Carbon::now();
         if( $fActual->gte($fVenta) ){
-            dd("corrida pasada");
-            return back()->withErrors("La corrida ya salió");
+            return redirect(route('venta.interna.cancelarCompra', [
+                    "cancelada" => "La corrida ya salió"
+                ]));
         }
-
         // if($cordis->aEstado!="D"){
             // dd($cordis->aEstado);
             // return back()->withError("La corrida no está disponible.");
@@ -134,20 +139,21 @@ class VentaInternaController extends Controller
             "cordis"=>$cordis,
             "asientosOcupados"=>$asientos->ocupados($disp->nNumero),
             "pasajerosSolic" => array(
-                "AD" => session("adultos"),
-                "ES" => session("estudiantes"),
-                "IN" => session("insen"),
-                "MA" => session("maestros"),
-                "NI" => session("niños"),
-                "SE" => session("sedena"),
+                "AD" => session("cmpra_adultos"),
+                "ES" => session("cmpra_estudiantes"),
+                "IN" => session("cmpra_insen"),
+                "MA" => session("cmpra_maestros"),
+                "NI" => session("cmpra_niños"),
+                // "SE" => session("cmpra_sedena"),
             ),
         ]);
+        dd();
     }
 
     // paso 2
-    public function apartar(Request $request){
+    public function apartarIda(Request $request){
         
-        $disponibilidad=Disponibilidad::find(session("disponibilidad"));
+        $disponibilidad=Disponibilidad::find(session("ida_disponibilidad"));
         $pasajeros=array();
 
         $dispAsiento="";
@@ -161,7 +167,7 @@ class VentaInternaController extends Controller
                 $pasajeros[$i]["tipo"]=TipoPasajero::find($request->pasajeroTipo[$i])->aDescripcion;
 
                 $disponibilidades=DisponibilidadAsientos::apartarAsiento(
-                    session("corrida"),
+                    session("ida_corrida"),
                     $disponibilidad->nOrigen,
                     $disponibilidad->nDestino,
                     $request->asiento[$i],
@@ -172,50 +178,48 @@ class VentaInternaController extends Controller
                 }
             DB::commit();
         } catch (\Throwable $th) {
+            dd($th);
             // throw new Exception("Error al apartar asientos", 1);
             DB::rollback();
             return back()->withErrors("El asiento ".$request->asiento[$i]." ya está ocupado");
         }
         session([
-            "pasajeros" => json_encode($pasajeros), //nombre,
-            "asientosID" => $dispAsiento,
-            "pasoVenta" => 3,
+			"ida_pasajeros" => json_encode($pasajeros), //nombre,
+			"ida_asientosID" => $dispAsiento,
+			"cmpra_pasoVenta" => 3,
         ]);
+		session()->save();
         return redirect(route("venta.interna.confirmacion"));
     }
 
     // paso 3 confirmacion(vista)
     public function confirmacion(Request $request){
-        $fVenta=Carbon::createFromTimestamp(session("tiempoCompra"));
+        $fVenta=Carbon::createFromTimestamp(session("cmpra_tiempoCompra"));
         $fActual=Carbon::now();
-        $cordis=CorridasDisponibles::find(session("corrida"));
-        $disponibilidad=Disponibilidad::find(session("disponibilidad"));
+        $cordis=CorridasDisponibles::find(session("ida_corrida"));
+        $disponibilidad=Disponibilidad::find(session("ida_disponibilidad"));
         $tarifas=($disponibilidad->tarifas());
-        $pasajerosTemp=json_decode(session("pasajeros"));
-        $tiposPasAux="";
-        for($i=0; $i<sizeof($pasajerosTemp); $i++){
-            $tiposPasAux.="'".$pasajerosTemp[$i]->tipoID."',";
-        }
-        $promocionesAplicables=Promociones::aplicables($tiposPasAux, $disponibilidad->nOrigen, $disponibilidad->nDestino);
+        $pasajerosTemp=json_decode(session("ida_pasajeros"));
+        $promocionesAplicables=Promociones::aplicables($disponibilidad->nOrigen, $disponibilidad->nDestino, session("oficinaid"), $cordis->nNumero, session("cmpra_viajeRedondo"), $cordis->nTipoServicio);
+        // dd($promocionesAplicables);
         $tiempoRestante=null;
         if( $fActual->lte($fVenta) ){
             $tiempoRestante=$fActual->diffInSeconds($fVenta);
         }else{
-            // session_unset();
             // echo "TIEMPO FIN<br>";
             // echo $fVenta."<br>";
             // echo $fActual."<br>";
             // exit;
             return back()->withErrors("La corrida ya salió [3]confirmacion");
         }
-        if(session("origen")!="" && session("destino")!=""){
+        if(session("ida_origen")!="" && session("ida_destino")!=""){
             return view("venta.interna.confirmacion",[
                 "tiempoRestante" => $tiempoRestante,
                 "corrida" => $cordis,
                 "disponibilidad" => $disponibilidad,
                 "promociones" => $promocionesAplicables,
                 "tarifas" => $tarifas,
-                "pasajeros"=>json_decode(session("pasajeros"))
+                "pasajeros"=>json_decode(session("ida_pasajeros"))
             ]);
         }else{
             dd("else?");
@@ -224,18 +228,18 @@ class VentaInternaController extends Controller
 
     // paso 3.1 (Guardar confirmacion y mandar a vista de pago)
     public function confirmacionGuardar(Request $request){
-        $cordis=CorridasDisponibles::find(session("corrida"));
-        $disp=Disponibilidad::find(session("disponibilidad"));
-        $pasajeros=json_decode(session("pasajeros"));
+        $cordis=CorridasDisponibles::find(session("ida_corrida"));
+        $disp=Disponibilidad::find(session("ida_disponibilidad"));
+        $pasajeros=json_decode(session("ida_pasajeros"));
 
         $promociones=@$request->except("_token")["promo"];
         $tarifas=$disp->tarifas();
-        if(!session()->has("IDventa")){
+        if(!session()->has("ida_IDventa")){
             $ventaID=Venta::create([
                 "nSesion" => session("sesionVenta"),
             ]);
             session([
-                "IDventa" => $ventaID->nNumero,
+				"ida_IDventa" => $ventaID->nNumero,
             ]);
             session()->save();
         }
@@ -261,7 +265,7 @@ class VentaInternaController extends Controller
                     $descuentoAplicado=0;
                 }
                 $boleto=BoletosVendidos::create([
-                    'nVenta' => session("IDventa"),
+                    'nVenta' => session("ida_IDventa"),
                     'nCorrida' => $cordis->nNumero,
                     'fSalida' => $cordis->fSalida,
                     'hSalida' => $cordis->hSalida,
@@ -283,33 +287,45 @@ class VentaInternaController extends Controller
                     "IDpromo"=>@$promociones[$i] ?: null,
                     )
                 );
-                session([ //regresar
-                    "pasajeros"=>json_encode($pasajeros) //regresar
-                ]); //regresar
-                session()->save(); //regresar
+                session([
+					"ida_pasajeros"=>json_encode($pasajeros)
+                ]
+                );
+                session()->save();
             }
         }
-        session(["pasoVenta"=>4]);
-        return redirect(route("venta.interna.pago")); //regresar
+        session([
+            "cmpra_pasoVenta" => 4
+        ]);
+        return redirect(route("venta.interna.pago"));
     }
 
     // paso 4
     public function pago(Request $request){ // vista
-        $venta=Venta::find(session("IDventa"));
+        $venta=Venta::find(session("ida_IDventa"));
 
         if($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado <= 0){
             // Ya está pagado
             // Se borran los datos temporales
-            setcookie('tiempoCompra', null, -1);
-            session()->forget("corrida");
-            session()->forget("disponibilidad");
-            session()->forget("pasajeros");
-            session()->forget("asientosID");
-            session()->forget("tiempoCompra");
-            session()->forget("origen");
-            session()->forget("destino");
-            session()->forget("pasoVenta");
-            session()->forget("IDventa");
+            //PASAR COMO PARAMETROS
+            session()->forget("ida");
+            session()->forget("cmpra_pasoVenta");
+            session()->forget("cmpra_viajeRedondo");
+            session()->forget("cmpra_tiempoCompra");
+            session()->forget("cmpra_usarPromocion");
+            session()->forget("cmpra_adultos");
+            session()->forget("cmpra_estudiantes");
+            session()->forget("cmpra_insen");
+            session()->forget("cmpra_maestros");
+            session()->forget("cmpra_niños");
+            session()->forget("cmpra_sedena");
+            session()->forget("ida_corrida");
+            session()->forget("ida_disponibilidad");
+            session()->forget("ida_origen");
+            session()->forget("ida_destino");
+            session()->forget("ida_pasajeros");
+            session()->forget("ida_asientosID");
+            session()->forget("ida_IDventa");
 
 
             return redirect(route('venta.interna.boletos',[
@@ -327,7 +343,7 @@ class VentaInternaController extends Controller
         switch ($request->formaDePago) {
             case 'EF':
                 VentaPago::create([
-                    "nVenta" => session("IDventa"),
+                    "nVenta" => session("ida_IDventa"),
                     "aFormaPago" => "EF",
                     "nMonto" => $request->cantidadRecibida,
                 ]);
@@ -374,34 +390,31 @@ class VentaInternaController extends Controller
         //
     }
     function cancelarCompra(Request $request){
-        $desocupados=DisponibilidadAsientos::desocupar(session("asientosID"));
+        if(session()->has("ida_asientosID")){
+            $desocupados=DisponibilidadAsientos::desocupar(session("ida_asientosID"));
+        }
 
         // venta
-        setcookie('tiempoCompra', null, -1);
-        session()->forget("corrida");
-        session()->forget("disponibilidad");
-        session()->forget("tiempoCompra");
-        session()->forget("origen");
-        session()->forget("destino");
-        session()->forget("pasoVenta");
-        session()->forget("IDventa");
-        // pasajeros
-        session()->forget("pasajeros");
-        session()->forget("asientosID");
-            // cantidades
-        session()->forget("adultos");
-        session()->forget("estudiantes");
-        session()->forget("insen");
-        session()->forget("maestros");
-        session()->forget("niños");
-        session()->forget("paqueteria");
-        session()->forget("sedena");
-        session()->save();
-
-        
+		session()->forget("cmpra_pasoVenta");
+		session()->forget("cmpra_viajeRedondo");
+		session()->forget("cmpra_tiempoCompra");
+		session()->forget("cmpra_usarPromocion");
+		session()->forget("cmpra_adultos");
+		session()->forget("cmpra_estudiantes");
+		session()->forget("cmpra_insen");
+		session()->forget("cmpra_maestros");
+		session()->forget("cmpra_niños");
+		session()->forget("cmpra_sedena");
+		session()->forget("ida_corrida");
+		session()->forget("ida_disponibilidad");
+		session()->forget("ida_origen");
+		session()->forget("ida_destino");
+		session()->forget("ida_pasajeros");
+		session()->forget("ida_asientosID");
+		
         session([
-            "pasoVenta" => 0,
-        ]);
+			"cmpra_pasoVenta"=>0,
+		]);
         session()->save();
         /*
             Motivos por los que se cancela
@@ -414,19 +427,7 @@ class VentaInternaController extends Controller
             "cancelada" => $request->cancelada ?: "Compra cancelada"
         ]));
     }
-    // function abrirSesionVenta(){
-    //     if(!session()->has("sesionVenta")){
-    //         $sesionVenta=Sesiones::create([
-    //             "nNumeroPersona"=>Auth::user()->id,
-    //             "fContable"=>date('Y-m-d'),
-    //             "nOficina"=>session("oficinaid"),
-    //         ]);
-    //         session(["sesionVenta" => $sesionVenta->nNumero]);
-    //     }
-    //     return back();
-    // }
     function cerrarSesionVenta(){
-        // session()->forget("sesionVenta");
         echo "mostrar corte de venta";
     }
 }

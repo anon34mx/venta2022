@@ -25,11 +25,11 @@
         <div class="col-6 col-sm-12 row mx-0 my-1">
             <div class="">Tipo de viaje</div>
             <div class="px-0 col-6 lbl-radio px-2">
-                <input class="" type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo" {{$tipoDeViaje=='sencillo' ? 'checked':''}}>
+                <input class="tipoDeViaje" type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo" {{Request::has("tipoDeViaje")==false ? 'checked':''}}>
                 <label for="viajeSencillo" class="btn col-12">sencillo</label>
             </div>
             <div class="px-0 col-6 lbl-radio px-2">
-                <input class="" type="radio" id="viajeRedondo" name="tipoDeViaje" value="redondo" {{$tipoDeViaje=='redondo' ? 'checked':''}}>
+                <input class="tipoDeViaje" type="radio" id="viajeRedondo" name="tipoDeViaje" value="redondo" {{Request::has("tipoDeViaje")==true ? 'checked':''}}>
                 <label for="viajeRedondo" class="btn col-12">redondo</label>
             </div>
         </div>
@@ -41,44 +41,46 @@
             </div>
         </div>
         @endif
-        <div class="col-6 col-sm-12 row mx-0 my-1">
-            <div class="">Origen</div>
-            <div class="px-0 col-12">
-                <select class="form-control" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
-                    <option value="" >Seleccione Origen</option>
-                    <option value="todos" 
-                        @if(request()->get('origen')=="todos")
-                            {{"selected"}}
-                        @endif
-                    >Todos</option>
-                    @php
-                    $origenEncontrado = false;
-                    @endphp
-                    @foreach($oficinas as $key)
-                        <option value="{{$key['nNumero']}}"
-                            @if(request()->get('origen')!=null)
-                               @if(request()->get('origen')==$key['nNumero'])
-                                    {{"selected"}}
-                               @endif
-                            @else
-                               @if($key['nNumero']==session("oficinaid"))
-                                    {{"selected"}}
-                               @endif
+        <div class="row col-12 mx-0 px-0">
+            <div class="col-6 col-sm-6 row mx-0 my-1">
+                <div class="">Origen</div>
+                <div class="px-0 col-12">
+                    <select class="form-control" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
+                        <option value="" >Seleccione Origen</option>
+                        <option value="todos" 
+                            @if(request()->get('origen')=="todos" )
+                                {{"selected"}}
                             @endif
-                        >{{@$key["origen"]}}</option>
-                    @endforeach
-                </select>
+                        >Todos</option>
+                        @php
+                        $origenEncontrado = false;
+                        @endphp
+                        @foreach($oficinas as $key)
+                            <option value="{{$key['nNumero']}}"
+                                @if(request()->get('origen')!=null)
+                                   @if(request()->get('origen')==$key['nNumero'])
+                                        {{"selected"}}
+                                   @endif
+                                @else
+                                   @if($key['nNumero']==session("oficinaid"))
+                                        {{"selected"}}
+                                   @endif
+                                @endif
+                            >{{@$key["origen"]}}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-        </div>
-        <div class="col-6 col-sm-12 row mx-0 my-1">
-            <div class="">Destino</div>
-            <div class="px-0 col-12">
-                <select class="form-control" name="destino" id="destino">
-                    <option value="" >Seleccione Destino</option>
-                    @foreach($oficinas as $key)
-                        <option value="{{$key['nNumero']}}" {{@$key['nNumero']==@$destino->nNumero ? "selected": "" }}>{{@$key["origen"]}}</option>
-                    @endforeach
-                </select>
+            <div class="col-6 col-sm-6 row mx-0 my-1">
+                <div class="">Destino</div>
+                <div class="px-0 col-12">
+                    <select class="form-control" name="destino" id="destino">
+                        <option value="" >Seleccione Destino</option>
+                        @foreach($oficinas as $key)
+                            <option value="{{$key['nNumero']}}" {{@$key['nNumero']==@$destino->nNumero ? "selected": "" }}>{{@$key["origen"]}}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
         <div class="col-6 col-sm-12 row mx-0 my-1">
@@ -239,6 +241,7 @@
                         <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
                     @endif
                             <td>{{$corrida->corrida}}
+                            -{{($corrida->disp)}}-
                                 <br>
                                 <sub>
                                     {{$corrida->estadoCorrida}}
@@ -252,7 +255,9 @@
                             <td class="fecha">
                                 {{$fechoraHoraSalida->format("d/m/Y")}}
                                 <br>
-                                {{$fechoraHoraSalida->format("H:i:s")}}
+                                <b>
+                                    {{$fechoraHoraSalida->format("H:i:s")}}
+                                </b>
                             </td>
                             <td class="hora">
                                 {{$fechaHoraLlegada->format("d/m/Y")}}
@@ -285,13 +290,9 @@
             <input id="adultos" hidden name="AD" type="" value="{{ Request::get('adultos') ?: 0 }}">
             <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
             <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
-            <!-- especial owo -->
-            <div class="col-6 col-sm-12 row mx-0 my-1">
-                <div class="custom-control custom-checkbox px-4 hidden">
-                    <input class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox">
-                    <label class="form-check-label" for="usarPromocion">Utilizar promoción</label>
-                </div>
-            </div>
+            <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox" {{Request::has("tipoDeViaje")==true ? 'checked':''}}>
+            <input hidden class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox"
+                {{ Request::get('usarPromocion') ? 'checked': ''}}>
             <div class="col-12">
                 @if(sizeof($corridas)>0)
                 <span class="btn-collap float-right mx-1" title="Continuar">

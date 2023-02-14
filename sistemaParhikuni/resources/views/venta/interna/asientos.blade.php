@@ -1,11 +1,11 @@
 @extends('layouts.parhikuni')
 @section('content')
-@if(session()->has("tiempoCompra")==true)
+@if(session()->has("cmpra_tiempoCompra"))
 <div class="tiempoRestanteCont">
     <span class="mx-1">Tiempo para la compra</span>
     <input id="tiempoRestante"
         readonly
-        step="3600000" initial="{{session('tiempoCompra')-time()}}">
+        step="3600000" initial="{{session("cmpra_tiempoCompra")-time()}}">
 </div>
 @endif
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
@@ -109,7 +109,7 @@ $contAuxPasajeros=0;
         @endforeach
     </table>
     <div class="col-8">
-        {{$disponibilidad->destino->aNombre." a ".$disponibilidad->origen->aNombre}}
+        {{$disponibilidad->origen->aNombre." a ".$disponibilidad->destino->aNombre}}
         {{\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("d/m/Y H:i")}}h
 
         <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post">

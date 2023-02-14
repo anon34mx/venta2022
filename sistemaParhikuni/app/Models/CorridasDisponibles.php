@@ -250,7 +250,14 @@ class CorridasDisponibles extends Model
             ->selectRaw("cordis.nNumero as 'corrida',
                 cordis.aEstado, IFNULL(hist.aEstadoNuevo, 'D') as 'estadoCorrida',
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
-                count(bol.nNumero) as ocupados,
+                -- count(bol.nNumero) as ocupados,
+(SELECT
+COUNT(DISTINCT(nAsiento))
+FROM `disponibilidadasientos` disa
+WHERE disa.nDisponibilidad=disp.nNumero) as ocupados,
+
+
+
                 disp.nNumero as disp, disp.nOrigen, disp.nDestino, ori.aNombre as origen, des.aNombre as destino, disp.fSalida ,disp.hSalida,
                 disp.fLlegada, disp.hLlegada,
                 iti.nItinerario as itinerario, iti.nConsecutivo,
@@ -283,14 +290,17 @@ class CorridasDisponibles extends Model
             });
             $res->leftJoin("boletosvendidos as bol", function($join){
                 $join->on("bol.nCorrida", "=", "cordis.nNumero");
-                $join->on("bol.nAsiento", "=", "disa.nAsiento");
                 $join->on("bol.aTipoPasajero", "!=", DB::raw("'PQ'"));
                 $join->on("bol.aEstado", "=", DB::raw("('VE' OR 'PA')"));
+
+
+                // $join->on("bol.nAsiento", "=", "disa.nAsiento");
                 
+                $join->on("bol.nNumero", "=", "disa.nBoleto");
             });
 
             if($usarPromocion==true){
-                $res->havingRaw("promosUsadas+$totalPasajeros < descuentosMax");
+                $res->havingRaw("promosUsadas+$totalPasajeros <= descuentosMax");
             }
 
             $res->leftJoin("tarifastramos as tatr", function($join){

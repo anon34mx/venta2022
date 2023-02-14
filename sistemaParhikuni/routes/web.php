@@ -187,9 +187,9 @@ Route::get('/ventaInterna/corridas', [App\Http\Controllers\VentaInternaControlle
     ->name("venta.interna.corridas")->middleware(['ventaInterna']);
 Route::post('/ventaInterna/corridas/guardarFiltros', [App\Http\Controllers\VentaInternaController::class, 'guardarFiltros'])
     ->name("venta.interna.guardarFiltros");
-Route::get('/ventaInterna/asientos', [App\Http\Controllers\VentaInternaController::class, 'asientos'])
+Route::get('/ventaInterna/asientosIda', [App\Http\Controllers\VentaInternaController::class, 'asientosIda'])
     ->name("venta.interna.asientos")->middleware(['ventaInterna']);
-Route::post('/ventaInterna/apartar', [App\Http\Controllers\VentaInternaController::class, 'apartar'])
+Route::post('/ventaInterna/apartarIda', [App\Http\Controllers\VentaInternaController::class, 'apartarIda'])
     ->name("venta.interna.apartar"); //->middleware(['ventaInterna']);
 Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\VentaInternaController::class, 'confirmacion'])
     ->name("venta.interna.confirmacion")->middleware(['ventaInterna']);
@@ -223,21 +223,7 @@ Route::post('/sesionesVenta/abrir', [App\Http\Controllers\sesionesVentaControlle
     ->name("sesionesventa.abrir");
     
 Route::get('/cookies', function(){
-    // session_start();
-    // echo "variables de sesion<br>";
-    // date_default_timezone_set("America/Mexico_City");
-    // echo "corrida: "         .session("corrida")."<br>";
-    // echo "disponibilidad: "  .session("disponibilidad")."<br>";
-    // echo "asientosID: "      .(session("asientosID"))."<br>";
-    // echo "tiempoCompra: "    .session("tiempoCompra")."<br>";
-    // // echo "asientos: "        .session("asientos")."<br>";
-    // echo "origen: "          .session("origen")."<br>";
-    // echo "destino: "         .session("destino")."<br>";
-    // echo "pasajeros: "       .session("pasajeros")."<br>";
-    // echo "pasajerosTipos: "  .session("pasajerosTipos")."<br>";
-    // echo "<br>IDventa: "  .session("IDventa")."<br>";
-    // echo "<br>key: "  .session("key")."<br>";
-    dd(session()->all(), Auth()->user(), Auth::user()->personas);
+    dd(session()->all(), Auth()->user()); //, Auth::user()->personas
 });
 Route::get('/deleteCookies', function(){
     setcookie('tiempoCompra', null, -1);

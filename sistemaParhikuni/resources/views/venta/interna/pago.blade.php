@@ -1,11 +1,11 @@
 @extends('layouts.parhikuni')
 @section('content')
-@if(session()->has("tiempoCompra")==true)
+@if(isset(session("datosCompra")["tiempoCompra"]))
 <div class="tiempoRestanteCont">
     <span class="mx-1">Tiempo para la compra</span>
     <input id="tiempoRestante"
         readonly
-        step="3600000" initial="{{session('tiempoCompra')-time()}}">
+        step="3600000" initial="{{session("datosCompra")["tiempoCompra"]-time()}}">
 </div>
 @endif
 <div class="col-11 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">

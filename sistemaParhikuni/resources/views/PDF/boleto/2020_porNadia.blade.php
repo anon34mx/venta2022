@@ -286,7 +286,9 @@
                                 {{$boletos[$contBol]->origen->aEntidad}}
                             </div>
                             <div class="destino">
-                                {{$boletos[$contBol]->destino->aNombre}}
+                                <b>
+                                    {{$boletos[$contBol]->destino->aNombre}}
+                                </b>
                                 <BR>
                                 {{$boletos[$contBol]->destino->aEntidad}}
                             </div>
@@ -297,7 +299,6 @@
                             <div class="destino">DESTINO</div>
                         </div>
                         <div class="salida">
-                            SALIDA
                             <!-- 
                                 j - dia numerico del nes
                                 S - complemento del numero de dia (first)st, (second)nd, th, °
@@ -312,14 +313,13 @@
                              -->
                             @php
                                 $fSalida=\Carbon\Carbon::parse($boletos[$contBol]->fSalida." ".$boletos[$contBol]->hSalida);
-                                $format1 = 'l, j \\de F \\de Y';
+                                $format1 = 'l, j \\de F';
+                                // $format1 = 'l, j \\de F \\de Y';
                                 $format2 = 'H:i';
                             @endphp
-                            <b>
-                                {{$fSalida->translatedFormat($format1)}}
-                                <br>
-                                a las {{$fSalida->translatedFormat($format2)}}
-                            </b>
+                            SALIDA <b>{{$fSalida->translatedFormat($format1)}}</b> de {{$fSalida->translatedFormat("Y")}}
+                            <br>
+                                a las <b>{{$fSalida->translatedFormat($format2)}}</b>
                         </div>
                         <div class="claseServicio">
                             SERVICIO {{$boletos[$contBol]->corrida->servicio->aDescripcion}}

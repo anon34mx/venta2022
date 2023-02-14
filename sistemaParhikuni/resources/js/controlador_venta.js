@@ -105,6 +105,9 @@ window.validarPromociones=()=>{
     
 }
 // Etapa 2 asientos
+window.selecAsiento=function(){
+    console.log(this)
+}
 window.seleccionarAsiento=(asientoAnt,asientoNvo)=>{
     var nuevo = $("#asiento-" + asientoNvo.value);
     var anterior = $("#asiento-" + asientoAnt);
@@ -184,6 +187,7 @@ $(document).ready(()=>{
 
     window.tiempoRestante = $("#tiempoRestante").attr("initial");
 
+    $(".asiento").click(selecAsiento);
     $(".pasajeroAsiento, .pasajeroAsiento input").on("focus", function () {
         window.asientoAnt = this.value;
     })
@@ -277,6 +281,15 @@ $(document).ready(()=>{
             $("#total").html("$"+total.toFixed(2));
         }
         
+    });
+    $(".tipoDeViaje").on("change",function(){
+        // $("#tipoDeViaje").val(this.value);
+        console.log(this.value);
+        if (this.value == "redondo"){
+            $("#tipoDeViaje").prop("checked", true);
+        }else{
+            $("#tipoDeViaje").prop("checked", false);
+        }
     });
 
     $("#tiempoRestante").val(convertirSegundosaTiempo(window.tiempoRestante));

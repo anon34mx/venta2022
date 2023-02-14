@@ -1,11 +1,11 @@
 @extends('layouts.parhikuni')
 @section('content')
-@if(session()->has("tiempoCompra")==true)
+@if(isset(session("datosCompra")["tiempoCompra"]))
 <div class="tiempoRestanteCont">
     <span class="mx-1">Tiempo para la compra</span>
     <input id="tiempoRestante"
         readonly
-        step="3600000" initial="{{session('tiempoCompra')-time()}}">
+        step="3600000" initial="{{session("datosCompra")["tiempoCompra"]-time()}}">
 </div>
 @endif
 <div class="col-11 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">
@@ -50,10 +50,12 @@
             <thead>
                 <tr>
                     <th>Asiento</th>
-                    <th>Pasajero</th>
+                    <th
+                    {{session("cmpra_usarPromocion")==false ? "colspan=2" : ""}}
+                    >Pasajero</th>
                     <th>Importe</th>
                     <th>IVA</th>
-                    @if(session("usarPromocion")==true)
+                    @if(session("cmpra_usarPromocion")==true)
                         <th>Promoción</th>
                     @endif
                     <th>SUBTOTAL</th>
@@ -86,7 +88,9 @@
                         <br>
                         {{$pasajeros[$i]->tipo}}
                     </td>
-                    <td>
+                    <td
+                        {{session("cmpra_usarPromocion")==false ? "colspan=2" : ""}}
+                        >
                         {{$pasajeros[$i]->pasajero}}
                     </td>
                     <td class="tarifa">
@@ -95,7 +99,7 @@
                     <td class="iva">
                         $<span>{{$tarifas->tarifaRutaIVA}}</span>
                     </td>
-                    @if(session("usarPromocion")==true)
+                    @if(session("cmpra_usarPromocion")==true)
                         <td>
                             @if(sizeof($promociones)>0)
                                 @if($pasajeros[$i]->tipoID!="AD")
