@@ -25,150 +25,109 @@
     @endif
 
 @php
-$totalPasajeros=$pasajerosSolic['AD']+$pasajerosSolic['NI']+$pasajerosSolic['IN']+$pasajerosSolic['MA']+$pasajerosSolic['ES'];
 $contAuxPasajeros=0;
 @endphp
 <div class="col-12 row px-0 mx-0">
     <h3>ASIENTOS</h3>
-    <table style="width:200px" class="tbl-diagrama-bus">
-        <tr>
-            <td>
-                <img alt="" style="" width="34"
-                    class="logo-color mx-auto my-3" src="{{ Vite::asset('resources/images/asientos/Conductor.png') }}">
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        @php
-        $contAuxAsien=0;
-        $sizeAsientos=sizeof($asientosOcupados);
-        @endphp
-        @foreach(explode("|" ,$cordis->autobus->distribucionAsientos->aDistribucion) as $row)
+    <div class="col-3">
+        <table style="width:200px" class="tbl-diagrama-bus">
             <tr>
-                @foreach(explode(",",$row) as $col)
-                    <td>
-                        @if($col=="00")
-                        __
-                        @elseif($col=="PU")
-                            <div class="asiento_nmr">[PU]</div>
-                        @elseif($col=="BH")
-                            <div class="asiento_nmr">{{$col}}</div>
-                        @elseif($col=="BM")
-                            <div class="asiento_nmr">{{$col}}</div>
-                        @elseif($col=="CA")
-                            <div class="asiento_nmr">{{$col}}</div>
-                        @else
-                            @php
-                            $numAsiento=substr($col,0,2);
-                            $ocupado=0;
-
-                            @endphp
-                            @if( @$asientosOcupados[$numAsiento])
-                                @if(strpos($col,"T")>0)
-                                    <div id="asiento-{{$numAsiento}}" class="asiento tv  ocupado" numero="{{$numAsiento}}">
-                                        <img alt="Ocupado" style=""
-                                            class="logo-color mx-auto my-0" src="">
-                                            <span>{{$numAsiento}}</span>
-                                    </div>
-                                @else
-                                    <div id="asiento-{{$numAsiento}}" class="asiento ocupado" numero="{{$numAsiento}}">
-                                        <img alt="Ocupado" style=""
-                                            class="logo-color mx-auto my-0" src="">
-                                            
-                                            <span>{{$numAsiento}}x</span>
-                                    </div>
-                                @endif
-                                @php
-                                    $contAuxAsien=$contAuxAsien+1;
-                                @endphp
-                            @else
-                                @if(strpos($col,"T")>0)
-                                    <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
-                                        <img alt="Libre" style=""
-                                        class="logo-color mx-auto my-0">
-                                        <span>{{$numAsiento}}</span>
-                                    </div>
-                                @else
-                                    <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
-                                        <img alt="Libre" style=""
-                                        class="logo-color mx-auto my-0">
-                                        <span>{{$numAsiento}}</span>
-                                    </div>
-                                @endif
-                            @endif
-                            <div class="asiento_nmr">{{$col}}</div>
-                        @endif
-                    </td>
-                @endforeach
+                <td>
+                    <img alt="" style="" width="34"
+                        class="logo-color mx-auto my-3" src="{{ Vite::asset('resources/images/asientos/Conductor.png') }}">
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             @php
-            // break;
+            $contAuxAsien=0;
+            $sizeAsientos=sizeof($asientosOcupados);
             @endphp
-        @endforeach
-    </table>
-    <div class="col-8">
+            @foreach(explode("|" ,$cordis->autobus->distribucionAsientos->aDistribucion) as $row)
+                <tr>
+                    @foreach(explode(",",$row) as $col)
+                        <td>
+                            @if($col=="00")
+                            __
+                            @elseif($col=="PU")
+                                <div class="asiento_nmr">[PU]</div>
+                            @elseif($col=="BH")
+                                <div class="asiento_nmr">{{$col}}</div>
+                            @elseif($col=="BM")
+                                <div class="asiento_nmr">{{$col}}</div>
+                            @elseif($col=="CA")
+                                <div class="asiento_nmr">{{$col}}</div>
+                            @else
+                                @php
+                                $numAsiento=substr($col,0,2);
+                                $ocupado=0;
+    
+                                @endphp
+                                @if( @$asientosOcupados[$numAsiento])
+                                    @if(strpos($col,"T")>0)
+                                        <div id="asiento-{{$numAsiento}}" class="asiento tv  ocupado" numero="{{$numAsiento}}">
+                                            <img alt="Ocupado" style=""
+                                                class="logo-color mx-auto my-0" src="">
+                                                <span>{{$numAsiento}}</span>
+                                        </div>
+                                    @else
+                                        <div id="asiento-{{$numAsiento}}" class="asiento ocupado" numero="{{$numAsiento}}">
+                                            <img alt="Ocupado" style=""
+                                                class="logo-color mx-auto my-0" src="">
+                                                
+                                                <span>{{$numAsiento}}x</span>
+                                        </div>
+                                    @endif
+                                    @php
+                                        $contAuxAsien=$contAuxAsien+1;
+                                    @endphp
+                                @else
+                                    @if(strpos($col,"T")>0)
+                                        <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
+                                            <img alt="Libre" style=""
+                                            class="logo-color mx-auto my-0">
+                                            <span>{{$numAsiento}}</span>
+                                        </div>
+                                    @else
+                                        <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
+                                            <img alt="Libre" style=""
+                                            class="logo-color mx-auto my-0">
+                                            <span>{{$numAsiento}}</span>
+                                        </div>
+                                    @endif
+                                @endif
+                                <div class="asiento_nmr">{{$col}}</div>
+                            @endif
+                        </td>
+                    @endforeach
+                </tr>
+                @php
+                // break;
+                @endphp
+            @endforeach
+        </table>
+    </div>
+    <div class="col-9">
         {{$disponibilidad->origen->aNombre." a ".$disponibilidad->destino->aNombre}}
         {{\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("d/m/Y H:i")}}h
 
         <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post">
             @csrf
-            <input type="text" hidden name="cor" value="{{ Request::get('cor') }}">
-            <input type="text" hidden name="disp" value="{{ Request::get('disp') }}">
-            <input type="text" hidden name="adultos" value="{{ Request::get('adultos') }}">
-            <input type="text" hidden name="niños" value="{{ Request::get('niños') }}">
-            <input type="text" hidden name="insen" value="{{ Request::get('insen') }}">
-            <input type="text" hidden name="profesores" value="{{ Request::get('profesores') }}">
-            <input type="text" hidden name="estudiantes" value="{{ Request::get('estudiantes') }}">
-            <table class="tbl-datosPasajeros">
+            <table id="tbl-datosPasajeros" class="tbl-datosPasajeros">
                 <thead>
                     <tr>
                         <th colspan="5">Pasajeros</th>
                     </tr>
                     <tr>
-                        <th>Tipo</th>
-                        <th>Asiento</th>
+                        <th class="col-3">Tipo</th>
+                        <th class="col-1">Asiento</th>
                         <th>Nombre</th>
-                        <!-- <th>*</th> -->
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $aux=0;
-                    @endphp
-                    @foreach($pasajerosSolic as $tipo=>$cantidad)
-                        @for($a=0; $a<$cantidad && $cantidad>0; $a++)
-                            <tr id="pasajero-{{$a}}" class="pt-1 pb-1 pasajeroContainer">
-                                <td>
-                                    <label for="" class="pasajeroTipo form-control my-0">{{$tipo}}</label>
-                                    <input hidden class="pasajeroTipo form-control" readonly name="pasajeroTipo[]" value="{{$tipo}}" tabindex="-1" style="pointer-events:none;">
-                                </td>
-                                <td>
-                                    <select name="asiento[{{$contAuxPasajeros}}]" id="asiento[{{$contAuxPasajeros}}]" class="form-control pasajeroAsiento">
-                                        <option value="">Seleccionar</option>
-                                        @for($i=1; $i<=$cordis->autobus->distribucionAsientos->nAsientos; $i++)
-                                            <option class="{{str_pad(substr($i,0,2), 2, '0', STR_PAD_LEFT)}}"
-                                                value="{{str_pad(substr($i,0,2), 2, '0', STR_PAD_LEFT)}}">
-                                                {{$i}}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </td>
-                                <td >
-                                    <input class="form-control pasajeroNombre" type="text" name="pasajero[{{$contAuxPasajeros}}]" id="pasajero[{{$contAuxPasajeros}}]"
-                                        value="" autocomplete="off" list="listaPasajeros">
-                                </td>
-                                <!-- <td><button>delete</button></td> -->
-                            </tr>
-                            @php
-                                $contAuxPasajeros++;
-                            @endphp
-                        @endfor
-                        @php
-                            $aux=$aux+1;
-                        @endphp 
-                    @endforeach
                     <!-- endif -->
                     <datalist id="listaPasajeros">
                         @php
@@ -216,6 +175,20 @@ $contAuxPasajeros=0;
     </div>
 </div>
 
+<div id="posiblesPasajeros" hidden>
+    <select class="listaPasajeroTipo form-control px-1">
+        <option value="">Seleccione</option>
+        @foreach($tiposPasajeros as $tipoPasajero)
+            @foreach($pasajerosSolic as $key=>$value)
+                @if($key==$tipoPasajero->aClave)
+                <option value="{{$tipoPasajero->aClave}}" max="{{$pasajerosSolic[$tipoPasajero->aClave]['max']}}">
+                    {{$tipoPasajero->aDescripcion}}
+                </option>
+                @endif
+            @endforeach
+        @endforeach
+    </select>
+</div>
 <!-- Modal -->
 <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -236,4 +209,10 @@ $contAuxPasajeros=0;
     </div>
   </div>
 </div>
+
+<script>
+    var pasajeros={!! json_encode($pasajerosSolic) !!};
+    var totalPasajeros={{ $totalPasajeros }};
+    var tiposPasajeros={!! json_encode($tiposPasajeros) !!}
+</script>
 @endsection

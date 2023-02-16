@@ -106,21 +106,72 @@ window.validarPromociones=()=>{
 }
 // Etapa 2 asientos
 window.selecAsiento=function(){
-    console.log(this)
-}
-window.seleccionarAsiento=(asientoAnt,asientoNvo)=>{
-    var nuevo = $("#asiento-" + asientoNvo.value);
-    var anterior = $("#asiento-" + asientoAnt);
-
-    
-    if (!$(nuevo).hasClass("apartado") && !$(nuevo).hasClass("ocupado")){
-        $("#asiento-" + asientoNvo.value).addClass("apartado");
-        anterior.removeClass("apartado")
-    }else{
-        alert("El asiento ya está ocupado");
-        $(asientoNvo).val(asientoAnt);
+    // console.log($(this).hasClass("apartado"));
+    if ($(this).hasClass("apartado")==false){
+        var pasajeros = $("#tbl-datosPasajeros tbody tr").length;
+        if (pasajeros < totalPasajeros){
+            $(this).addClass("apartado");
+            $(`<tr id="pasajero-${pasajeros}" class="pt-1 pb-1 pasajeroContainer" asiento="` + this.attributes.numero.value + `" pasajero="${pasajeros}">
+                <td class="tipo px-2">
+                    <input class="pasajeroTipo" name="pasajeroTipo[]" value="" hidden>
+                </td>
+                <td class="px-2">
+                    <input type="number" name="asiento[]" id="asiento[{{$contAuxPasajeros}}]"
+                        class="px-2 form-control pasajeroAsiento" value="${this.attributes.numero.value}" readonly>
+                </td>
+                <td class="px-2">
+                    <input class="form-control pasajeroNombre" type="text" name="pasajero[]" id="pasajero[{{$contAuxPasajeros}}]"
+                        value="" autocomplete="off" list="listaPasajeros">
+                </td>
+                <td class="px-2">
+                    <button id="cancelar-${this.attributes.numero.value}" onclick="event.preventDefault();quitarPasajero(this);"
+                        class="hidden"></button>
+                    <label class="btn btn-sm btn-danger float-right" for="cancelar-${this.attributes.numero.value}">
+                        <i class="fa-solid fa-xmark"></i>
+                        </label>
+                        </td>
+                </tr>`).appendTo($("#tbl-datosPasajeros tbody"));
+            $(`#pasajero-${pasajeros} .tipo`).append($("#posiblesPasajeros .listaPasajeroTipo").clone().on("change", function(){
+                selecTipoPasajero(this);
+            }))
+                    }else{
+                        alert("Máximo de pasajeros");
+                    }
+                    // <span>Quitar</span>
     }
 }
+window.selecTipoPasajero=function(lista){
+    var tipoSel = $(lista).val();
+    $(lista).parent().find(".pasajeroTipo").val(tipoSel);
+    Object.keys(pasajeros).forEach(function (key){
+        var usados = $(`#tbl-datosPasajeros .listaPasajeroTipo option:selected[value='${key}']`);
+        pasajeros[key]["usados"] = usados.length;
+        if (pasajeros[key]["usados"] >= pasajeros[key]["max"]){
+            $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", true);
+        }else{
+            $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", false);
+            // $(usados).prop("disabled", false)
+        }
+    })
+}
+window.quitarPasajero=function(fila){
+    fila = fila.parentElement.parentElement;
+    $("#asiento-" + fila.attributes.asiento.value).removeClass("apartado");
+    // $(fila).find(".pasajeroTipo");
+    $(fila).remove();
+    var tipoS = $(fila).find(".pasajeroTipo").first().val();
+    pasajeros[tipoS]++;
+    if (pasajeros[tipoS] > 0) {
+        console.log("volver a habilitar " + tipoS);
+        console.log(pasajeros);
+        $(".listaPasajeroTipo option[value='" + tipoS + "']").prop('disabled', false);
+    }
+}
+
+window.validarTiposSelec=function(){
+    
+}
+
 window.validarNombre=(txt)=>{
     var regex = /([a-zA-ZñÑ]{3,})+((\x20)+([a-zA-z]{2,})){1,}/;
     return txt.match(regex)!=null ? true : false;
@@ -165,7 +216,6 @@ window.convertirSegundosaTiempo = (tiempo) => {
     return retorno;
     // return (horas + ":" + minutos + "." + segundos);
 }
-
 window.calcularCambio = ()=>{
     var recibido = $("#recibido").val();
     var total = $("#total").val();

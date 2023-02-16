@@ -251,12 +251,10 @@ class CorridasDisponibles extends Model
                 cordis.aEstado, IFNULL(hist.aEstadoNuevo, 'D') as 'estadoCorrida',
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
                 -- count(bol.nNumero) as ocupados,
-(SELECT
-COUNT(DISTINCT(nAsiento))
-FROM `disponibilidadasientos` disa
-WHERE disa.nDisponibilidad=disp.nNumero) as ocupados,
-
-
+                (SELECT
+                COUNT(DISTINCT(nAsiento))
+                FROM `disponibilidadasientos` disa
+                WHERE disa.nDisponibilidad=disp.nNumero) as ocupados,
 
                 disp.nNumero as disp, disp.nOrigen, disp.nDestino, ori.aNombre as origen, des.aNombre as destino, disp.fSalida ,disp.hSalida,
                 disp.fLlegada, disp.hLlegada,
@@ -317,16 +315,16 @@ WHERE disa.nDisponibilidad=disp.nNumero) as ocupados,
                 $res->whereRaw("cordis.nNumero=".$corrida);
             }
             if($fechaSalida==null){
-                $res->whereRaw("cordis.fSalida>=current_date");
+                $res->whereRaw("cordis.fSalida=current_date");
             }else{
-                $res->whereRaw("cordis.fSalida>='$fechaSalida'");
+                $res->whereRaw("cordis.fSalida='$fechaSalida'");
             }
-            if($fechaMax==null){
-                $res->whereRaw("cordis.fSalida <= '$fechaSalida' ");
-                // $res->whereRaw("cordis.fSalida < date_add('$fechaSalida', interval 1 DAY) ");
-            }else{
-                $res->whereRaw("cordis.fSalida<= '$fechaMax' ");
-            }
+            // if($fechaMax==null){
+            //     $res->whereRaw("cordis.fSalida <= '$fechaSalida' ");
+            //     // $res->whereRaw("cordis.fSalida < date_add('$fechaSalida', interval 1 DAY) ");
+            // }else{
+            //     $res->whereRaw("cordis.fSalida<= '$fechaMax' ");
+            // }
             
             if($origen!=null && $origen!="todos"){
                 $res->whereRaw("disp.nOrigen=".$origen);
@@ -336,7 +334,7 @@ WHERE disa.nDisponibilidad=disp.nNumero) as ocupados,
             }
 
             if($totalPasajeros>0){
-                $res->havingRaw("totalAsientos-count(disa.nDisponibilidad) >= $totalPasajeros");
+                $res->havingRaw("totalAsientos-ocupados >= $totalPasajeros");
             }
             if($hInicio!=null){
                 // verificar como se compara

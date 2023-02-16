@@ -44,6 +44,7 @@ class VentaInternaController extends Controller
         
         $origen=$request->origen ?: session("oficinaid");
         $fechaSalida=$request->fechaDeSalida ?: date("Y-m-d");
+        // dd($fechaSalida);
         
         $cordis=$cordis->filtrar($request->corrida, $origen, $request->destino, $fechaSalida, null,//fecha maxima
                 [
@@ -130,29 +131,66 @@ class VentaInternaController extends Controller
                     "cancelada" => "La corrida ya salió"
                 ]));
         }
-        // if($cordis->aEstado!="D"){
-            // dd($cordis->aEstado);
-            // return back()->withError("La corrida no está disponible.");
-        // }
+
+        $totalPasajeros=0;
+        $pasajeros=array();
+        if(session("cmpra_adultos")!=0){
+            $pasajeros["AD"]=array();
+            $pasajeros["AD"]["max"]=session("cmpra_adultos");
+            $pasajeros["AD"]["usados"]=0;
+            $totalPasajeros+=session("cmpra_adultos");
+        }
+        if(session("cmpra_estudiantes")!=0){
+            $pasajeros["ES"]=array();
+            $pasajeros["ES"]["max"]=session("cmpra_estudiantes");
+            $pasajeros["ES"]["usados"]=0;
+            $totalPasajeros+=session("cmpra_estudiantes");
+        }
+        if(session("cmpra_insen")!=0){
+            $pasajeros["IN"]=array();
+            $pasajeros["IN"]["max"]=session("cmpra_insen");
+            $pasajeros["IN"]["usados"]=0;
+            $totalPasajeros+=session("cmpra_insen");
+        }
+        if(session("cmpra_maestros")!=0){
+            $pasajeros["MA"]=array();
+            $pasajeros["MA"]["max"]=session("cmpra_maestros");
+            $pasajeros["MA"]["usados"]=0;
+            $totalPasajeros+=session("cmpra_maestros");
+        }
+        if(session("cmpra_niños")!=0){
+            $pasajeros["NI"]=array();
+            $pasajeros["NI"]["max"]=session("cmpra_niños");
+            $pasajeros["NI"]["usados"]=0;
+            $totalPasajeros+=session("cmpra_niños");
+        }
+        if(session("cmpra_sedena")!=0){
+            $pasajeros["SE"]=array();
+            $pasajeros["SE"]["max"]=session("cmpra_sedena");
+            $pasajeros["SE"]["usados"]=0;
+            $totalPasajeros+=session("cmpra_sedena");
+        }
+        // dd($pasajeros);
+        // dd(implode("','",array_keys($pasajeros)));
+        $tiposPasajeros=DB::table("tipopasajero")
+            ->selectRaw("aClave, aDescripcion")
+            // ->whereRaw("aClave IN \"".implode(",",array_keys($pasajeros))."\"")
+            ->get();
+        // dd($tiposPasajeros);
+
         return view('venta.interna.asientos',[
             "disponibilidad"=>$disp,
             "cordis"=>$cordis,
             "asientosOcupados"=>$asientos->ocupados($disp->nNumero),
-            "pasajerosSolic" => array(
-                "AD" => session("cmpra_adultos"),
-                "ES" => session("cmpra_estudiantes"),
-                "IN" => session("cmpra_insen"),
-                "MA" => session("cmpra_maestros"),
-                "NI" => session("cmpra_niños"),
-                // "SE" => session("cmpra_sedena"),
-            ),
+            "totalPasajeros" => $totalPasajeros,
+            "tiposPasajeros" =>  $tiposPasajeros,
+            "pasajerosSolic" => $pasajeros,
         ]);
-        dd();
     }
 
     // paso 2
     public function apartarIda(Request $request){
-        
+        // dd($request->all());
         $disponibilidad=Disponibilidad::find(session("ida_disponibilidad"));
         $pasajeros=array();
 

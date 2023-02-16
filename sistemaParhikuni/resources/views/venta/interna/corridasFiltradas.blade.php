@@ -197,7 +197,7 @@
             </div>
         </div>
 
-            <div class="row nopadding">
+            <div class="row nopadding mx-0">
                 <div class="col-6 row mx-0 my-3">
                     <button class="btn btn-sm btn-parhi-primary">Filtrar</button>
                 </div>
