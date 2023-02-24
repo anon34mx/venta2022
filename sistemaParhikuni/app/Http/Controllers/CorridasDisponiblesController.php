@@ -88,7 +88,6 @@ class CorridasDisponiblesController extends Controller
     }
 
     public function edit(CorridasDisponibles $corridaDisponible, Request $request){
-        // dd($request->all());
         $oficina=null;
         if(Auth::user()->hasRole("Admin")){
             $oficina=$request->oficinaOrigen;
@@ -160,31 +159,28 @@ class CorridasDisponiblesController extends Controller
     }
 
     public function despachar(CorridasDisponibles $corridaDisponible, Request $request){
-        
         $asientosApartados=null;
         $oficina=null;
         $historial=null;
+        $consecutivo=null;
+
         if(Auth::user()->hasRole("Admin")){
             $oficina=$request->oficina;
+            $consecutivo=$request->consecutivo;
         }else{
             $oficina=Auth::user()->personas->nOficina;
+            $consecutivo=((array)$corridaDisponible->getTramoOficina($oficina))["consecutivo"];
         }
+        // dd($consecutivo);
         $historial=CorridasDisponiblesHistorial::where("corrida_disponible", "=", $corridaDisponible->nNumero)
-            ->where("nNumeroOficina", "=", $oficina)
-            ->first();
-        // dd($historial);
-        // validaciones
+        ->where("nNumeroOficina", "=", $oficina)
+        ->first();
         if($corridaDisponible->aEstado=="C"){
             return back()->withErrors("La corrida ".$corridaDisponible->nNumero." está cancelada");
         }
         if($corridaDisponible->nNumeroConductor==null || $corridaDisponible->nNumeroAutobus==null){
             return redirect(route('corridas.disponibles.edit', $corridaDisponible))->withErrors("Para despachar, primero registra un conductor y autobus para esta corrida");
         }
-
-        // $disponibilidad=Disponibilidad::where("nCorridaDisponible","=",$corridaDisponible->nNumero)
-        //     ->where("nOrigen")
-        //     ->get();
-        //     dd($disponibilidad);
         $disa=new DisponibilidadAsientos();
         $enProcesoDeCompra=$disa->enProcesoCompra($corridaDisponible->nNumero, $oficina);
         if(sizeof($enProcesoDeCompra)>0){// revisar que no se esté realizando una venta para esta corrida
@@ -205,7 +201,9 @@ class CorridasDisponiblesController extends Controller
                 "user" => Auth::user()->id,
             ]);
             $corridaDisponible->update(["aEstado"=>"R"]); #-- ver donde pongo este cambio
-            $corridaDisponible->despachar($request->consecutivo);
+            // dd($request->all());
+            $corridaDisponible->despachar($consecutivo);
+            // registrar salida de punto de control[!?]
                 
             return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
         }
@@ -240,9 +238,8 @@ class CorridasDisponiblesController extends Controller
     }
 
     public function registrarPuntoDeControl(CorridasDisponibles $corridaDisponible, Request $request){
-        $conductor=conductores::find(1);
+        $conductor=conductores::find($corridaDisponible->nNumeroConductor);
         if($conductor->nNumeroConductor==$request->contraseñaDeCondutor){
-            
             if($corridaDisponible->registrarPasoPunto()){
                 return back()->with("status", "Registrado");
             }else{

@@ -107,6 +107,9 @@ class DatabaseSeeder extends Seeder
             'corridas.programadas.transfer',
             'corridas.programadas.storeTransfer',
 
+            'corridas.disponibles.despachar',
+            'corridas.disponibles.guiaPasajeros',
+
             'corridas.disponibles.index',
             'corridas.disponibles.edit',
             'corridas.disponibles.update',

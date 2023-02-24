@@ -16,7 +16,6 @@
         </div>
     @endif
 
-
 <div class="col-12 row px-0 mx-0">
     <form action="#" class="col-12 col-sm-3 row px-0 mx-0 " style="height: fit-content;display: block;position: sticky;top: 70px;">
         <h3 class="titleWithAnchor" id="nuevoUsuario">
@@ -25,12 +24,16 @@
         <div class="col-6 col-sm-12 row mx-0 my-1">
             <div class="">Tipo de viaje</div>
             <div class="px-0 col-6 lbl-radio px-2">
-                <input class="tipoDeViaje" type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo" {{Request::has("tipoDeViaje")==false ? 'checked':''}}>
-                <label for="viajeSencillo" class="btn col-12">sencillo</label>
+                <input class="tipoDeViaje" type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo"
+                    @if (Request::get('tipoDeViaje')=='sencillo' || !Request::has("tipoDeViaje"))
+                    {{"checked"}}
+                    @endif
+                    >
+                <label for="viajeSencillo" class="btn col-12 px-1">sencillo</label>
             </div>
             <div class="px-0 col-6 lbl-radio px-2">
-                <input class="tipoDeViaje" type="radio" id="viajeRedondo" name="tipoDeViaje" value="redondo" {{Request::has("tipoDeViaje")==true ? 'checked':''}}>
-                <label for="viajeRedondo" class="btn col-12">redondo</label>
+                <input class="tipoDeViaje" type="radio" id="viajeRedondo" name="tipoDeViaje" value="redondo" {{Request::get('tipoDeViaje')=='redondo' ? 'checked':''}}>
+                <label for="viajeRedondo" class="btn col-12 px-1">redondo</label>
             </div>
         </div>
         @if(Auth::user()->hasRole('Admin'))
@@ -131,7 +134,7 @@
                 <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
             </div>
         </div>
-        @if(@$promociones==true)
+        @if(false==true)
             <div class="col-6 col-sm-12 row mx-0 my-1">
                 <div class="col-12">Estudiantes</div>
                 <div class="col-3">
@@ -233,9 +236,9 @@
                         </tr>
                     @endif
                     @foreach($corridas as $corrida)
-                    @if($corrida->aEstado=='B' || $corrida->aEstado=='C' || $corrida->aEstado=='T' || $corrida->aEstado=='L')
+                    @if($corrida->estadoCorrida=='B' || $corrida->estadoCorrida=='C' || $corrida->estadoCorrida=='T' || $corrida->estadoCorrida=='L')
                         <tr class="bg-danger text-danger">
-                    @elseif($corrida->aEstado=="S")
+                    @elseif($corrida->estadoCorrida=="S" || $corrida->estadoCorrida=="R")
                         <tr class="bg-warning text-warning">
                     @else
                         <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
@@ -243,9 +246,7 @@
                             <td>{{$corrida->corrida}}
                             -{{($corrida->disp)}}-
                                 <br>
-                                <sub>
-                                    {{$corrida->estadoCorrida}}
-                                </sub>
+                                {{$corrida->estadoCorrida}}
                             </td>
                             <td>{{($corrida->claseServicio)}}</td>
                             @php
@@ -290,7 +291,9 @@
             <input id="adultos" hidden name="AD" type="" value="{{ Request::get('adultos') ?: 0 }}">
             <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
             <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
-            <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox" {{Request::has("tipoDeViaje")==true ? 'checked':''}}>
+            <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox"
+                {{Request::get("tipoDeViaje")=="redondo" ? 'checked':''}}
+                >
             <input hidden class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox"
                 {{ Request::get('usarPromocion') ? 'checked': ''}}>
             <div class="col-12">
@@ -308,13 +311,6 @@
     </div>
 </div>
 </div>
-<script>
-    ()=>{
-        // $('#tbl-corridas table').DataTable({
-            // order: [[0, 'asc']],
-        // });
-    };
-</script>
 <!-- Modal -->
 <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -335,4 +331,27 @@
     </div>
   </div>
 </div>
+<script id="oneTab">
+//         oneTab("/ventaInterna");
+// async function oneTab(pagina){
+//     // Broadcast that you're opening a page.
+//     localStorage.openpages = await Date.now();
+//     var onLocalStorageEvent = await function(e){
+//         console.log(e);
+//         if(e.key == "openpages"){
+//             // otras pestañas
+//             localStorage.page_available = Date.now();
+//         }
+//         if(e.key == "page_available"){
+//             //esta pestaña
+//             window.location.replace("/oneTab?reason=Sólo puedes abrir una instancia de la venta");
+//         }
+//         if(e.url.match(window.location.origin+pagina)){
+//             console.log("coincide");
+//         }
+//     };
+//     var urlbase=window.location.origin+"/ventaInterna/";
+//     await window.addEventListener('storage', onLocalStorageEvent, false);
+// }
+</script>
 @endsection

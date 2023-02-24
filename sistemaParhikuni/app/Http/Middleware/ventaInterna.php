@@ -58,28 +58,46 @@ class ventaInterna
             case '/ventaInterna/corridas':
                 $pasoSig=0;
                 break;
-            case '/ventaInterna/asientosIda':
+            case '/ventaInterna/corridas/guardarFiltros':
+                $pasoSig=0.1;
+                break;
+            case '/ventaInterna/asientos/ida':
                 $pasoSig=1;
                 break;
             case '/ventaInterna/apartar':
+                $pasoSig=1.1;
+                break;
+            
+            case '/ventaInterna/corridas/regreso':
                 $pasoSig=2;
                 break;
-            case '/ventaInterna/confirmacion':
+            case '/ventaInterna/corridas/regreso/guardar':
+                $pasoSig=2.1;
+                break;
+            case '/ventaInterna/asientos/regreso':
                 $pasoSig=3;
                 break;
-            case '/ventaInterna/confirmacion/guardar':
+            case '/ventaInterna/asientos/regreso/guardar':
                 $pasoSig=3.1;
                 break;
-            case '/ventaInterna/pago':
+
+            case '/ventaInterna/confirmacion':
                 $pasoSig=4;
                 break;
-            case '/ventaInterna/abonar':
+            case '/ventaInterna/confirmacion/guardar':
                 $pasoSig=4.1;
+                break;
+            case '/ventaInterna/pago':
+                $pasoSig=5;
+                break;
+            case '/ventaInterna/abonar':
+                $pasoSig=5.1;
                 break;
             default:
                 $pasoSig="?";
                 break;
         }
+        // dd($lastUrl, $nextUrl, $pasoSig, session("cmpra_pasoVenta"));
         if($pasoSig!=session("cmpra_pasoVenta")){
             if(session("cmpra_pasoVenta")==0){
                 return redirect(
@@ -97,22 +115,37 @@ class ventaInterna
             case 0:
                 return 'venta.interna.corridas';
                 break;
+            case 0.1:
+                return 'venta.interna.guardarFiltros';
+                break;
             case 1:
                 return 'venta.interna.asientos';
                 break;
-            case 2:
+            case 1.1:
                 return 'venta.interna.apartar';
                 break;
+            case 2:
+                return 'venta.interna.corridasRegreso';
+                break;
+            case 2.1:
+                return 'venta.interna.corridasRegresoGuardar';
+                break;
             case 3:
-                return 'venta.interna.confirmacion';
+                return 'venta.interna.asientosRegreso';
                 break;
             case 3.1:
-                return 'venta.interna.confirmacionGuardar';
+                return 'venta.interna.asientosRegreso.guardar';
                 break;
             case 4:
-                return 'venta.interna.pago';
+                return 'venta.interna.confirmacion';
                 break;
             case 4.1:
+                return 'venta.interna.confirmacionGuardar';
+                break;
+            case 5:
+                return 'venta.interna.pago';
+                break;
+            case 5.1:
                 return 'venta.interna.abonar';
                 break;
             default:

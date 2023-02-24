@@ -184,7 +184,7 @@
                                 <td>{{ $cd->servicio->aDescripcion }}</td>
                                 <td class="nobreak">{{ date_format(date_create($cd->fSalida), "d/m/Y") }}</td>
                                 <td class="nobreak">{{ substr($cd->hSalida, 0, 5) }}h</td>
-                                <td>{{ $cd->aEstado }}</td>
+                                <td>{{ $cd->estado->aEstado }}</td>
                                 <td>{{ $cd->autobus->nNumeroEconomico }}</td>
                                 <td>{{ ($cd->nNumeroConductor==null) ? "NA": $cd->conductor->persona->aApellidos." - ".$cd->conductor->persona->aNombres}}</td>
                                 <td>{{ $cd->aEstado=="C" ? sizeof($cd->boletosEnLimbo()) : sizeof($cd->boletos) }}</td>
@@ -214,82 +214,98 @@
                                             </span>
                                         </a>
                                     @else
-                                        <ul class="list-desp btn btn-primary">
-                                            <div class="title">Editar</div>
-                                            <span>🔽</span>
-                                            <div class="list-cont">
-                                                @foreach($cd->getItinerario() as $itinerario)
-                                                    @if(Auth::user()->hasRole('Admin') || $itinerario->nOrigen == Auth::user()->personas->nOficina)
-                                                        <li class="col-12">
-                                                            <label for="edit-{{$cd->nNumero}}" class="btn btn-primary col-12 m-0 ">
-                                                                {{ $itinerario->consecutivo}}.-&emsp;{{$itinerario->origen."-".$itinerario->destino}}
-                                                            </label>
-                                                        </li>
-                                                        <form style="display:none;" action="{{ route('corridas.disponibles.edit', $cd->nNumero) }}" method="get">
-                                                            <input type="text" name="oficinaOrigen"  value="{{$itinerario->nOrigen}}">
-                                                            <input id="edit-{{$cd->nNumero}}" type="submit">
-                                                        </form>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        </ul>
-
-                                        <!-- <a href="{{ route('corridas.disponibles.edit', $cd->nNumero) }}">
-                                            <span class="btn-collap" title="Editar">
-                                                <label class="btn btn-sm btn-primary"
-                                                    for="edit-{{$cd->nNumero}}">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                    <span>Editar</span>
-                                                </label>
-                                                <input id="edit-{{$cd->nNumero}}" type="submit"
-                                                class="btn" onclick="">
-                                            </span>
-                                        </a> -->
+                                        @if(Auth::user()->hasRole('Admin'))
+                                            <ul class="list-desp btn btn-primary">
+                                                <div class="title">Editar</div>
+                                                <span>🔽</span>
+                                                <div class="list-cont">
+                                                    @foreach($cd->getItinerario() as $itinerario)
+                                                        @if(Auth::user()->hasRole('Admin') || $itinerario->nOrigen == Auth::user()->personas->nOficina)
+                                                            <li class="col-12">
+                                                                <label for="edit-{{$cd->nNumero}}" class="btn btn-primary col-12 m-0 ">
+                                                                    {{ $itinerario->consecutivo}}.-&emsp;{{$itinerario->origen."-".$itinerario->destino}}
+                                                                </label>
+                                                            </li>
+                                                            <form style="display:none;" action="{{ route('corridas.disponibles.edit', $cd->nNumero) }}" method="get">
+                                                                <input type="text" name="oficinaOrigen"  value="{{$itinerario->nOrigen}}">
+                                                                <input id="edit-{{$cd->nNumero}}" type="submit">
+                                                            </form>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            </ul>
+                                        @else
+                                            <a href="{{ route('corridas.disponibles.edit', $cd->nNumero) }}">
+                                                <button class="btn btn-sm btn-primary">
+                                                    <i class="fa-solid fa-pencil"></i>
+                                                    Editar
+                                                    </button>
+                                            </a>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>
-                                    @if(true)
-                                    <!-- Auth::user()->hasRole('Admin') -->
+                                    @if(Auth::user()->hasRole('Admin'))
                                     <ul class="list-desp btn btn-primary">
                                         <div class="title">Despachar</div>
                                         <span>🔽</span>
-                                        <div class="list-cont">
+                                        <div class="list-cont">x
                                             @foreach($cd->getItinerario() as $itinerario)
-                                                @if(Auth::user()->hasRole('Admin') || $itinerario->nOrigen == Auth::user()->personas->nOficina)
+                                                    @if($cd->estado($itinerario->nOrigen)[0]->estadoID != "R")
+                                                        <li class="col-12">
+                                                            <label for="desp-{{$cd->nNumero}}" class="btn btn-primary col-12 m-0 ">
+                                                                {{ $itinerario->consecutivo}}.-&emsp;{{$itinerario->origen."-".$itinerario->destino}}
+                                                            </label>
+                                                        </li>
+                                                        <form style="display:none;" action="{{route('corridas.disponibles.despachar',$cd)}}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="consecutivo"  value="{{$itinerario->consecutivo}}">
+                                                            <input type="text" name="oficina"  value="{{$itinerario->nOrigen}}">
+                                                            <input id="desp-{{$cd->nNumero}}" type="submit"
+                                                                @if(sizeof($cd->boletos) < $cd->servicio->ocupacionMinima || $cd->servicio->ocupacionMinima==0)
+                                                                    onclick="return confirm('La corrida tiene {{sizeof($cd->boletos)}} pasajeros, el mínimo necesario es {{$cd->servicio->ocupacionMinima}}.\n¿Despachar corrida de igual forma?')"
+                                                                @endif
+                                                                >
+                                                        </form>
+                                                    @else
                                                     <li class="col-12">
-                                                        <label for="desp-{{$cd->nNumero}}" class="btn btn-primary col-12 m-0 ">
-                                                            {{ $itinerario->consecutivo}}.-&emsp;{{$itinerario->origen."-".$itinerario->destino}}
-                                                        </label>
-                                                    </li>
-                                                    <form style="display:none;" action="{{route('corridas.disponibles.despachar',$cd)}}" method="POST">
-                                                        @csrf
-                                                        <input type="hidden" name="consecutivo"  value="{{$itinerario->consecutivo}}">
-                                                        <input type="text" name="oficina"  value="{{$itinerario->nOrigen}}">
-                                                        <input id="desp-{{$cd->nNumero}}" type="submit">
-                                                    </form>
-                                                @endif
+                                                            <label class="btn btn-secondary col-12 m-0 ">
+                                                                {{ $itinerario->consecutivo}}.-&emsp;(Despachada) {{$itinerario->origen."-".$itinerario->destino}}
+                                                            </label>
+                                                        </li>
+                                                    @endif
+                                                endif
                                             @endforeach
                                         </div>
                                     </ul>
                                     @else
-                                        <form action="{{route('corridas.disponibles.despachar',$cd)}}" method="POST">
-                                            @csrf
-                                            @method('')
-                                            <span class="btn-collap" title="Despachar">
-                                                <label class="btn btn-sm btn-success"
-                                                    for="del-{{ $cd->nNumero }}">
-                                                    <i class="fa-sharp fa-solid fa-van-shuttle"></i>
-                                                    <span>Despachar (servicios)</span>
-                                                </label>
-                                                <input id="del-{{ $cd->nNumero }}" type="submit"
-                                                class="btn"
-                                                
-                                                @if(sizeof($cd->boletos) < $cd->servicio->ocupacioMinima || $cd->servicio->ocupacioMinima==0)
-                                                    onclick="return confirm('La corrida tiene {{sizeof($cd->boletos)}} pasajeros, el mínimo necesario es {{$cd->servicio->ocupacioMinima}}.\n¿Despachar corrida de igual forma?')"
-                                                @endif
-                                                >
-                                            </span>
-                                        </form>
+                                        @if($cd->estado(Auth::user()->personas->nOficina)[0]->estadoID == "S")
+                                        
+                                            <form action="{{route('corridas.disponibles.despachar',$cd)}}" method="POST">
+                                                @csrf
+                                                @method('')
+                                                <span class="btn-collap" title="Despachar">
+                                                    <label class="btn btn-sm btn-success"
+                                                        for="del-{{ $cd->nNumero }}">
+                                                        <i class="fa-sharp fa-solid fa-van-shuttle"></i>
+                                                        <span>Despachar</span>
+                                                    </label>
+                                                    <input id="del-{{ $cd->nNumero }}" type="submit"
+                                                    class="btn"
+                                                    
+                                                    @if(sizeof($cd->boletos) < $cd->servicio->ocupacionMinima || $cd->servicio->ocupacionMinima==0)
+                                                        onclick="return confirm('La corrida tiene {{sizeof($cd->boletos)}} pasajeros, el mínimo necesario es {{$cd->servicio->ocupacionMinima}}.\n¿Despachar corrida de igual forma?')"
+                                                    @endif
+                                                    >
+                                                </span>
+                                            </form>
+                                        @else
+                                            No se puede despachar.
+                                            <br>
+                                            <b>
+                                                {{$cd->estado(Auth::user()->personas->nOficina)[0]->estado}}
+                                            </b>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>

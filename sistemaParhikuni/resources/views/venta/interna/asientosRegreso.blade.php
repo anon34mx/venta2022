@@ -5,7 +5,7 @@
     <span class="mx-1">Tiempo para la compra</span>
     <input id="tiempoRestante"
         readonly
-        step="3600000" initial="{{session("cmpra_tiempoCompra")-time()}}">
+        step="3600000" initial="{{session("cmpra_tiempoCompra")*10-time()}}">
 </div>
 @endif
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
@@ -30,7 +30,7 @@ $contAuxPasajeros=0;
 <div class="col-12 row px-0 mx-0">
     <h3>ASIENTOS</h3>
     <div class="col-3">
-        <table id="asientos-ida" style="width:200px" class="tbl-diagrama-bus">
+        <table id="asientos-reg" style="width:200px" class="tbl-diagrama-bus">
             <tr>
                 <td>
                     <img alt="" style="" width="34"
@@ -85,13 +85,13 @@ $contAuxPasajeros=0;
                                     @endphp
                                 @else
                                     @if(strpos($col,"T")>0)
-                                        <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
+                                        <div id="asiento-{{$numAsiento}}" class="asiento regreso" numero="{{$numAsiento}}">
                                             <img alt="Libre" style=""
                                             class="logo-color mx-auto my-0">
                                             <span>{{$numAsiento}}</span>
                                         </div>
                                     @else
-                                        <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
+                                        <div id="asiento-{{$numAsiento}}" class="asiento regreso" numero="{{$numAsiento}}">
                                             <img alt="Libre" style=""
                                             class="logo-color mx-auto my-0">
                                             <span>{{$numAsiento}}</span>
@@ -112,8 +112,7 @@ $contAuxPasajeros=0;
     <div class="col-9">
         {{$disponibilidad->origen->aNombre." a ".$disponibilidad->destino->aNombre}}
         {{\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("d/m/Y H:i")}}h
-
-        <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post">
+        <form id="pasajerosAsientos" action="{{route('venta.interna.asientosRegreso.apartar')}}" method="post">
             @csrf
             <table id="tbl-datosPasajeros" class="tbl-datosPasajeros">
                 <thead>
@@ -121,27 +120,13 @@ $contAuxPasajeros=0;
                         <th colspan="5">Pasajeros</th>
                     </tr>
                     <tr>
-                        <th class="col-3">Tipo</th>
+                        <th class="col-1">Tipo</th>
                         <th class="col-1">Asiento</th>
-                        <th>Nombre</th>
-                        <th></th>
+                        <th class="col-3">Nombre</th>
+                        <th class="col-1"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- endif -->
-                    <datalist id="listaPasajeros">
-                        @php
-                        $pasajeros=json_decode(session("pasajeros"));
-                        if($pasajeros!=null){
-                            for($i=0; $i<sizeof(@$pasajeros); $i++){
-                                echo '<option value="'.$pasajeros[$i]->pasajero.'">';
-                            }
-                        }
-                        @endphp
-                        <option value="EDUARDO ESPINOSA">
-                        <option value="JOSE ANTONIO BADIA">
-                        <option value="MARIO LOPEZ">
-                    </datalist>
                 </tbody>
             </table>
             <div class="col-12">
@@ -175,44 +160,53 @@ $contAuxPasajeros=0;
     </div>
 </div>
 
-<div id="posiblesPasajeros" hidden>
-    <select class="listaPasajeroTipo form-control px-1" required>
-        <option value="">Seleccione</option>
-        @foreach($tiposPasajeros as $tipoPasajero)
-            @foreach($pasajerosSolic as $key=>$value)
-                @if($key==$tipoPasajero->aClave)
-                <option value="{{$tipoPasajero->aClave}}" max="{{$pasajerosSolic[$tipoPasajero->aClave]['max']}}">
-                    {{$tipoPasajero->aDescripcion}}
-                </option>
-                @endif
-            @endforeach
-        @endforeach
-    </select>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#exampleModalLong').modal('hide');">Cerrar</button>
-        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-    var pasajeros={!! json_encode($pasajerosSolic) !!};
-    var totalPasajeros={{ $totalPasajeros }};
-    var tiposPasajeros={!! json_encode($tiposPasajeros) !!}
-</script>
+<table id="pasajeros" class="hidden">
+@for($i=0; $i<sizeof($pasajeros); $i++)
+    <tr pasajero="{{$i}}">
+        <td class="id">{{$i}}</td>
+        <td class="pasajero">
+            <span>{{($pasajeros[$i]->pasajero)}}</span>
+        </td>
+        <td class="tipoID">
+            <span>{{($pasajeros[$i]->tipoID)}}</span>
+        </td>
+        <td class="tipo">
+            <span>{{($pasajeros[$i]->tipo)}}</span>
+        </td>
+    </tr>
+@endfor
+</table>
 @endsection
+<div id="tipoNombrePasajeroCont" class="tipoNombrePasajero"
+    style="
+    background: #60606029;
+    backdrop-filter: blur(1px);
+    position: fixed;
+    top: 70px;
+    left: 0px;
+    height: 100vh;
+    width: 100vw;
+    display:none;
+    z-index: 1;">
+    <div class="" style="
+    width: 230px;
+    height: 150px;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    ">
+        <select name="" id="tipoNombrePasajero" style="" class="form-control">
+            <option value="">Seleccione</option>
+            @for($i=0; $i<sizeof($pasajeros); $i++)
+                <option value="{{$i}}">
+                    {{($pasajeros[$i]->tipo)}} - {{($pasajeros[$i]->pasajero)}}
+                </option>
+            @endfor
+        </select>
+        <br>
+        <button onclick="cancelSelecAsientoReg();"
+            class="btn btn-sm btn-parhi-primary float-right">cancelar</button>
+    </div>
+</div>

@@ -33,7 +33,6 @@ window.getRecorrido = function (corridaDisponible, origen, destino) {
         }
     });
 }
-
 window.cambiarHorario=(horario, ev, elementos)=>{
     ev.preventDefault();
     $("."+elementos).removeClass("selected");
@@ -68,7 +67,6 @@ window.cambiarHorario=(horario, ev, elementos)=>{
     $("#hInicio").val(hInicio);
     $("#hFin").val(hFin);
 }
-
 window.validarFiltros=()=>{
     var corrida = $("#corr").val();
     var disponibilidad = $("#disp").val();
@@ -137,37 +135,94 @@ window.selecAsiento=function(){
                     }else{
                         alert("Máximo de pasajeros");
                     }
-                    // <span>Quitar</span>
     }
 }
 window.selecTipoPasajero=function(lista){
     var tipoSel = $(lista).val();
-    $(lista).parent().find(".pasajeroTipo").val(tipoSel);
-    Object.keys(pasajeros).forEach(function (key){
-        var usados = $(`#tbl-datosPasajeros .listaPasajeroTipo option:selected[value='${key}']`);
-        pasajeros[key]["usados"] = usados.length;
-        if (pasajeros[key]["usados"] >= pasajeros[key]["max"]){
-            $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", true);
+    if (tipoSel!=""){
+        $(lista).parent().find(".pasajeroTipo").val(tipoSel);
+        Object.keys(pasajeros).forEach(function (key){
+            var usados = $(`#tbl-datosPasajeros .listaPasajeroTipo option:selected[value='${key}']`);
+            pasajeros[key]["usados"] = usados.length;
+            if (pasajeros[key]["usados"] >= pasajeros[key]["max"]){
+                $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", true);
+            }else{
+                $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", false);
+                // $(usados).prop("disabled", false)
+            }
+        });
+    }
+}
+window.selecAsientoReg=function(){
+    if (!$(this).hasClass("apartado") && $("#tipoNombrePasajeroCont").is(":hidden")) { // 
+        if ($(".asiento.apartado").length < $("#pasajeros tr").length){
+            window.asientoAnt = this.attributes.numero.value;
+            $("#tipoNombrePasajero").val("");
+            $(this).addClass("apartado");
+            $("#tipoNombrePasajeroCont").fadeIn();
         }else{
-            $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", false);
-            // $(usados).prop("disabled", false)
+            alert("maximo de pasajeros");
         }
-    })
+    } else if ($(this).hasClass("apartado")){
+        quitarPasajeroR(this.attributes.numero.value);
+    }
+    // event.preventDefault(); 
+}
+window.cancelSelecAsientoReg = function () {
+    $("#tipoNombrePasajeroCont").fadeOut();
+    $(`#asiento-${asientoAnt}`).removeClass("apartado");
+}
+window.selecAsientoPasaReg=function(){
+    var id = $(this).find("option:selected");
+    if (id[0].value != "" && asientoAnt!=0){
+        $(id).remove();
+        $("#tipoNombrePasajeroCont").fadeOut();
+        $("#tbl-datosPasajeros tbody").append(`
+            <tr pasajero="${asientoAnt}">
+                <td hidden><input class="form-control form-control-sm id" name="id[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .id`).html() +`"></td>
+                <td>
+                    <input class="form-control form-control-sm tipo" name="tipo[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .tipo span`).html() +`">
+                    <input hidden class="form-control form-control-sm tipoID" name="tipoID[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .tipoID span`).html() +`">
+                </td>
+                <td><input class="form-control form-control-sm asientoSel" name="asiento[]" value="${asientoAnt}"></td>
+                <td><input class="form-control form-control-sm pasajero" name="nombre[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .pasajero span`).html() +`"></td>
+                <td class="px-2">
+                    <button id="cancelar-${id[0].value}" onclick="event.preventDefault();quitarPasajeroR(${asientoAnt});"
+                        class="hidden"></button>
+                    <label class="btn btn-sm btn-danger float-right" for="cancelar-${id[0].value}">
+                        <i class="fa-solid fa-xmark"></i>
+                        </label>
+                </td>
+            </tr>
+        `);
+    }
+
 }
 window.quitarPasajero=function(fila){
     fila = fila.parentElement.parentElement;
-    $("#asiento-" + fila.attributes.asiento.value).removeClass("apartado");
-    // $(fila).find(".pasajeroTipo");
-    $(fila).remove();
     var tipoS = $(fila).find(".pasajeroTipo").first().val();
-    pasajeros[tipoS]++;
-    if (pasajeros[tipoS] > 0) {
+    $("#asiento-" + fila.attributes.asiento.value).removeClass("apartado");
+    $(fila).remove();
+    pasajeros[tipoS]["usados"]++;
+    if (pasajeros[tipoS]["usados"] > 0) {
         console.log("volver a habilitar " + tipoS);
         console.log(pasajeros);
         $(".listaPasajeroTipo option[value='" + tipoS + "']").prop('disabled', false);
     }
 }
+window.quitarPasajeroR=function(asiento){
+    console.log(asiento);
+    var id = $(`#tbl-datosPasajeros tbody tr[pasajero=${asiento}] .id`).val();
+    var newId = $(`#tbl-datosPasajeros tbody tr[pasajero=${asiento}] .id`).val();
+    var nombre = $(`#tbl-datosPasajeros tbody tr[pasajero=${asiento}] .pasajero`).val();
 
+    $(`#tbl-datosPasajeros tr[pasajero=${asiento}]`).remove();
+    $("#asiento-" + asiento).removeClass("apartado");
+    $("#tipoNombrePasajero").append(`
+        <option value="${id}">`
+        + $(`#pasajeros [pasajero=${id}] .tipo span`).html() + " - " + $(`#pasajeros [pasajero=${id}] .pasajero span`).html()
+        +`</option>`)
+}
 window.validarTiposSelec=function(){
     
 }
@@ -237,7 +292,11 @@ $(document).ready(()=>{
 
     window.tiempoRestante = $("#tiempoRestante").attr("initial");
 
-    $(".asiento").click(selecAsiento);
+    $("#asientos-ida .asiento").click(selecAsiento);
+    // $("#asientos-reg .asiento").click(selecAsientoReg);
+    $(".asiento.regreso").on("click", selecAsientoReg);
+    $("#tipoNombrePasajero").on("change", selecAsientoPasaReg);
+
     $(".pasajeroAsiento, .pasajeroAsiento input").on("focus", function () {
         window.asientoAnt = this.value;
     })

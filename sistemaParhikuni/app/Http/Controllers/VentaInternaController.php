@@ -21,15 +21,25 @@ use Exception;
 use DB,PDF,DNS1D,DNS2D;
 /**
  * Pasos para la venta
- * 1    - Ver corridas
- * 2    - Ver asientos disponibles
- * 2.1  - Apartar asientos
- * 3    - Confirmación y descuentos
- * 3.1  - Guardar y crear adeudo
- * 4    - vista de pago
- * 4.1  - Abonar cantidad pagada
- * 5    - Ver boletos
- * 6    - Enviar boletos
+ * 
+ * 
+ * 0    - Ver corridas
+ * 0.1  - Guardar filtros(corrida)
+ * 1    - Ver asientos (ida)
+ * 1.1  - Apartar asientos
+ * 
+ * 2    - Corridas regreso
+ * 2.1  - Guardar corrida
+ * 3    - Ver asientos (ida)
+ * 3.1  - Apartar asientos
+ * 
+ * 
+ * 4    - Confirmación y descuentos
+ * 4.1  - Guardar y crear adeudo
+ * 5    - vista de pago
+ * 5.1  - Abonar cantidad pagada
+ * 6.1  - Ver boletos
+ * 6.2  - Enviar boletos
 */
 date_default_timezone_set("America/Mexico_City");
 class VentaInternaController extends Controller
@@ -39,27 +49,21 @@ class VentaInternaController extends Controller
     }
     // paso 0
     public function corridasFiltradas(Request $request){
-        // dd($request->has("tipoDeViaje"));
         $cordis=new CorridasDisponibles();
-        
         $origen=$request->origen ?: session("oficinaid");
         $fechaSalida=$request->fechaDeSalida ?: date("Y-m-d");
-        // dd($fechaSalida);
-        
         $cordis=$cordis->filtrar($request->corrida, $origen, $request->destino, $fechaSalida, null,//fecha maxima
-                [
-                    "adultos" => $request->adultos ?: 0,
-                    "niños"=> $request->niños ?: 0,
-                    "insen"=> $request->insen ?: 0,
-                    "estudiantes"=> $request->estudiantes ?: 0,
-                    "profesores"=> $request->profesores ?: 0,
-                ],
-                $request->hInicio, $request->hFin, $request->usarPromocion
-            );
-        $request->request->add(['pasoCompra' => 1]); //add request
+            [
+                "adultos" => $request->adultos ?: 0,
+                "niños"=> $request->niños ?: 0,
+                "insen"=> $request->insen ?: 0,
+                "estudiantes"=> $request->estudiantes ?: 0,
+                "profesores"=> $request->profesores ?: 0,
+            ],
+            $request->hInicio, $request->hFin, $request->usarPromocion
+        );
         return view('venta.interna.corridasFiltradas',[
             "corridas" => $cordis->paginate(25),
-            // "corridas" => $cordis->paginate(25),
             "origen" => Oficinas::find($request->origen),
             "destino" => Oficinas::find($request->destino),
             "adultos"=> $request->adultos!=null ? $request->adultos : 0,
@@ -72,15 +76,21 @@ class VentaInternaController extends Controller
             "fechaMax" => $request->fechaMax,
             "oficinas" => Oficinas::destinos(0,true),
             "horario" => $request->horario,
-            // "tipoDeViaje" => $request->tipoDeViaje ?: "sencillo",
             "viajeRedondo" => $request->has("tipoDeViaje"),
         ]);
     }
-
     // Paso 0.1 // guardar la corrida seleccionada
     public function guardarFiltros(Request $request){
+        $cordis=CorridasDisponibles::find($request->cor);
+        $disponibilidad=Disponibilidad::find($request->disp);
+        // $estado=$cordis->estado($disponibilidad->nOrigen);
+        // if($estado->estadoID!="D"){
+        //     // echo "cancelar el estado de la corrida es ".$estado->estado;
+        //     return redirect(route('venta.interna.cancelarCompra', [
+        //         "cancelada" => "El estado de la corrida es: ".strtolower($estado->estado)
+        //     ]));
+        // }
         if(!session()->has("cmpra_tiempoCompra")){ // para evitar sobreescribir
-            $disponibilidad=Disponibilidad::find($request->disp);
             $venceCompra=time() + ENV("TIEMPO_PARA_LA_COMPA")*60;
             $now=Carbon::now();
             $salidaCorrida=Carbon::createFromFormat("Y-m-d H:i:s", $disponibilidad->fSalida." ".$disponibilidad->hSalida);
@@ -89,8 +99,13 @@ class VentaInternaController extends Controller
                     "cancelada" => "La corrida ya salió"
                 ]));
             }
+            if($salidaCorrida->lte($now)){
+                return redirect(route('venta.interna.cancelarCompra', [
+                    "cancelada" => "La corrida ya salió"
+                ]));
+            }
             session([
-                "cmpra_viajeRedondo" => $request->tipoDeViaje,
+                "cmpra_viajeRedondo" => $request->has("tipoDeViaje"),
                 "cmpra_pasoVenta"=>1,
                 "cmpra_tiempoCompra" => $venceCompra,
                 "cmpra_usarPromocion" => $request->has("usarPromocion"),
@@ -107,17 +122,13 @@ class VentaInternaController extends Controller
                 "ida_origen" => $disponibilidad->nOrigen."",
                 "ida_destino" => $disponibilidad->nDestino."",
                 
-                // "cmpra_paqueteria"=>$request->PQ ?: 0,
-                // "reg_corrida"=> null,
-                // "reg_disponibilidad"=> null,
-                // "reg_origen" => $disponibilidad->nDestino,
-                // "reg_destino" => $disponibilidad->nOrigen,
+                "reg_origen" => $disponibilidad->nDestino,
+                "reg_destino" => $disponibilidad->nOrigen,
             ]);
         }
         session()->save();
         return redirect(route('venta.interna.asientos'));
     }
-
     // paso 1
     public function asientosIda(Request $request){
         
@@ -128,8 +139,8 @@ class VentaInternaController extends Controller
         $fActual=Carbon::now();
         if( $fActual->gte($fVenta) ){
             return redirect(route('venta.interna.cancelarCompra', [
-                    "cancelada" => "La corrida ya salió"
-                ]));
+                "cancelada" => "La corrida ya salió"
+            ]));
         }
 
         $totalPasajeros=0;
@@ -170,13 +181,9 @@ class VentaInternaController extends Controller
             $pasajeros["SE"]["usados"]=0;
             $totalPasajeros+=session("cmpra_sedena");
         }
-        // dd($pasajeros);
-        // dd(implode("','",array_keys($pasajeros)));
         $tiposPasajeros=DB::table("tipopasajero")
             ->selectRaw("aClave, aDescripcion")
-            // ->whereRaw("aClave IN \"".implode(",",array_keys($pasajeros))."\"")
             ->get();
-        // dd($tiposPasajeros);
 
         return view('venta.interna.asientos',[
             "disponibilidad"=>$disp,
@@ -187,13 +194,10 @@ class VentaInternaController extends Controller
             "pasajerosSolic" => $pasajeros,
         ]);
     }
-
     // paso 2
     public function apartarIda(Request $request){
-        // dd($request->all());
         $disponibilidad=Disponibilidad::find(session("ida_disponibilidad"));
         $pasajeros=array();
-
         $dispAsiento="";
         // se apartan todos o ninguno
         try {
@@ -221,15 +225,123 @@ class VentaInternaController extends Controller
             DB::rollback();
             return back()->withErrors("El asiento ".$request->asiento[$i]." ya está ocupado");
         }
+
+        $sigPasoVenta=null;
+        $siguienteUrl="";
+        if(session("cmpra_viajeRedondo")==true){
+            $sigPasoVenta=2;
+            $siguienteUrl="venta.interna.corridasRegreso";
+        }else{
+            $sigPasoVenta=4;
+            $siguienteUrl="venta.interna.confirmacion";
+        }
         session([
 			"ida_pasajeros" => json_encode($pasajeros), //nombre,
 			"ida_asientosID" => $dispAsiento,
-			"cmpra_pasoVenta" => 3,
+			"cmpra_pasoVenta" => $sigPasoVenta,
         ]);
 		session()->save();
+        return redirect(route($siguienteUrl));
+        // return redirect(route("venta.interna.confirmacion"));
+    }
+    public function corridasRegreso(Request $request){
+        $cordis=new CorridasDisponibles();
+        $corridaIda=CorridasDisponibles::find(session("ida_corrida"));
+        $horaMin=0;
+        $fechaSalida=$request->fechaDeSalida ?: $corridaIda->fSalida;
+        if($fechaSalida==$corridaIda->fSalida){
+            $horaMin=$corridaIda->hSalida;
+        }else{
+            $horaMin=$request->hInicio ?: "00:00:00";
+        }
+        $cordis=$cordis->filtrar(null, session("reg_origen"), session("reg_destino"), $fechaSalida, null,//fecha maxima
+            [
+                "adultos" => session("cmpra_adultos"),
+                "niños" => session("cmpra_niños"),
+                "insen" => session("cmpra_insen"),
+                "estudiantes" => session("cmpra_estudiantes"),
+                "profesores" => session("cmpra_maestros"),
+            ],
+            $horaMin, $request->hFin, session("cmpra_usarPromocion")
+        );
+
+        return view('venta.interna.corridasRegreso',[
+            "corridas" => $cordis->paginate(25),
+            // "origen" => Oficinas::find($request->origen),
+            // "destino" => Oficinas::find($request->destino),
+            "adultos" => session("cmpra_adultos"),
+            "niños" => session("cmpra_niños"),
+            "insen" => session("cmpra_insen"),
+            "estudiantes" => session("cmpra_estudiantes"),
+            "profesores" => session("cmpra_maestros"),
+            // "promociones" =>$request->has("usarPromocion"),
+            "fechaMin" => $corridaIda->fSalida,
+            "fechaDeSalida" => $fechaSalida,
+            "fechaMax" => $request->fechaMax,
+            "oficinas" => Oficinas::destinos(0,true),
+            "horario" => $request->horario,
+            "viajeRedondo" => $request->has("tipoDeViaje"),
+        ]);
+    }
+    public function corridasRegresoGuardar(Request $request){
+        // dd($request->all());
+        session([
+            "reg_corrida"=>$request->cor,
+            "reg_disponibilidad"=>$request->disp,
+            "cmpra_pasoVenta"=>3,
+        ]);
+        session()->save();
+        return redirect( route('venta.interna.asientosRegreso') );
+    }
+    public function asientosRegreso(Request $request){
+        $cordis=CorridasDisponibles::find(session("reg_corrida"));
+        $disp=Disponibilidad::find(session("ida_disponibilidad"));
+        $asientos=new DisponibilidadAsientos();
+        $pasajeros=json_decode(session("ida_pasajeros"));
+        // dd($pasajeros);
+        return view('venta.interna.asientosRegreso',[
+            "disponibilidad"=>$disp,
+            "cordis"=>$cordis,
+            "asientosOcupados"=>$asientos->ocupados(session("reg_disponibilidad")),
+            "pasajeros" => $pasajeros,
+        ]);
+    }
+    public function apartarReg(Request $request){
+        $disponibilidad=Disponibilidad::find(session("reg_disponibilidad"));
+        $pasajeros=array();
+        $dispAsiento="";
+        try {
+            DB::beginTransaction();
+            for($i=0; $i<sizeof($request->nombre); $i++){
+                $pasajeros[$i]["nombre"]=$request->nombre[$i];
+                $pasajeros[$i]["asiento"]=$request->asiento[$i];
+                $pasajeros[$i]["tipoID"]=$request->tipoID[$i];
+                $pasajeros[$i]["tipo"]=$request->tipo[$i];
+
+                $disponibilidades=DisponibilidadAsientos::apartarAsiento(
+                    session("reg_corrida"),
+                    $disponibilidad->nOrigen,
+                    $disponibilidad->nDestino,
+                    $request->asiento[$i],
+                    Auth::user()->id
+                );
+                $dispAsiento.=$disponibilidades.",";
+                $pasajeros[$i]["disponibilidad"]=$disponibilidades;
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            //throw $th;
+            DB::rollback();
+            return back()->withErrors("El asiento ".$request->asiento[$i]." ya está ocupado");
+        }
+        session([
+			"reg_pasajeros" => json_encode($pasajeros), //nombre,
+			"reg_asientosID" => $dispAsiento,
+			"cmpra_pasoVenta" => 4,
+        ]);
+        session()->save();
         return redirect(route("venta.interna.confirmacion"));
     }
-
     // paso 3 confirmacion(vista)
     public function confirmacion(Request $request){
         $fVenta=Carbon::createFromTimestamp(session("cmpra_tiempoCompra"));
@@ -244,10 +356,6 @@ class VentaInternaController extends Controller
         if( $fActual->lte($fVenta) ){
             $tiempoRestante=$fActual->diffInSeconds($fVenta);
         }else{
-            // echo "TIEMPO FIN<br>";
-            // echo $fVenta."<br>";
-            // echo $fActual."<br>";
-            // exit;
             return back()->withErrors("La corrida ya salió [3]confirmacion");
         }
         if(session("ida_origen")!="" && session("ida_destino")!=""){
@@ -263,13 +371,11 @@ class VentaInternaController extends Controller
             dd("else?");
         }
     }
-
     // paso 3.1 (Guardar confirmacion y mandar a vista de pago)
     public function confirmacionGuardar(Request $request){
         $cordis=CorridasDisponibles::find(session("ida_corrida"));
         $disp=Disponibilidad::find(session("ida_disponibilidad"));
         $pasajeros=json_decode(session("ida_pasajeros"));
-
         $promociones=@$request->except("_token")["promo"];
         $tarifas=$disp->tarifas();
         if(!session()->has("ida_IDventa")){
@@ -333,12 +439,11 @@ class VentaInternaController extends Controller
             }
         }
         session([
-            "cmpra_pasoVenta" => 4
+            "cmpra_pasoVenta" => 5
         ]);
         return redirect(route("venta.interna.pago"));
     }
-
-    // paso 4
+    // paso 5
     public function pago(Request $request){ // vista
         $venta=Venta::find(session("ida_IDventa"));
 
@@ -375,8 +480,7 @@ class VentaInternaController extends Controller
             ]);
         }
     }
-
-    // paso 4.1
+    // paso 5.1
     function abonar(Request $request){
         switch ($request->formaDePago) {
             case 'EF':
@@ -392,8 +496,7 @@ class VentaInternaController extends Controller
         }
         return redirect(route("venta.interna.pago"));
     }
-
-    // paso 5 [fin]
+    // paso 6 [fin]
     function boletos(Venta $venta){
         $boletos = new BoletosVendidos();
         $boletos=$boletos->where("nVenta","=",$venta->nNumero)->get();
@@ -419,7 +522,6 @@ class VentaInternaController extends Controller
             ->setPaper('letter', 'portrait')
             ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
             // ->download("a.pdf");
-
             // return $pdf->download("boletos.pdf");
             // return $pdf;
         }
@@ -443,12 +545,20 @@ class VentaInternaController extends Controller
 		session()->forget("cmpra_maestros");
 		session()->forget("cmpra_niños");
 		session()->forget("cmpra_sedena");
+
 		session()->forget("ida_corrida");
 		session()->forget("ida_disponibilidad");
 		session()->forget("ida_origen");
 		session()->forget("ida_destino");
 		session()->forget("ida_pasajeros");
 		session()->forget("ida_asientosID");
+
+		session()->forget("reg_corrida");
+		session()->forget("reg_disponibilidad");
+		session()->forget("reg_origen");
+		session()->forget("reg_destino");
+		session()->forget("reg_pasajeros");
+		session()->forget("reg_asientosID");
 		
         session([
 			"cmpra_pasoVenta"=>0,

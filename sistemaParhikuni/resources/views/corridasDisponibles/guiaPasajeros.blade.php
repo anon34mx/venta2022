@@ -33,7 +33,12 @@
             <td><b>{{@$corridaDisponible->autobus->nNumeroEconomico}}</b></td>
             <td><b>{{@$corridaDisponible->conductor->persona->aApellidos != null ? @$corridaDisponible->conductor->persona->aApellidos: "N/A"}}</b></td>
             <td><b>{{@$corridaDisponible->nNumero}}</b></td>
-            <td><b>{{@$itinerario[0]->origen}} -> {{@$itinerario[sizeOf($itinerario)-1]->destino}}</b</td>
+            <td>
+                <b>{{@$itinerario[0]->origen}} -> {{@$itinerario[sizeOf($itinerario)-1]->destino}}</b>
+                <span style="display: block;">
+                    {{\Carbon\Carbon::createFromFormat("Y-m-d H:m:s", @$corridaDisponible->fSalida." ".$corridaDisponible->hSalida)->format("d-m-Y H:i")}}
+                </span>
+            </td>
         </tr>
     </table>
     <div style="overflow-x:auto;overflow-y: hidden;">

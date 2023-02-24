@@ -406,11 +406,18 @@ footer div{
 }
 
 @media print {
+	html, body{
+		background: white;
+	}
+	.wrapper{
+		width: 100%;
+	}
 	.wrapper:before{
 		display: block;
-		width: 50px;
+		width: 60px;
 		content:url('../images/logo_parhikuni.png');
 		float: right;
+		position: fixed;
 	}
 	body{
 		background-color: white;
@@ -440,5 +447,8 @@ footer div{
 	#content {
 		display: block !important;
 		min-height:initial;
+	}
+	footer{
+		display: none !important;
 	}
 }

@@ -41,7 +41,31 @@ class CorridasDisponibles extends Model
     public function autobus(){
         return $this->hasOne(Autobus::class, 'nNumeroAutobus', 'nNumeroAutobus');
     }
-
+    public function estado($origen=null){
+        if($origen!=null){
+            $sql="SELECT
+                cordis.nNumero, '".$origen."' as oficina,
+                IFNULL(hist.aEstadoNuevo, 'D') estadoID,
+                IFNULL(est.aEstado, 'Disponible') as estado
+                FROM 
+                corridasdisponibles cordis
+                LEFT JOIN `corridas_disponibles_historial` hist
+                    on hist.corrida_disponible=cordis.nNumero
+                    AND hist.nNumeroOficina=:origen
+                LEFT JOIN corridas_estados as est
+                    on est.id=hist.aEstadoNuevo
+                WHERE cordis.nNumero=:cordis
+                ORDER BY hist.created_at DESC
+            LIMIT 1";
+            return $rs=DB::select($sql,[
+                "origen" => $origen,
+                "cordis" => $this->nNumero,
+            ]);
+        }else{
+            // return $this->aEstado;
+            return $this->hasOne(CorridasEstados::class, 'id', 'aEstado');
+        }
+    }
     public function promociones(){
         return $rs=json_encode(collect(
                 \DB::select("SELECT
@@ -115,7 +139,8 @@ class CorridasDisponibles extends Model
     }
 
     public function getTramoOficina($oficina){
-        return DB::select("SELECT
+        $rs = collect(
+         \DB::select("SELECT
             iti.nItinerario as itinerario, tr.nNumero as tramo, iti.nConsecutivo as consecutivo,tr.nOrigen as origen, tr.nDestino as destino
             FROM corridasDisponibles cordis
             INNER JOIN itinerario iti ON iti.nItinerario=cordis.nItinerario
@@ -125,7 +150,16 @@ class CorridasDisponibles extends Model
             LIMIT 1",[
                 "id" => $this->nNumero,
                 "oficina" => $oficina,
-            ])[0];
+            ]))->first();
+        return $rs;
+        // dd(gettype($rs));
+        return array(
+            "itinerario" => $rs->itinerario,
+            "tramo" => $rs->tramo,
+            "consecutivo" => $rs->consecutivo,
+            "origen" => $rs->origen,
+            "destino" => $rs->destino,
+        );
     }
 
     public function puntosDeControl(){
@@ -153,7 +187,8 @@ class CorridasDisponibles extends Model
         */
 
         $registro=DB::select(
-            "SELECT iti.nItinerario, iti.nConsecutivo as consecutivo, reg.nCorrida as registro ,reg.despachado, reg.fSalida, reg.fLlegada
+            "SELECT iti.nItinerario, iti.nConsecutivo as consecutivo, reg.nCorrida as registro ,reg.despachado, reg.fSalida, reg.fLlegada,
+                max(iti.nConsecutivo) maxConsecutivo
             FROM corridasDisponibles cordis
             INNER JOIN itinerario iti ON iti.nItinerario=cordis.nItinerario
             LEFT JOIN registropasopuntos reg ON reg.nCorrida=cordis.nNumero AND reg.nConsecutivo=iti.nConsecutivo
@@ -162,6 +197,7 @@ class CorridasDisponibles extends Model
                 "id" => $this->nNumero,
             ]
         );
+        // dd("consecutivo", $registro[0]);
         if($registro==null){
             return false;
         }else{
@@ -172,6 +208,11 @@ class CorridasDisponibles extends Model
                     ["fSalida"]
                 );
             }elseif($registro[0]->fLlegada==null){
+                if($registro[0]->consecutivo == $registro[0]->maxConsecutivo && $registro[0]->fLlegada==null){
+                    $this->update([
+                        "aEstado" => "T"
+                    ]);
+                }
                 $registro=RegistroPasoPuntos::upsert(
                     ["nCorrida" => $this->nNumero, "nConsecutivo" => $registro[0]->consecutivo, "fLlegada" => date("Y-m-d H:i:s")],
                     ["nCorrida", "nConsecutivo"],
@@ -243,12 +284,15 @@ class CorridasDisponibles extends Model
     }
     public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null, $hInicio=null, $hFin=null, $usarPromocion=null){
         $totalPasajeros=0;
+        // dd($hInicio);
         foreach($pasajeros as $owo){
             $totalPasajeros+=$owo;
         }
         $res=$this::from("corridasdisponibles as cordis")
             ->selectRaw("cordis.nNumero as 'corrida',
                 cordis.aEstado, IFNULL(hist.aEstadoNuevo, 'D') as 'estadoCorrida',
+
+
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
                 -- count(bol.nNumero) as ocupados,
                 (SELECT
@@ -284,23 +328,16 @@ class CorridasDisponibles extends Model
             })
             ->leftJoin("disponibilidadasientos as disa", function($join){
                 $join->on("disa.nDisponibilidad", "=", "disp.nNumero");
-                // $join->on("disa.aEstadoAsiento", "=", DB::raw("'O'")); //?
             });
             $res->leftJoin("boletosvendidos as bol", function($join){
                 $join->on("bol.nCorrida", "=", "cordis.nNumero");
                 $join->on("bol.aTipoPasajero", "!=", DB::raw("'PQ'"));
                 $join->on("bol.aEstado", "=", DB::raw("('VE' OR 'PA')"));
-
-
-                // $join->on("bol.nAsiento", "=", "disa.nAsiento");
-                
                 $join->on("bol.nNumero", "=", "disa.nBoleto");
             });
-
             if($usarPromocion==true){
                 $res->havingRaw("promosUsadas+$totalPasajeros <= descuentosMax");
             }
-
             $res->leftJoin("tarifastramos as tatr", function($join){
                 $join->on("tatr.nOrigen", "=", "disp.nOrigen");
                 $join->on("tatr.nDestino", "=", "disp.nDestino");
@@ -310,7 +347,6 @@ class CorridasDisponibles extends Model
             ->leftJoin("corridas_disponibles_historial as hist", "hist.id", "=", DB::raw("
                 (SELECT id FROM `corridas_disponibles_historial` where corrida_disponible=cordis.nNumero and nNumeroOficina=disp.nOrigen ORDER BY created_at DESC LIMIT 1)
             "));
-
             if($corrida!=null){
                 $res->whereRaw("cordis.nNumero=".$corrida);
             }
@@ -319,20 +355,12 @@ class CorridasDisponibles extends Model
             }else{
                 $res->whereRaw("cordis.fSalida='$fechaSalida'");
             }
-            // if($fechaMax==null){
-            //     $res->whereRaw("cordis.fSalida <= '$fechaSalida' ");
-            //     // $res->whereRaw("cordis.fSalida < date_add('$fechaSalida', interval 1 DAY) ");
-            // }else{
-            //     $res->whereRaw("cordis.fSalida<= '$fechaMax' ");
-            // }
-            
             if($origen!=null && $origen!="todos"){
                 $res->whereRaw("disp.nOrigen=".$origen);
             }
             if($destino!=null){
                 $res->whereRaw("disp.nDestino=".$destino);
             }
-
             if($totalPasajeros>0){
                 $res->havingRaw("totalAsientos-ocupados >= $totalPasajeros");
             }

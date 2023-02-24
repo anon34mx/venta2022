@@ -58,7 +58,7 @@
             @if(@$siguiente->fSalida==null)
                 <h3> Registrar salida de {{@$siguiente->origen}} a {{@$siguiente->destino}}</h3>
             @else
-                <h3> Registrar llegada a {{@$siguiente->origen}}</h3>
+                <h3> Registrar llegada a {{@$siguiente->destino}}</h3>
             @endif
             
             <form action="{{route('corridas.disponibles.registrarPuntoDeControl',$corridaDisponible)}}" method="POST" class="col-12 row needs-validation" novalidate>
