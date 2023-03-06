@@ -1,29 +1,9 @@
 @extends('layouts.parhikuni')
 @section('content')
-@if(session()->has("cmpra_tiempoCompra"))
-<div class="tiempoRestanteCont">
-    <span class="mx-1">Tiempo para la compra</span>
-    <input id="tiempoRestante"
-        readonly
-        step="3600000" initial="{{session("cmpra_tiempoCompra")-time()}}">
-</div>
-@endif
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
-    @if($errors->any())
-        <div class="card-body mt-2 mb-2 ">
-            <div class="alert-danger px-3 py-3">
-                @foreach($errors->all() as $error)
-                - {{$error}}<br>
-                @endforeach
-            </div>
-        </div>
-    @endif
-    @if(session()->has('status'))
-        <div>
-            <p class="alert alert-success">{{session('status')}}</p>
-        </div>
-    @endif
-
+@include('venta.interna.tiempo&alertas',[
+        "rest" => "/ventaInterna"
+        ])
 @php
 $contAuxPasajeros=0;
 @endphp
@@ -141,6 +121,8 @@ $contAuxPasajeros=0;
                         <option value="EDUARDO ESPINOSA">
                         <option value="JOSE ANTONIO BADIA">
                         <option value="MARIO LOPEZ">
+                        <option value="ROBERTO ANDRADE">
+                        <option value="HUGO PEREZ">
                     </datalist>
                 </tbody>
             </table>
@@ -176,7 +158,7 @@ $contAuxPasajeros=0;
 </div>
 
 <div id="posiblesPasajeros" hidden>
-    <select class="listaPasajeroTipo form-control px-1" required>
+    <select class="listaPasajeroTipo form-control px-1" required last="">
         <option value="">Seleccione</option>
         @foreach($tiposPasajeros as $tipoPasajero)
             @foreach($pasajerosSolic as $key=>$value)

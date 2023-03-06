@@ -91,7 +91,6 @@
         <div class="col-12" style="display:none;">
             <form action="{{route('corridas.disponibles.despachar',$corridaDisponible)}}" method="post" target="_blank">
                 @csrf
-                <!-- <input type="hidden" name="mode" value="print"> -->
                 <span class="btn-collap float-right" title="Imprimir">
                     <label class="btn btn-sm btn-parhi-primary"
                         for="sbmt-download">
@@ -104,9 +103,6 @@
                 <input id="sbmt-download" type="submit" name="mode" value="Descargar" />
             </form>
         </div>
-        <!-- <div class="mt-3 d-flex justify-content-center">
-            $corridasDisponibles->appends(Request::all())->links("pagination::bootstrap-5")
-        </div> -->
     </div>
 </div>
 @endsection

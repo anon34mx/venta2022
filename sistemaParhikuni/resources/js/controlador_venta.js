@@ -23,6 +23,15 @@ window.seleccionarCorrida = function (fila, corr, disp) {
     $("#disp").val(disp);
     $(fila).addClass("selected");
 }
+
+window.validarFechaReg = function () {
+    $(".fechaRegreso").attr("min", $(".fechaSalida").val());
+
+    if ($(".fechaRegreso").val() < $(".fechaSalida").val()){
+        $(".fechaRegreso").val($(".fechaSalida").val())
+    }
+}
+
 window.getRecorrido = function (corridaDisponible, origen, destino) {
     // es el itinerario pero ya con fecha y hora
     $.ajax({
@@ -34,6 +43,7 @@ window.getRecorrido = function (corridaDisponible, origen, destino) {
     });
 }
 window.cambiarHorario=(horario, ev, elementos)=>{
+    console.log(ev.target);
     ev.preventDefault();
     $("."+elementos).removeClass("selected");
     $(ev.target).addClass("selected");
@@ -58,9 +68,9 @@ window.cambiarHorario=(horario, ev, elementos)=>{
             hInicio = "18:00:00";
             hFin = "23:59";
             break;
-        default:
-            hInicio="00:00:00";
-            hFin="23:59";
+        case "completo":
+            hInicio = "00:00:00";
+            hFin = "23:59";
             break;
     }
 
@@ -99,19 +109,17 @@ window.validarFiltros=()=>{
         return true;
     }
 }
-window.validarPromociones=()=>{
-    
-}
 // Etapa 2 asientos
 window.selecAsiento=function(){
-    // console.log($(this).hasClass("apartado"));
-    if ($(this).hasClass("apartado")==false){
-        var pasajeros = $("#tbl-datosPasajeros tbody tr").length;
-        if (pasajeros < totalPasajeros){
+    if ($(this).hasClass("apartado") == false && $(this).hasClass("ocupado") == false){
+        var pasajerosCount = $("#tbl-datosPasajeros tbody tr").length;
+        if (pasajerosCount < totalPasajeros){
             $(this).addClass("apartado");
-            $(`<tr id="pasajero-${pasajeros}" class="pt-1 pb-1 pasajeroContainer" asiento="` + this.attributes.numero.value + `" pasajero="${pasajeros}">
+            var select = $("#posiblesPasajeros .listaPasajeroTipo").parent().html();
+            var row = $.parseHTML(`<tr id="pasajero-${pasajerosCount}" class="pt-1 pb-1 pasajeroContainer" asiento="` + this.attributes.numero.value + `" pasajero="${pasajerosCount}">
                 <td class="tipo px-2">
-                    <input class="pasajeroTipo" name="pasajeroTipo[]" value="" hidden>
+                    <input class="pasajeroTipo" name="pasajeroTipo[]" value="" hidden readonly required tabindex="-1">
+                    `+ "" +`
                 </td>
                 <td class="px-2">
                     <input type="number" name="asiento[]" id="asiento[{{$contAuxPasajeros}}]"
@@ -128,13 +136,15 @@ window.selecAsiento=function(){
                         <i class="fa-solid fa-xmark"></i>
                         </label>
                         </td>
-                </tr>`).appendTo($("#tbl-datosPasajeros tbody"));
-            $(`#pasajero-${pasajeros} .tipo`).append($("#posiblesPasajeros .listaPasajeroTipo").clone().on("change", function(){
+                </tr>`);
+            console.log($(row).find(".tipo").append(select));
+            $("#tbl-datosPasajeros tbody").append(row);
+            $($(row).find(".listaPasajeroTipo")).on("change", function () {
                 selecTipoPasajero(this);
-            }))
-                    }else{
-                        alert("Máximo de pasajeros");
-                    }
+            });
+        }else{
+            alert("Máximo de pasajeros");
+        }
     }
 }
 window.selecTipoPasajero=function(lista){
@@ -151,6 +161,14 @@ window.selecTipoPasajero=function(lista){
                 // $(usados).prop("disabled", false)
             }
         });
+    }else{
+        var key=$(lista).parent().find("input").val();
+        console.log(key);
+        pasajeros[key]["usados"]--;
+        if(pasajeros[key]["usados"]<pasajeros[key]["max"]){
+            $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", false);
+        }
+        $(lista).parent().find("input").val("");
     }
 }
 window.selecAsientoReg=function(){
@@ -160,6 +178,7 @@ window.selecAsientoReg=function(){
             $("#tipoNombrePasajero").val("");
             $(this).addClass("apartado");
             $("#tipoNombrePasajeroCont").fadeIn();
+            $("#tipoNombrePasajero").focus()
         }else{
             alert("maximo de pasajeros");
         }
@@ -181,11 +200,11 @@ window.selecAsientoPasaReg=function(){
             <tr pasajero="${asientoAnt}">
                 <td hidden><input class="form-control form-control-sm id" name="id[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .id`).html() +`"></td>
                 <td>
-                    <input class="form-control form-control-sm tipo" name="tipo[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .tipo span`).html() +`">
-                    <input hidden class="form-control form-control-sm tipoID" name="tipoID[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .tipoID span`).html() +`">
+                    <input readonly class="form-control form-control-sm tipo" name="tipo[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .tipo span`).html() +`">
+                    <input hidden readonly class="form-control form-control-sm tipoID" name="tipoID[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .tipoID span`).html() +`">
                 </td>
-                <td><input class="form-control form-control-sm asientoSel" name="asiento[]" value="${asientoAnt}"></td>
-                <td><input class="form-control form-control-sm pasajero" name="nombre[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .pasajero span`).html() +`"></td>
+                <td><input readonly class="form-control form-control-sm asientoSel" name="asiento[]" value="${asientoAnt}"></td>
+                <td><input readonly class="form-control form-control-sm pasajero" name="nombre[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .pasajero span`).html() +`"></td>
                 <td class="px-2">
                     <button id="cancelar-${id[0].value}" onclick="event.preventDefault();quitarPasajeroR(${asientoAnt});"
                         class="hidden"></button>
@@ -272,20 +291,49 @@ window.convertirSegundosaTiempo = (tiempo) => {
     // return (horas + ":" + minutos + "." + segundos);
 }
 window.calcularCambio = ()=>{
-    var recibido = $("#recibido").val();
-    var total = $("#total").val();
-    var calc = (total - recibido).toFixed(2);
-    $("#cambio").val(Math.abs(calc));
+    var recibido = parseFloat( $("#recibido").val().replace(/[,]/, "") | 0 );
+    var total = parseFloat($("#total").val().replace(/[,]/, ""));
+    var calc = (total - recibido);
+    console.log(total, recibido);
+    $("#cambio").val(Math.abs(calc).toFixed(2));
     if(calc>0){
         $("#cambio-lbl").html("faltan");
     }else{
         $("#cambio-lbl").html("Cambio");
     }
 }
-window.mirrorCheck=()=>{
+window.calcularDescuento= async function(row){
+    // console.log(row);
+    var pBaseSinIva = parseFloat($(row).find(".siniva").html());
+    var pIva = parseFloat($(row).find(".iva").html());
 
+    var pOriginal = $(row).find(".original ");
+    var pPorpagar = $(row).find(".porPagar ");
+    var promo = $(row).find(".promociones option:selected");
+
+    var pagar = (pBaseSinIva + pIva) - ((pBaseSinIva + pIva) * $(promo).attr("porcentaje"));
+    $(pPorpagar).html(pagar.toFixed(2));
+
+    if ($(promo).attr("porcentaje") > 0){
+        $(row).find(".original.textoTachado").fadeIn(200)
+    }else{
+        $(row).find(".original.textoTachado").fadeOut(200)
+    }
+
+    var sb = $(row).parent().find(".porPagar");
+    var totalApagar=0;
+    // sb.forEach(element => {
+    //     console.log(element);
+    //     totalApagar += parseFloat(element[0].innerHTML)
+    // });
+    for (let index = 0; index < sb.length; index++) {
+        totalApagar += parseFloat(sb[index].innerHTML)
+    }
+    var ttl = $(row).parent().find(".total").html("$"+totalApagar.toFixed(2));
 }
 $(document).ready(()=>{
+    $(".fechaSalida").on("change", validarFechaReg);
+
     setTimeout(() => {
         $(".alert").hide(666);
     }, 10000);
@@ -354,43 +402,48 @@ $(document).ready(()=>{
         $("#niños").val($("#inpt-niños").val());
         $("#insen").val($("#inpt-insen").val());
     });
-    $(".promociones").change((ev)=>{
-        var prms = $(".promociones");
-        var seleccionadas=0;
-        var selectList = ev.target; // donde cambie el valor
-        var row = ev.target.attributes.row.value;
-        for(var i=0; i<prms.length; i++){
-            var list = $("#" + prms[i].id);
-            if (list.value!=""){
-                seleccionadas++;
-            }
-        };
-        if (seleccionadas > promos.disponibles){
-            ev.target.value="";
-            alert("No se pueden usar más promociones");
-        }else{
-            var idsel = $(selectList).children()[selectList.selectedIndex].value; // la fila
-            var importe = $("#asiento-"+row+" .tarifa span").html(); //columna importe
-            var importeSinDescConIVA=(importe*1.16).toFixed(2);
-            if (ev.target.value!=""){
-                var descuentoAplicado = $("#promo-" + idsel + " span").html(); // descuento seleccionado de la lista
-                var importeConDescuentoConIva = ((importe - (importe * descuentoAplicado)) * 1.16).toFixed(2);
-                
-                $("#asiento-" + row + " .subtotal").html(
-                    '<span class="original textoTachado">$'+importeSinDescConIVA+'</span>'
-                    +'$<span class="porPagar">' + importeConDescuentoConIva + '</span>');
-            }else{
-                $("#asiento-" + row +" .subtotal").html('$<span class="porPagar">'+importeSinDescConIVA+'</span>')
-            }
-            var x = $(".porPagar");
-            var total=0;
-            for (let i = 0; i < x.length; i++) {
-                total = total + parseFloat($(x[i]).html());
-            }
-            $("#total").html("$"+total.toFixed(2));
-        }
-        
+    $(".promociones").change(function(){
+        calcularDescuento(this.parentElement.parentElement);
     });
+    // $(".promociones").change((ev)=>{
+    //     var prms = $(".promociones");
+    //     var seleccionadas=0;
+    //     var selectList = ev.target; // donde cambie el valor
+    //     var row = ev.target.attributes.row.value;
+    //     for(var i=0; i<prms.length; i++){
+    //         var list = $("#" + prms[i].id);
+    //         if (list.value!=""){
+    //             seleccionadas++;
+    //         }
+    //     };
+    //     if (seleccionadas > promos.disponibles){
+    //         ev.target.value="";
+    //         alert("No se pueden usar más promociones");
+    //     }else{
+    //         var idsel = $(selectList).children()[selectList.selectedIndex].value; // la fila
+    //         // var importe = $("#asiento-"+row+" .tarifa .siniva").html(); //columna importe
+    //         var importe = $("#asiento-" + row +" .tarifa span.siniva").html(); //columna importe
+    //         console.log(importe);
+    //         var importeSinDescConIVA=(importe*1.16).toFixed(2);
+    //         if (ev.target.value!=""){
+    //             var descuentoAplicado = $("#promo-" + idsel + " span").html(); // descuento seleccionado de la lista
+    //             var importeConDescuentoConIva = ((importe - (importe * descuentoAplicado)) * 1.16).toFixed(2);
+                
+    //             $("#asiento-" + row + " .subtotal").html(
+    //                 '<span class="original textoTachado">$'+importeSinDescConIVA+'</span>'
+    //                 +'$<span class="porPagar">' + importeConDescuentoConIva + '</span>');
+    //         }else{
+    //             $("#asiento-" + row +" .subtotal").html('$<span class="porPagar">'+importeSinDescConIVA+'</span>')
+    //         }
+    //         var x = $(".porPagar");
+    //         var total=0;
+    //         for (let i = 0; i < x.length; i++) {
+    //             total = total + parseFloat($(x[i]).html());
+    //         }
+    //         $("#total").html("$"+total.toFixed(2));
+    //     }
+        
+    // });
     $(".tipoDeViaje").on("change",function(){
         // $("#tipoDeViaje").val(this.value);
         console.log(this.value);

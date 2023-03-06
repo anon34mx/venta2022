@@ -1,23 +1,9 @@
 @extends('layouts.parhikuni')
 @section('content')
-@if(isset(session("datosCompra")["tiempoCompra"]))
-<div class="tiempoRestanteCont">
-    <span class="mx-1">Tiempo para la compra</span>
-    <input id="tiempoRestante"
-        readonly
-        step="3600000" initial="{{session("datosCompra")["tiempoCompra"]-time()}}">
-</div>
-@endif
 <div class="col-11 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">
-    @if($errors->any())
-        <div class="card-body mt-2 mb-2 ">
-            <div class="alert-danger px-3 py-3">
-                @foreach($errors->all() as $error)
-                - {{$error}}<br>
-                @endforeach
-            </div>
-        </div>
-    @endif
+    @include('venta.interna.tiempo&alertas',[
+        "rest" => "/ventaInterna"
+        ])
 
 <div class="col-12 row px-0 mx-0">
     <div>
@@ -41,16 +27,28 @@
                 <!-- Pago en efectivo -->
                 <div class="col-4">
                     <b>Total</b>
-                    <input id="total" type="text" class="form-control form-control-sm nospinner" value="{{$venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado}}" disabled>
+                    <input id="total" type="" class="form-control form-control-sm nospinner"
+                        value="{{ number_format(($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado), 2) }}" disabled
+                        data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}">
                 </div>
                 <div class="col-4">
                     <b>Recibido</b>
-                    <input id="recibido" name="cantidadRecibida" type="Number" class="form-control form-control-sm nospinner"
-                        value="0" min="0" max="${{$venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado}}" step="0.1">
+                    <input id="recibido" name="cantidadRecibida" type="" class="form-control form-control-sm nospinner use-inputmask"
+                        value="" min="0" max="${{$venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado}}" step="0.1"
+                        placeholder="00.00"
+                        data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}"
+                        autocomplete="off" required
+                        >
+                    <button id="borrar" onclick="$('#recibido').val('')" hidden></button>
+                    <label class="btn btn-sm btn-danger float-right" for="borrar"  >
+                        <i class="fa-solid fa-ban"></i>
+                        <span>Cancelar</span>
+                    </label>
                 </div>
                 <div class="col-4">
                     <b id="cambio-lbl">Cambio</b>
-                    <input id="cambio" type="Number" class="form-control form-control-sm nospinner" value="0" disabled>
+                    <input id="cambio" type="" class="form-control form-control-sm nospinner" value="0" disabled
+                    data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}">
                 </div>
                 <div class="col-12 my-2">
                     <span class="btn-collap float-right mx-2" title="Guardar">

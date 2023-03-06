@@ -37,6 +37,8 @@
         'resources/js/controlador_venta.js',
         'resources/js/jquery.dataTables.min.js',
         'resources/css/jquery.dataTables.min.css',
+        'resources/js/RobinHerbots-Inputmask-87c76c7/dist/jquery.inputmask.min.js',
+        'resources/js/RobinHerbots-Inputmask-87c76c7/dist/inputmask.js',
     ])
 </head>
 
@@ -221,7 +223,8 @@
                 </div>
             </nav>
 
-			<main class="py-4 px-1 px-md-4">
+			<!-- <main class="py-1 py-md-2 py-lg-3 px-1 px-md-4"> -->
+			<main class="px-1 px-md-2 px-lg-3">
                 @yield('content')
 
 	        </main>
@@ -299,6 +302,8 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            $(".use-inputmask").inputmask();
+
             $('#sidebarCollapse').on('click', function () {
                 $('#sidebar').toggleClass('active');
             });

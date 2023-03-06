@@ -1,22 +1,9 @@
 @extends('layouts.parhikuni')
 @section('content')
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
-    @if($errors->any())
-        <div class="card-body mt-2 mb-2 ">
-            <div class="alert-danger px-3 py-3">
-                @foreach($errors->all() as $error)
-                - {{$error}}<br>
-                @endforeach
-            </div>
-        </div>
-    @endif
-    @if (session('status'))
-        <div class="alert alert-success alert-float-br">
-            {{ session('status') }}
-        </div>
-    @endif
-
-
+    @include('venta.interna.tiempo&alertas',[
+        "rest" => "/ventaInterna"
+        ])
 <div class="col-12 row px-0 mx-0">
     <form action="#" class="col-12 col-sm-3 row px-0 mx-0 " style="height: fit-content;display: block;position: sticky;top: 70px;">
         <h3 class="titleWithAnchor" id="nuevoUsuario">

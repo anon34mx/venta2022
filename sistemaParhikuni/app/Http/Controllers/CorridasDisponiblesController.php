@@ -100,6 +100,8 @@ class CorridasDisponiblesController extends Controller
             )")
             ->orderBy("conductores.nNumeroConductor", "ASC")
             ->get();
+        $estadoActual=$corridaDisponible->estado($oficina)[0];
+        // dd($estadoActual);
 
         return view('corridasDisponibles.edit',[
             "corridaDisponible" => $corridaDisponible,
@@ -109,19 +111,19 @@ class CorridasDisponiblesController extends Controller
             "autobuses" => Autobus::orderBy("nNumeroEconomico", "ASC")->get(),
             "conductores" => $conductores,
             "oficinaOrigen" => $oficina,
+            "estadoActual" => $estadoActual,
         ]);
     }
 
     public function update(CorridasDisponibles $corridaDisponible, Request $request){
         $data=array();
         $oficina=null;
-        // $estadoNvo="";
-        // dd($corridaDisponible->estado);
         if(Auth::user()->hasRole("Admin")){
             $oficina=$request->oficina;
         }else{
             $oficina=Auth::user()->personas->nOficina;
         }
+
         if($corridaDisponible->aEstado=="T" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="L"){
             return back()->withErrors("No se puede editar");
         }
@@ -140,6 +142,10 @@ class CorridasDisponiblesController extends Controller
         }
         if(@$request->estado!=null && @$request->estado != $corridaDisponible->aEstado){
             $data["aEstado"]=$request->estado;
+        }
+        // dd($corridaDisponible->enVenta($oficina));
+        if(@$request->estado=="S" && $corridaDisponible->enVenta($oficina)>0){
+            return back()->withErrors("Se está realizando una venta en esta oficina.");
         }
         if(sizeof($data)==0){
             return back()->withErrors("No se especificaron cambios");

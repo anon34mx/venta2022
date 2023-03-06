@@ -263,7 +263,6 @@ Route::get('/deleteCookies', function(){
     session()->forget("IDventa");
     session()->forget("pasoVenta");
 });
-//
 Route::get('/oficina/{origen}/destinos/{comp}', [App\Http\Controllers\OficinasController::class, 'destinos'])
     ->name("corridas.disponibles.destinos");
 
@@ -276,19 +275,13 @@ Route::get('/personal/conductores/{conductor}/edit', [App\Http\Controllers\Condu
 Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\ConductoresController::class, 'update'])
     ->name("personal.conductores.update");
     // ->middleware('permission:corridasDisponibles.index');
-
-// Route::get('/test', function(){
-//     return view('test2');
-// }); //->middleware('permission:test');
 Route::get('/phpinfo', function() {
     return phpinfo();
 });
-Route::get('/closeTab', function() {
-    echo "cerrar";
-    echo "<script>window.close();</script>";
-});
-Route::get('/oneTab', function() {
-    echo @$_GET["reason"];
+Route::get('/oneTab', function(Request $request) {
+    return view("oneTab",[
+        "reason" => @$_GET["reason"]
+    ]);
 })->name("oneTab");
 
 Route::get('/logout', function(Request $request){

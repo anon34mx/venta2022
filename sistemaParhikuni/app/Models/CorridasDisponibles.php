@@ -377,5 +377,21 @@ class CorridasDisponibles extends Model
         // dd($res->get());
         $res=$res->get();
         return $res;
-    } 
+    }
+
+    public function enVenta($oficina){
+        // Cuenta cuántos boletos se encuentran en proceso de venta para la oficina dada
+        $sql="SELECT COUNT(asi.id) as enProceso FROM `disponibilidadasientos` asi
+            INNER JOIN disponibilidad as disp
+                ON disp.nNumero=asi.nDisponibilidad
+            WHERE asi.aEstadoAsiento='A'
+            AND disp.nCorridaDisponible=:corrida
+            AND disp.nOrigen=:oficina";
+        return collect(
+            \DB::select($sql,[
+                "oficina" => $oficina,
+                "corrida" => $this->nNumero,
+            ])
+        )->first()->enProceso;
+    }
 }

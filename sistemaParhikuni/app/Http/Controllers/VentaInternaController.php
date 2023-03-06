@@ -313,7 +313,7 @@ class VentaInternaController extends Controller
         try {
             DB::beginTransaction();
             for($i=0; $i<sizeof($request->nombre); $i++){
-                $pasajeros[$i]["nombre"]=$request->nombre[$i];
+                $pasajeros[$i]["pasajero"]=$request->nombre[$i];
                 $pasajeros[$i]["asiento"]=$request->asiento[$i];
                 $pasajeros[$i]["tipoID"]=$request->tipoID[$i];
                 $pasajeros[$i]["tipo"]=$request->tipo[$i];
@@ -346,12 +346,33 @@ class VentaInternaController extends Controller
     public function confirmacion(Request $request){
         $fVenta=Carbon::createFromTimestamp(session("cmpra_tiempoCompra"));
         $fActual=Carbon::now();
+        $vista="venta.interna.confirmacion";
+
+        //ida
         $cordis=CorridasDisponibles::find(session("ida_corrida"));
         $disponibilidad=Disponibilidad::find(session("ida_disponibilidad"));
         $tarifas=($disponibilidad->tarifas());
         $pasajerosTemp=json_decode(session("ida_pasajeros"));
         $promocionesAplicables=Promociones::aplicables($disponibilidad->nOrigen, $disponibilidad->nDestino, session("oficinaid"), $cordis->nNumero, session("cmpra_viajeRedondo"), $cordis->nTipoServicio);
+        
+        // regreso
+        $reg_cordis=null;
+        $reg_disponibilidad=null;
+        $reg_tarifas=null;
+        $reg_pasajeros=null;
+        $reg_promocionesAplicables=null;
+
+        if(session("cmpra_viajeRedondo")){
+            $vista="venta.interna.confirmacion_redondo";
+            $reg_cordis=CorridasDisponibles::find(session("reg_corrida"));
+            $reg_disponibilidad=Disponibilidad::find(session("reg_disponibilidad"));
+            $reg_tarifas=($reg_disponibilidad->tarifas());
+            $reg_pasajeros=json_decode(session("reg_pasajeros"));
+            $reg_promocionesAplicables=Promociones::aplicables($reg_disponibilidad->nOrigen, $reg_disponibilidad->nDestino, session("oficinaid"), $reg_cordis->nNumero, session("cmpra_viajeRedondo"), $reg_cordis->nTipoServicio);
+        }
+
         // dd($promocionesAplicables);
+        // dd($promocionesAplicables, $reg_promocionesAplicables);
         $tiempoRestante=null;
         if( $fActual->lte($fVenta) ){
             $tiempoRestante=$fActual->diffInSeconds($fVenta);
@@ -359,13 +380,19 @@ class VentaInternaController extends Controller
             return back()->withErrors("La corrida ya salió [3]confirmacion");
         }
         if(session("ida_origen")!="" && session("ida_destino")!=""){
-            return view("venta.interna.confirmacion",[
-                "tiempoRestante" => $tiempoRestante,
-                "corrida" => $cordis,
-                "disponibilidad" => $disponibilidad,
-                "promociones" => $promocionesAplicables,
-                "tarifas" => $tarifas,
-                "pasajeros"=>json_decode(session("ida_pasajeros"))
+            return view($vista,[
+                "tiempoRestante"        => $tiempoRestante,
+                "corrida"               => $cordis,
+                "disponibilidad"        => $disponibilidad,
+                "promociones"           => $promocionesAplicables,
+                "tarifas"               => $tarifas,
+                "pasajeros"             =>json_decode(session("ida_pasajeros")),
+                "reg_cordis"            => $reg_cordis,
+                "reg_disponibilidad"    => $reg_disponibilidad,
+                "reg_tarifas"           => $reg_tarifas,
+                "reg_pasajeros"         => $reg_pasajeros,
+                "reg_promociones"       => $reg_promocionesAplicables,
+
             ]);
         }else{
             dd("else?");
@@ -373,84 +400,181 @@ class VentaInternaController extends Controller
     }
     // paso 3.1 (Guardar confirmacion y mandar a vista de pago)
     public function confirmacionGuardar(Request $request){
+        // return redirect(route("venta.interna.confirmacion"))->withErrors('Usuario creado');
         $cordis=CorridasDisponibles::find(session("ida_corrida"));
         $disp=Disponibilidad::find(session("ida_disponibilidad"));
         $pasajeros=json_decode(session("ida_pasajeros"));
-        $promociones=@$request->except("_token")["promo"];
+        $promociones=@$request->except("_token")["promoIda"];
         $tarifas=$disp->tarifas();
-        if(!session()->has("ida_IDventa")){
+
+        if(@session("cmpra_viajeRedondo")){
+            $reg_cordis=CorridasDisponibles::find(session("reg_corrida"));
+            $reg_disp=Disponibilidad::find(session("reg_disponibilidad"));
+            $reg_pasajeros=json_decode(session("reg_pasajeros"));
+            $reg_promociones=@$request->except("_token")["promoReg"];
+            $reg_tarifas=$reg_disp->tarifas();
+            $promosCorrReg=json_decode($reg_cordis->promociones());
+            if(@session("cmpra_usarPromocion")==true){
+                if(count(array_filter($reg_promociones, function($value){return $value != "NA";})) > $promosCorrReg->disponibles){
+                    return redirect(route("venta.interna.confirmacion"))->withErrors('Se pasó el límmite de promociones de ida');
+                }
+            }
+        }
+        if(@session("cmpra_usarPromocion")==true){
+            $promosCorrIda=json_decode($cordis->promociones());
+            if(count(array_filter($promociones, function($value){return $value != "NA";})) > $promosCorrIda->disponibles){
+                return redirect(route("venta.interna.confirmacion"))->withErrors('Se pasó el límmite de promociones de ida');
+            }
+        }
+        if(!session()->has("cmpra_IDventa")){
             $ventaID=Venta::create([
                 "nSesion" => session("sesionVenta"),
             ]);
             session([
-				"ida_IDventa" => $ventaID->nNumero,
+				"cmpra_IDventa" => $ventaID->nNumero,
             ]);
             session()->save();
         }
+        
         for($i=0; $i<sizeof($pasajeros); $i++){
             if(!isset($pasajeros[$i]->boleto)){
-                $promoAplicada=null;
-                $porcentajeAplicado=null;
-                $descuentoAplicado=null;
-                $costo=null;
-                $iva=null;
-                $total=null;
-                if($promociones!=null){
-                    $promoAplicada=Promociones::where("nNumero", "=", $promociones[$i])->get()->first(); // registro en BD
-                    $porcentajeAplicado=number_format(($promoAplicada->nDescuento/100),2); // porcentaje de descuento ya en formato 00.00
-                    $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado, 2); // Cantidad que se descuenta de la tarifa base $00.00
-                    $costo=number_format($tarifas->tarifaRuta-$descuentoAplicado, 2); // tarifa restando la parte descontada
-                    $iva=number_format($costo*(env("IVA")/100),2); // el IVA correspondiente
-                    $total+=number_format($costo+$iva, 2); // se suma al total el costo de este boleto
+                /*
+                    $promoAplicada=null;
+                    $porcentajeAplicado=null;
+                    $descuentoAplicado=null;
+                    $costo=null;
+                    $iva=null;
+                    $total=null;
+
+                    $promoAplicada=Promociones::where("nNumero", "=", $promociones[$i])
+                        ->whereRaw("fFin>=current_date")->get()->first(); // registro en BD
+                    if($promociones[$i]!="NA" && $promoAplicada!=null){
+                        $porcentajeAplicado=number_format(($promoAplicada->nDescuento/100),2); // porcentaje de descuento ya en formato 00.00
+                        $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado, 2); // Cantidad que se descuenta de la tarifa base $00.00
+                        $costo=number_format($tarifas->tarifaRuta-$descuentoAplicado, 2); // tarifa restando la parte descontada
+                        $iva=number_format($costo*(env("IVA")/100),2); // el IVA correspondiente
+                        $total+=number_format($costo+$iva, 2); // se suma al total el costo de este boleto
+                    }else{
+                        $total+=number_format($tarifas->tarifaRutaConIVA,2);
+                        $costo=$tarifas->tarifaRuta;
+                        $iva=$tarifas->tarifaRutaIVA;
+                        $descuentoAplicado=0;
+                    }
+                    $boleto=BoletosVendidos::create([
+                        'nVenta' => session("cmpra_IDventa"),
+                        'nCorrida' => $cordis->nNumero,
+                        'fSalida' => $cordis->fSalida,
+                        'hSalida' => $cordis->hSalida,
+                        'nOrigen' => $disp->nOrigen,
+                        'nDestino' => $disp->nDestino,
+                        'aTipoPasajero' => $pasajeros[$i]->tipoID,
+                        'aPasajero' => $pasajeros[$i]->pasajero,
+                        'nAsiento' => $pasajeros[$i]->asiento,
+                        'aTipoVenta' => "CO",
+                        'nMontoBase' => $costo,
+                        'nMontoDescuento' => $descuentoAplicado,
+                        'nIva' => $iva,
+                        'aEstado' => "VE",
+                        'nTerminal' => 3,
+                    ]);
+                    $dispUpdt=DisponibilidadAsientos::registrarBoleto($pasajeros[$i]->disponibilidad, $boleto->nNumero, $cordis->fSalida." ".$cordis->hSalida);
+                */
+                $boleto=null;
+                if(session("cmpra_usarPromocion")){
+                    $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $cordis, $disp, $tarifas, $promociones[$i], $pasajeros[$i]);
                 }else{
-                    $total+=number_format($tarifas->tarifaRutaConIVA,2);
-                    $costo=$tarifas->tarifaRuta;
-                    $iva=$tarifas->tarifaRutaIVA;
-                    $descuentoAplicado=0;
+                    $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $cordis, $disp, $tarifas, "NA", $pasajeros[$i]);
                 }
-                $boleto=BoletosVendidos::create([
-                    'nVenta' => session("ida_IDventa"),
-                    'nCorrida' => $cordis->nNumero,
-                    'fSalida' => $cordis->fSalida,
-                    'hSalida' => $cordis->hSalida,
-                    'nOrigen' => $disp->nOrigen,
-                    'nDestino' => $disp->nDestino,
-                    'aTipoPasajero' => $pasajeros[$i]->tipoID,
-                    'aPasajero' => $pasajeros[$i]->pasajero,
-                    'nAsiento' => $pasajeros[$i]->asiento,
-                    'aTipoVenta' => "CO",
-                    'nMontoBase' => $costo,
-                    'nMontoDescuento' => $descuentoAplicado,
-                    'nIva' => $iva,
-                    'aEstado' => "VE",
-                    'nTerminal' => 3,
-                ]);
-                $dispUpdt=DisponibilidadAsientos::registrarBoleto($pasajeros[$i]->disponibilidad, $boleto->nNumero, $cordis->fSalida." ".$cordis->hSalida);
                 $pasajeros[$i] = (object) array_merge((array) $pasajeros[$i], (array) array(
                     "boleto"=>$boleto->nNumero,
                     "IDpromo"=>@$promociones[$i] ?: null,
                     )
                 );
-                session([
-					"ida_pasajeros"=>json_encode($pasajeros)
-                ]
-                );
+                session( ["ida_pasajeros"=>json_encode($pasajeros)] );
                 session()->save();
             }
         }
+        ## REGRESO
+        if(@session("cmpra_viajeRedondo")){
+            for($i=0; $i<sizeof($reg_pasajeros); $i++){
+                if(!isset($reg_pasajeros[$i]->boleto)){
+                    $boleto=null;
+                    if(session("cmpra_usarPromocion")){
+                        $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $reg_cordis, $reg_disp, $reg_tarifas, $reg_promociones[$i], $reg_pasajeros[$i]);
+                    }else{
+                        $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $reg_cordis, $reg_disp, $reg_tarifas, "NA", $reg_pasajeros[$i]);
+                    }
+                    $reg_pasajeros[$i] = (object) array_merge((array) $reg_pasajeros[$i], (array) array(
+                        "boleto"=>$boleto->nNumero,
+                        "IDpromo"=>@$promociones[$i] ?: null,
+                        )
+                    );
+                    session( ["reg_pasajeros"=>json_encode($reg_pasajeros)] );
+                    session()->save();
+                }
+            }
+        }
+
+
+
+
         session([
             "cmpra_pasoVenta" => 5
         ]);
         return redirect(route("venta.interna.pago"));
     }
+    // paso 3.1.1
+    private function registrarBoleto($idVenta, $corrida, $disponibilidad, $tarifas, $promo, $pasajero){
+        // registra el boleto para generar el adeudo
+        $promoAplicada=null;
+        $porcentajeAplicado=null;
+        $descuentoAplicado=null;
+        $costo=null;
+        $iva=null;
+        $total=null;
+
+        $promoAplicada=Promociones::where("nNumero", "=", $promo)
+            ->whereRaw("fFin>=current_date")->get()->first();
+        if($promo!="NA" && $promoAplicada!=null){
+            $porcentajeAplicado=number_format(($promoAplicada->nDescuento/100),2); // porcentaje de descuento ya en formato 00.00
+            $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado, 2); // Cantidad que se descuenta de la tarifa base $00.00
+            $costo=number_format($tarifas->tarifaRuta-$descuentoAplicado, 2); // tarifa restando la parte descontada
+            $iva=number_format($costo*(env("IVA")/100),2); // el IVA correspondiente
+            $total+=number_format($costo+$iva, 2); // se suma al total el costo de este boleto
+        }else{
+            $total+=number_format($tarifas->tarifaRutaConIVA,2);
+            $costo=$tarifas->tarifaRuta;
+            $iva=$tarifas->tarifaRutaIVA;
+            $descuentoAplicado=0;
+        }
+        $boleto=BoletosVendidos::create([
+            'nVenta' => $idVenta,
+            'nCorrida' => $corrida->nNumero,
+            'fSalida' => $corrida->fSalida,
+            'hSalida' => $corrida->hSalida,
+            'nOrigen' => $disponibilidad->nOrigen,
+            'nDestino' => $disponibilidad->nDestino,
+            'aTipoPasajero' => $pasajero->tipoID,
+            'aPasajero' => $pasajero->pasajero,
+            'nAsiento' => $pasajero->asiento,
+            'aTipoVenta' => "CO",
+            'nMontoBase' => $costo,
+            'nMontoDescuento' => $descuentoAplicado,
+            'nIva' => $iva,
+            'aEstado' => "VE",
+            'nTerminal' => 3,
+        ]);
+        $dispUpdt=DisponibilidadAsientos::registrarBoleto($pasajero->disponibilidad, $boleto->nNumero, $corrida->fSalida." ".$corrida->hSalida);
+        return $boleto;
+    }
     // paso 5
     public function pago(Request $request){ // vista
-        $venta=Venta::find(session("ida_IDventa"));
+        $venta=Venta::find(session("cmpra_IDventa"));
 
         if($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado <= 0){
             // Ya está pagado
             // Se borran los datos temporales
-            //PASAR COMO PARAMETROS
+            //PASAR COMO PARAMETROS ?
             session()->forget("ida");
             session()->forget("cmpra_pasoVenta");
             session()->forget("cmpra_viajeRedondo");
@@ -468,7 +592,7 @@ class VentaInternaController extends Controller
             session()->forget("ida_destino");
             session()->forget("ida_pasajeros");
             session()->forget("ida_asientosID");
-            session()->forget("ida_IDventa");
+            session()->forget("cmpra_IDventa");
 
 
             return redirect(route('venta.interna.boletos',[
@@ -482,10 +606,13 @@ class VentaInternaController extends Controller
     }
     // paso 5.1
     function abonar(Request $request){
+        if(!$request->has("cantidadRecibida") || $request->cantidadRecibida==null){
+            return back()->with("status", "Cantidad inválida.");
+        }
         switch ($request->formaDePago) {
             case 'EF':
                 VentaPago::create([
-                    "nVenta" => session("ida_IDventa"),
+                    "nVenta" => session("cmpra_IDventa"),
                     "aFormaPago" => "EF",
                     "nMonto" => $request->cantidadRecibida,
                 ]);
@@ -530,6 +657,7 @@ class VentaInternaController extends Controller
         //
     }
     function cancelarCompra(Request $request){
+        // dd("cancelar");
         if(session()->has("ida_asientosID")){
             $desocupados=DisponibilidadAsientos::desocupar(session("ida_asientosID"));
         }
@@ -545,6 +673,7 @@ class VentaInternaController extends Controller
 		session()->forget("cmpra_maestros");
 		session()->forget("cmpra_niños");
 		session()->forget("cmpra_sedena");
+		session()->forget("cmpra_IDventa");
 
 		session()->forget("ida_corrida");
 		session()->forget("ida_disponibilidad");

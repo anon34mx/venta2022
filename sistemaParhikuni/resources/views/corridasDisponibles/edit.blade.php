@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    @if($corridaDisponible->aEstado == "T")        
+    @if($estadoActual->estadoID == "T")        
         <form class="row needs-validation">
     @else
         <form action="{{route('corridas.disponibles.update', $corridaDisponible)}}" class="row needs-validation" method="post">
@@ -77,13 +77,13 @@
                 <label for="estado" class="float-md-right text-md-right">Estado*</label>
             </div>
             <div class="col-12 col-md-8">
-                @if($corridaDisponible->aEstado == "B")
+                @if($estadoActual->estadoID == "B")
                     <select name="estado" id="estado" class="form-control">
                         <option value="B" selected>Bloqueada</option>
                         <option value="DB" >Desbloquear</option>
                         <option value="C" >Cancelar</option>
                     </select>
-                @elseif($corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="T")
+                @elseif($estadoActual->estadoID=="C" || $estadoActual->estadoID=="T")
                     <select class="form-control" disabled>
                         <option>{{$corridaDisponible->estado->aEstado}}</option>
                     </select>
@@ -94,7 +94,7 @@
                             @if($corridaDisponible->nNumeroConductor==null && $estado->id=="S")
                                 <option disabled>{{$estado->aEstado}}</option>
                             @else
-                                @if($corridaDisponible->aEstado == $estado->id)
+                                @if($estadoActual->estadoID == $estado->id)
                                 <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} selected>{{$estado->aEstado}}</option>
                                 @else
                                 <option value="{{$estado->id}}" {{ ($estado->elegible!=1) ? "disabled":""}} >{{$estado->aEstado}}</option>
@@ -110,7 +110,7 @@
                 <label for="autobus" class="float-md-right text-md-right">Autobus*</label>
             </div>
             <div class="col-12 col-md-8">
-                    @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="T")
+                    @if($estadoActual->estadoID=="B" || $estadoActual->estadoID=="C" || $estadoActual->estadoID=="T")
                     <select name="" id="autobus" class="form-control" disabled>
                         <option value="">{{$corridaDisponible->autobus->nNumeroEconomico}}</option>
                     </select>
@@ -133,7 +133,7 @@
                 <label for="conductor" class="float-md-right text-md-right">Conductor*</label>
             </div>
             <div class="col-12 col-md-8">
-                @if($corridaDisponible->aEstado=="B" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="T")
+                @if($estadoActual->estadoID=="B" || $estadoActual->estadoID=="C" || $estadoActual->estadoID=="T")
                     <select name="" id="conductor" class="form-control" disabled>
                         <option value="">{{@$corridaDisponible->conductor->persona->aApellidos." - ".@$corridaDisponible->conductor->persona->aNombres}}</option>
                     </select>
@@ -175,7 +175,7 @@
 
         <div class="col-12 justify-content-center">
             <!--  -->
-            @if($corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C")
+            @if($estadoActual->estadoID!="T" && $estadoActual->estadoID!="L" && $estadoActual->estadoID!="C")
             <span class="btn-collap float-right mx-1" title="Guardar">
                 <label class="btn btn-sm btn-parhi-primary"
                     for="guardar">
@@ -202,7 +202,7 @@
     <div class="col-12">
 
     </div>
-    @if($corridaDisponible->aEstado=="S" && false)
+    @if($estadoActual->estadoID=="S" && false)
         <form class="float-right" action="{{route('corridas.disponibles.despachar',$corridaDisponible)}}" method="POST">
             @csrf
             @method('')

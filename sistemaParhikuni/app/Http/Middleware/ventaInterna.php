@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Auth;
 
 use App\Models\DisponibilidadAsientos;
+use Carbon\Carbon;
 
 class ventaInterna
 {
@@ -19,6 +20,18 @@ class ventaInterna
      */
     public function handle(Request $request, Closure $next){
         // dd(@session("ida")["asientosID"]);
+        if(session()->has("cmpra_tiempoCompra")){
+            $fhSesion=Carbon::createFromTimestamp(session("cmpra_tiempoCompra"))->toDateTimeString(); 
+            $fhActual=Carbon::now();
+            if( $fhActual->gte($fhSesion) ){
+                // dd("timeout");
+                return redirect(route('venta.interna.cancelarCompra', [
+                    "cancelada" => "Se agotó el tiempo para comprar"
+                ]));
+            }
+        }
+
+
         if(!session()->has("sesionVenta")){
             return redirect(route('sesionesventa.usuario',[
                 "user" => Auth::user()->id

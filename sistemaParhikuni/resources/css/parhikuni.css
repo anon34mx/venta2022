@@ -10,7 +10,9 @@
 px-0{
 	padding: 0;
 }
-
+*:focus{
+	outline: 2px solid red;
+}
 .alert-float-br{ /* bottom rigth */
 	position: fixed;
 	bottom: 20px;
@@ -105,15 +107,19 @@ input[type="radio"]:checked+label {
 
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
-	outline: 1px solid tomato;
+	/* outline: 1px solid tomato; */
 }
 html{
 	/* background-color: #dbe6e7; */
 	background: linear-gradient(45deg, #e1e5e2, #d7e4e4);
+	width: 100%;
 }
 body{
-	min-height: 100vh !important;
+	/* min-height: 100vh !important; */
 	background: linear-gradient(45deg, #e1e5e2, #d7e4e4);
+	width: 100%;
+	position: inherit;
+	/* background: blue; */
 }
 table{
 	width: 100%;

@@ -24,8 +24,8 @@ class Promociones extends Model
                         OR (nOrigen=:origen and nDestino=:destino)
                         OR viajeRedondo=:viajeRedondo
                         OR nTipoServicio=:claseServicio
-                        OR prom.aTipo=tipa.aClave -- fijo
-                    )
+                        )
+                    AND prom.aTipo=tipa.aClave -- fijo
                 WHERE tipa.aClave='AD'
                 AND prom.nNumero IS NOT NULL
                 ORDER BY prom.nNumero, tipa.aClave, prom.nDescuento asc

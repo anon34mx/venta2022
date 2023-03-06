@@ -222,13 +222,13 @@
                                                     @foreach($cd->getItinerario() as $itinerario)
                                                         @if(Auth::user()->hasRole('Admin') || $itinerario->nOrigen == Auth::user()->personas->nOficina)
                                                             <li class="col-12">
-                                                                <label for="edit-{{$cd->nNumero}}" class="btn btn-primary col-12 m-0 ">
+                                                                <label for="edit-{{$cd->nNumero}}-{{$itinerario->nOrigen}}" class="btn btn-primary col-12 m-0 ">
                                                                     {{ $itinerario->consecutivo}}.-&emsp;{{$itinerario->origen."-".$itinerario->destino}}
                                                                 </label>
                                                             </li>
                                                             <form style="display:none;" action="{{ route('corridas.disponibles.edit', $cd->nNumero) }}" method="get">
                                                                 <input type="text" name="oficinaOrigen"  value="{{$itinerario->nOrigen}}">
-                                                                <input id="edit-{{$cd->nNumero}}" type="submit">
+                                                                <input id="edit-{{$cd->nNumero}}-{{$itinerario->nOrigen}}" type="submit">
                                                             </form>
                                                         @endif
                                                     @endforeach
@@ -249,7 +249,7 @@
                                     <ul class="list-desp btn btn-primary">
                                         <div class="title">Despachar</div>
                                         <span>🔽</span>
-                                        <div class="list-cont">x
+                                        <div class="list-cont">
                                             @foreach($cd->getItinerario() as $itinerario)
                                                     @if($cd->estado($itinerario->nOrigen)[0]->estadoID != "R")
                                                         <li class="col-12">
@@ -274,7 +274,6 @@
                                                             </label>
                                                         </li>
                                                     @endif
-                                                endif
                                             @endforeach
                                         </div>
                                     </ul>

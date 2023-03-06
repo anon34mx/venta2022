@@ -1,43 +1,28 @@
 @extends('layouts.parhikuni')
 @section('content')
-@if(isset(session("datosCompra")["tiempoCompra"]))
-<div class="tiempoRestanteCont">
-    <span class="mx-1">Tiempo para la compra</span>
-    <input id="tiempoRestante"
-        readonly
-        step="3600000" initial="{{session("datosCompra")["tiempoCompra"]-time()}}">
-</div>
-@endif
-<div class="col-11 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">
-    @if($errors->any())
-        <div class="card-body mt-2 mb-2 ">
-            <div class="alert-danger px-3 py-3">
-                @foreach($errors->all() as $error)
-                - {{$error}}<br>
-                @endforeach
-            </div>
-        </div>
-    @endif
+<div class="col-12 px-0 mx-auto">
+    @include('venta.interna.tiempo&alertas',[
+        "rest" => "/ventaInterna"
+        ])
 
-<div class="col-12 row px-0 mx-0">
-
+    <div class="col-12 row px-0 mx-0">
     <h3>Confirmación</h3>
     <table class="table table-parhi table-striped">
         <thead>
             <tr>    
                 <th>Fecha</th>
-                <th>Hora</th>
-                <th>Origen</th>
-                <th>Destino</th>
+                <th>Origen - Destino</th>
                 <th>Servicio</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{\Carbon\Carbon::parse($disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("d/m/Y")}}</td>
-                <td>{{\Carbon\Carbon::parse($disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("H:i")}}h</td>
-                <td>{{$disponibilidad->origen->aNombre}}</td>
-                <td>{{$disponibilidad->destino->aNombre}}</td>
+                <td>
+                    {{\Carbon\Carbon::parse($disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("d/m/Y")}}
+                    <br>
+                    {{\Carbon\Carbon::parse($disponibilidad->fSalida." ".$disponibilidad->hSalida)->format("H:i")}}h
+                </td>
+                <td>{{$disponibilidad->origen->aNombre}} <i class="fa-solid fa-arrow-right"></i> {{$disponibilidad->destino->aNombre}}</td>
                 <td>{{$corrida->servicio->aDescripcion}}</td>
             </tr>
         </tbody>
@@ -46,121 +31,119 @@
     <form action="{{route('venta.interna.confirmacionGuardar')}}" method="post">
         @csrf
         <input type="submit" id="guardar" hidden>
-        <table class="table table-parhi table-striped">
-            <thead>
-                <tr>
-                    <th>Asiento</th>
-                    <th
-                    {{session("cmpra_usarPromocion")==false ? "colspan=2" : ""}}
-                    >Pasajero</th>
-                    <th>Importe</th>
-                    <th>IVA</th>
-                    @if(session("cmpra_usarPromocion")==true)
-                        <th>Promoción</th>
-                    @endif
-                    <th>SUBTOTAL</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $total=0;
-                @endphp
-                @for($i=0;$i<sizeof($pasajeros);$i++)
-                <tr id="asiento-{{$pasajeros[$i]->asiento}}" class="my-2">
-                    @php
-                        $importeTemp=0;
-                        $IVATemp=0;
-                        $promocionTemp=0;
-                    @endphp
-    
-                    @if($pasajeros[$i]->tipoID != "AD")
-                        @foreach($promociones as $promocion)
-                            @php
-                                if($promocion->tipoPasajero==$pasajeros[$i]->tipoID){
-                                    $promocionTemp=$promocion->porcentProm;
-                                    break;
-                                }
-                            @endphp
-                        @endforeach
-                    @endif
-                    <td>
-                        {{$pasajeros[$i]->asiento}}
-                        <br>
-                        {{$pasajeros[$i]->tipo}}
-                    </td>
-                    <td
+        <div class="col-12">
+            <table class="table table-parhi table-striped">
+                <thead>
+                    <tr>
+                        <th>Asiento</th>
+                        <th
                         {{session("cmpra_usarPromocion")==false ? "colspan=2" : ""}}
-                        >
-                        {{$pasajeros[$i]->pasajero}}
-                    </td>
-                    <td class="tarifa">
-                        $<span>{{$tarifas->tarifaRuta}}</span>
-                    </td>
-                    <td class="iva">
-                        $<span>{{$tarifas->tarifaRutaIVA}}</span>
-                    </td>
-                    @if(session("cmpra_usarPromocion")==true)
+                        >Pasajero</th>
+                        <th>Importe</th>
+                        <!-- <th>IVA</th> -->
+                        @if(session("cmpra_usarPromocion")==true)
+                            <th>Promoción</th>
+                        @endif
+                        <th>SUBTOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $total=0;
+                    @endphp
+                    @for($i=0;$i<sizeof($pasajeros);$i++)
+                    <tr id="asiento-{{$pasajeros[$i]->asiento}}" class="my-2">
+                        @php
+                            $importeTemp=0;
+                            $IVATemp=0;
+                            $promocionTemp=0;
+                        @endphp
+        
+                        @if($pasajeros[$i]->tipoID != "AD")
+                            @foreach($promociones as $promocion)
+                                @php
+                                    if($promocion->tipoPasajero==$pasajeros[$i]->tipoID){
+                                        $promocionTemp=$promocion->porcentProm;
+                                        break;
+                                    }
+                                @endphp
+                            @endforeach
+                        @endif
                         <td>
-                            @if(sizeof($promociones)>0)
-                                @if($pasajeros[$i]->tipoID!="AD")
-                                    <select name="promo[{{$i}}]" id="listProm-{{$pasajeros[$i]->asiento}}" class="form-control form-control-sm promociones" row="{{$pasajeros[$i]->asiento}}" readonly>
-                                        @foreach($promociones as $promocion)
-                                            @if($promocion->tipoPasajero == $pasajeros[$i]->tipoID)
-                                                <option value="{{$promocion->id}}" selected>
-                                                    <p>{{str_pad($promocion->porcentProm, 2, "0", STR_PAD_LEFT)}}</p>    % - {{$promocion->descripPromo}}
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
-                                @else
-                                    <select name="promo[{{$i}}]" id="listProm-{{$pasajeros[$i]->asiento}}" class="form-control form-control-sm promociones" row="{{$pasajeros[$i]->asiento}}">
-                                        <option value="NA">Seleccione</option>
-                                        @foreach($promociones as $promocion)
-                                            @if($promocion->tipoPasajero == $pasajeros[$i]->tipoID)
-                                                <option value="{{$promocion->id}}">
-                                                    <p>{{str_pad($promocion->porcentProm, 2, "0", STR_PAD_LEFT)}}</p>    % - {{$promocion->descripPromo}}
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
+                            {{$pasajeros[$i]->asiento}}
+                            <br>
+                            {{$pasajeros[$i]->tipo}}
+                        </td>
+                        <td
+                            {{session("cmpra_usarPromocion")==false ? "colspan=2" : ""}}
+                            >
+                            {{$pasajeros[$i]->pasajero}}
+                        </td>
+                        <td class="tarifa text-left">
+                            $<span class="siniva">{{$tarifas->tarifaRuta}}</span>
+                            <br>
+                            $<span class="iva">{{$tarifas->tarifaRutaIVA}}</span>
+                        </td>
+                        @if(session("cmpra_usarPromocion")==true)
+                            <td>
+                                @if(sizeof($promociones)>0)
+                                    @if($pasajeros[$i]->tipoID!="AD")
+                                        <select name="promoIda[{{$i}}]" id="listProm-{{$pasajeros[$i]->asiento}}" class="form-control form-control-sm promociones" row="{{$pasajeros[$i]->asiento}}" readonly>
+                                            @foreach($promociones as $promocion)
+                                                @if($promocion->tipoPasajero == $pasajeros[$i]->tipoID)
+                                                    <option value="{{$promocion->id}}" porcentaje="{{$promocion->porcentProm/100}}" selected>
+                                                        <p>{{str_pad($promocion->porcentProm, 2, "0", STR_PAD_LEFT)}}</p>    % - {{$promocion->descripPromo}}
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <select name="promoIda[{{$i}}]" id="listProm-{{$pasajeros[$i]->asiento}}" class="form-control form-control-sm promociones" row="{{$pasajeros[$i]->asiento}}">
+                                            <option value="NA" porcentaje="0">Seleccione</option>
+                                            @foreach($promociones as $promocion)
+                                                @if($promocion->tipoPasajero == $pasajeros[$i]->tipoID)
+                                                    <option value="{{$promocion->id}}" porcentaje="{{$promocion->porcentProm/100}}">
+                                                        <p>{{str_pad($promocion->porcentProm, 2, "0", STR_PAD_LEFT)}}</p>    % - {{$promocion->descripPromo}}
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    @endif
                                 @endif
+                            </td>
+                        @endif
+                        <td class="subtotal">
+                            @php
+                                $porcentajeAplicado=number_format(($promocionTemp/100), 2);
+                                $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado,2);
+                                $importeTemp=number_format($tarifas->tarifaRuta-($descuentoAplicado),2);
+                                $IVATemp=number_format($importeTemp*(env("IVA")/100), 2);
+                                $total=$total+number_format($importeTemp+$IVATemp,2);
+                            @endphp
+                            @if($promocionTemp!=0)
+                                <span class="original textoTachado">${{number_format($tarifas->tarifaRuta+$tarifas->tarifaRutaIVA, 2)}}</span>
+                                $<span class="porPagar">{{number_format($importeTemp+$IVATemp, 2)}}</span>
+                            @else
+                                <span class="original textoTachado">${{number_format($tarifas->tarifaRuta+$tarifas->tarifaRutaIVA, 2)}}</span>
+                                $<span class="porPagar">{{number_format($importeTemp+$IVATemp, 2)}}</span>
                             @endif
                         </td>
-                    @endif
-                    <td class="subtotal">
-                        @php
-                            $porcentajeAplicado=number_format(($promocionTemp/100), 2);
-                            $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado,2);
-
-                            $importeTemp=number_format($tarifas->tarifaRuta-($descuentoAplicado),2);
-                            $IVATemp=number_format($importeTemp*(env("IVA")/100), 2);
-
-
-
-                            $total=$total+number_format($importeTemp+$IVATemp,2);
-                        @endphp
-                        @if($promocionTemp!=0)
-                            <span class="original textoTachado">${{number_format($tarifas->tarifaRuta+$tarifas->tarifaRutaIVA, 2)}}</span>
-                            $<span class="porPagar">{{number_format($importeTemp+$IVATemp, 2)}}</span>
-                        @else
-                            $<span class="porPagar">{{number_format($importeTemp+$IVATemp, 2)}}</span>
-                        @endif
-                    </td>
-                </tr>
-                @endfor
-                <tr>
-                    <td colspan="4"></td>
-                    <td><b>TOTAL</b></td>
-                    <td>
-                        <b>
-                            <span id="total">
-                                ${{number_format($total,2)}}
-                            </span>
-                        </b>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </tr>
+                    @endfor
+                    <tr>
+                        <td colspan="3"></td>
+                        <td><b>TOTAL</b></td>
+                        <td>
+                            <b>
+                                <span class="total">
+                                    ${{number_format($total,2)}}
+                                </span>
+                            </b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </form>
     <div class="col-12 justify-content-center">
         <span class="btn-collap float-right mx-2" title="Guardar">

@@ -90,7 +90,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect('usuarios/'.$user->id)->with('status', 'Usuario creado');;
+        return redirect('usuarios/'.$user->id)->with('status', 'Usuario creado');
     }
 
     /**
