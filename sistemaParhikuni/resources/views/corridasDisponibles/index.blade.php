@@ -251,7 +251,7 @@
                                         <span>🔽</span>
                                         <div class="list-cont">
                                             @foreach($cd->getItinerario() as $itinerario)
-                                                    @if($cd->estado($itinerario->nOrigen)[0]->estadoID != "R")
+                                                    @if($cd->estadoActual()->estadoID != "R")
                                                         <li class="col-12">
                                                             <label for="desp-{{$cd->nNumero}}" class="btn btn-primary col-12 m-0 ">
                                                                 {{ $itinerario->consecutivo}}.-&emsp;{{$itinerario->origen."-".$itinerario->destino}}
@@ -278,7 +278,7 @@
                                         </div>
                                     </ul>
                                     @else
-                                        @if($cd->estado(Auth::user()->personas->nOficina)[0]->estadoID == "S")
+                                        @if($cd->estadoActual(Auth::user()->personas->nOficina)->estadoID == "S")
                                         
                                             <form action="{{route('corridas.disponibles.despachar',$cd)}}" method="POST">
                                                 @csrf
@@ -302,7 +302,7 @@
                                             No se puede despachar.
                                             <br>
                                             <b>
-                                                {{$cd->estado(Auth::user()->personas->nOficina)[0]->estado}}
+                                                {{$cd->estadoActual(Auth::user()->personas->nOficina)->estado}}
                                             </b>
                                         @endif
                                     @endif

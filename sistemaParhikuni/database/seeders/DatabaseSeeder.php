@@ -131,7 +131,7 @@ class DatabaseSeeder extends Seeder
         
         $usuarioSergio = User::create([
             'name' => 'Sergio Medrano',
-            'email' => 'sergio.medrano@parhikuni.com.mx',
+            'email' => 'servicios@parhikuni.com.mx',
             'password' => bcrypt('123456'),
             'persona_nNumero' => 2,
             ]);
@@ -147,11 +147,11 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         
-        // OficinasSeeder::run();
         $this->call([
             ventaSeeder::class,
         ]);
+        // OficinasSeeder::run();
 
-        DB::unprepared('SELECT corridasPorDia("2023-02-08", 60);');
+        DB::unprepared('SELECT corridasPorDia("2023-03-08", 60);');
     }
 }

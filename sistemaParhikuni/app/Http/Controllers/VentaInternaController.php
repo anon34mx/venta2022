@@ -438,47 +438,6 @@ class VentaInternaController extends Controller
         
         for($i=0; $i<sizeof($pasajeros); $i++){
             if(!isset($pasajeros[$i]->boleto)){
-                /*
-                    $promoAplicada=null;
-                    $porcentajeAplicado=null;
-                    $descuentoAplicado=null;
-                    $costo=null;
-                    $iva=null;
-                    $total=null;
-
-                    $promoAplicada=Promociones::where("nNumero", "=", $promociones[$i])
-                        ->whereRaw("fFin>=current_date")->get()->first(); // registro en BD
-                    if($promociones[$i]!="NA" && $promoAplicada!=null){
-                        $porcentajeAplicado=number_format(($promoAplicada->nDescuento/100),2); // porcentaje de descuento ya en formato 00.00
-                        $descuentoAplicado=number_format($tarifas->tarifaRuta*$porcentajeAplicado, 2); // Cantidad que se descuenta de la tarifa base $00.00
-                        $costo=number_format($tarifas->tarifaRuta-$descuentoAplicado, 2); // tarifa restando la parte descontada
-                        $iva=number_format($costo*(env("IVA")/100),2); // el IVA correspondiente
-                        $total+=number_format($costo+$iva, 2); // se suma al total el costo de este boleto
-                    }else{
-                        $total+=number_format($tarifas->tarifaRutaConIVA,2);
-                        $costo=$tarifas->tarifaRuta;
-                        $iva=$tarifas->tarifaRutaIVA;
-                        $descuentoAplicado=0;
-                    }
-                    $boleto=BoletosVendidos::create([
-                        'nVenta' => session("cmpra_IDventa"),
-                        'nCorrida' => $cordis->nNumero,
-                        'fSalida' => $cordis->fSalida,
-                        'hSalida' => $cordis->hSalida,
-                        'nOrigen' => $disp->nOrigen,
-                        'nDestino' => $disp->nDestino,
-                        'aTipoPasajero' => $pasajeros[$i]->tipoID,
-                        'aPasajero' => $pasajeros[$i]->pasajero,
-                        'nAsiento' => $pasajeros[$i]->asiento,
-                        'aTipoVenta' => "CO",
-                        'nMontoBase' => $costo,
-                        'nMontoDescuento' => $descuentoAplicado,
-                        'nIva' => $iva,
-                        'aEstado' => "VE",
-                        'nTerminal' => 3,
-                    ]);
-                    $dispUpdt=DisponibilidadAsientos::registrarBoleto($pasajeros[$i]->disponibilidad, $boleto->nNumero, $cordis->fSalida." ".$cordis->hSalida);
-                */
                 $boleto=null;
                 if(session("cmpra_usarPromocion")){
                     $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $cordis, $disp, $tarifas, $promociones[$i], $pasajeros[$i]);
@@ -640,18 +599,35 @@ class VentaInternaController extends Controller
                 "color" => 'rgb(170,40,37)'
             ]);
         }else{
-            return $pdf = \PDF::loadView('PDF.boleto.2020_porNadia',[
+            $pdf = \PDF::loadView('PDF.boleto.2020_porNadia',[
                 "venta" => $venta,
                 "boletos" => $boletos,
                 "tipoPuntoVenta" => "taquilla",
                 "color" => '#aa2825'
             ])
-            ->setPaper('letter', 'portrait')
-            ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+            ->setPaper('letter', 'portrait');
+            // ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+            
             // ->download("a.pdf");
             // return $pdf->download("boletos.pdf");
             // return $pdf;
+            
+            if(0){//base64
+                return base64_encode($pdf->output());exit;
+            }elseif(1){//PDF
+                return $pdf //->setPaper('letter', 'portrait')
+                    ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+            }elseif(0){//DESCARGAR SIN VER
+                return $pdf->setPaper('letter', 'portrait')
+                    ->download("a.pdf");
+            }
         }
+    }
+
+    function boletosPreview(Venta $venta){
+        return view("PDF.boleto.preview",[
+            "venta" => $venta
+        ]);
     }
     function enviarBoletos(){
         //

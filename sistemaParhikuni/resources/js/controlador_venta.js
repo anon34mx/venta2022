@@ -291,10 +291,11 @@ window.convertirSegundosaTiempo = (tiempo) => {
     // return (horas + ":" + minutos + "." + segundos);
 }
 window.calcularCambio = ()=>{
-    var recibido = parseFloat( $("#recibido").val().replace(/[,]/, "") | 0 );
+
+    var recibidotxt = $("#recibido").val().replace(/[,|_]/g, "");
+    var recibido = recibidotxt == "" ? 0 : parseFloat(recibidotxt);
     var total = parseFloat($("#total").val().replace(/[,]/, ""));
-    var calc = (total - recibido);
-    console.log(total, recibido);
+    var calc = parseFloat(total - recibido);
     $("#cambio").val(Math.abs(calc).toFixed(2));
     if(calc>0){
         $("#cambio-lbl").html("faltan");
@@ -472,5 +473,9 @@ $(document).ready(()=>{
         .change(calcularCambio)
         .keydown(calcularCambio)
         .keyup(calcularCambio);
+    $("#borrarRecibido").on("click", function(event){
+        event.preventDefault();
+        $('#recibido').val('')
+    });
 });
 

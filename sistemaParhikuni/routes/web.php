@@ -225,6 +225,8 @@ Route::post('/ventaInterna/abonar', [App\Http\Controllers\VentaInternaController
     //  PASO 5 [FIN]
 Route::get('/ventaInterna/{venta}/boletos', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
     ->name("venta.interna.boletos");
+Route::get('/ventaInterna/{venta}/boletos/preview', [App\Http\Controllers\VentaInternaController::class, 'boletosPreview'])
+    ->name("venta.interna.boletosPreview");
 
     //  PASO X
 Route::post('/ventaInterna/cancelarCompra', [App\Http\Controllers\VentaInternaController::class, 'cancelarCompra'])

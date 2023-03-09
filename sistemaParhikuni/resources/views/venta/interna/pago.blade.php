@@ -25,27 +25,31 @@
         <div class="col-12">
                 @csrf
                 <!-- Pago en efectivo -->
-                <div class="col-4">
+                <div class="col-6 mx-auto">
                     <b>Total</b>
                     <input id="total" type="" class="form-control form-control-sm nospinner"
                         value="{{ number_format(($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado), 2) }}" disabled
                         data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}">
                 </div>
-                <div class="col-4">
+                <div class="col-6 mx-auto mx-0 row">
                     <b>Recibido</b>
-                    <input id="recibido" name="cantidadRecibida" type="" class="form-control form-control-sm nospinner use-inputmask"
-                        value="" min="0" max="${{$venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado}}" step="0.1"
-                        placeholder="00.00"
-                        data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}"
-                        autocomplete="off" required
-                        >
-                    <button id="borrar" onclick="$('#recibido').val('')" hidden></button>
-                    <label class="btn btn-sm btn-danger float-right" for="borrar"  >
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancelar</span>
-                    </label>
+                    <div class="col-12 col-md-8 px-0">
+                        <input id="recibido" name="cantidadRecibida" type="" class="form-control form-control-sm nospinner use-inputmask"
+                            value="" min="0" max="${{$venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado}}" step="0.1"
+                            placeholder="00.00"
+                            data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}"
+                            autocomplete="off" required
+                            >
+                    </div>
+                    <div class="col-12 col-md-4 px-2 mx-0">
+                        <button id="borrarRecibido" hidden></button>
+                        <label class="btn btn-sm btn-danger float-right" for="borrarRecibido"  >
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancelar</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="col-4">
+                <div class="col-6 mx-auto">
                     <b id="cambio-lbl">Cambio</b>
                     <input id="cambio" type="" class="form-control form-control-sm nospinner" value="0" disabled
                     data-inputmask-regex="[0-9]{2,}\.[0-9]{2,2}">

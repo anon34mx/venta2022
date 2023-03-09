@@ -14,7 +14,7 @@ class OficinasSeeder extends Seeder
      * @return void
      */
     
-    public function run()
+    public static function run()
     {
         DB::table('oficinas')->insert([
             'nNumero' => 1,

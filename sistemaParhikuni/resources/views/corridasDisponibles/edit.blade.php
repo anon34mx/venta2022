@@ -85,7 +85,7 @@
                     </select>
                 @elseif($estadoActual->estadoID=="C" || $estadoActual->estadoID=="T")
                     <select class="form-control" disabled>
-                        <option>{{$corridaDisponible->estado->aEstado}}</option>
+                        <option>{{$estadoActual->estado}}</option>
                     </select>
                 @else
                     <select name="estado" id="estado" class="form-control">
@@ -141,10 +141,12 @@
                     <select name="conductor" id="conductor" class="form-control">
                         <option value="" {{($corridaDisponible->nNumeroAutobus==null) ? "selected":""}}>Seleccione</option>
                         @if($corridaDisponible->conductor!=null)
-                        <option value="" selected>{{@$corridaDisponible->conductor->persona->aApellidos." ".@$corridaDisponible->conductor->persona->aNombres}}</option>
+                        <option value="" selected disabled>{{@$corridaDisponible->conductor->persona->aApellidos." ".@$corridaDisponible->conductor->persona->aNombres}}</option>
                         @endif
                         @foreach($conductores as $conductor)
+                            @if(@$corridaDisponible->conductor->nNumeroConductor != $conductor->nNumeroConductor)
                             <option value="{{$conductor->nNumeroConductor}}">{{$conductor->persona->aApellidos." ".$conductor->persona->aNombres}}</option>
+                            @endif
                         @endforeach
                     </select>
                 @endif

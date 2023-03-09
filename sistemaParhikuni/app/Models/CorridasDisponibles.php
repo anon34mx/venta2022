@@ -41,10 +41,28 @@ class CorridasDisponibles extends Model
     public function autobus(){
         return $this->hasOne(Autobus::class, 'nNumeroAutobus', 'nNumeroAutobus');
     }
-    public function estado($origen=null){
-        if($origen!=null){
+    public function estado(){
+        return $this->hasOne(CorridasEstados::class, 'id', 'aEstado');
+    }
+    public function estadoActual($origen=null){
+        if($origen==null || $this->aEstado=="T" || $this->aEstado=="C" || $this->aEstado=="B" || $this->aEstado=="L"){
             $sql="SELECT
-                cordis.nNumero, '".$origen."' as oficina,
+                cordis.nNumero, '".addslashes($origen)."' as oficina,
+                cordis.aEstado estadoID,
+                IFNULL(est.aEstado, 'Disponible') as estado
+                FROM 
+                corridasdisponibles cordis
+                LEFT JOIN corridas_estados as est
+                    on est.id=cordis.aEstado
+                WHERE cordis.nNumero=:cordis
+            LIMIT 1";
+            return $rs=collect(DB::select($sql,[
+                "cordis" => $this->nNumero,
+            ]))->first();
+        }
+        elseif($origen!=null){
+            $sql="SELECT
+                cordis.nNumero, '".addslashes($origen)."' as oficina,
                 IFNULL(hist.aEstadoNuevo, 'D') estadoID,
                 IFNULL(est.aEstado, 'Disponible') as estado
                 FROM 
@@ -57,13 +75,10 @@ class CorridasDisponibles extends Model
                 WHERE cordis.nNumero=:cordis
                 ORDER BY hist.created_at DESC
             LIMIT 1";
-            return $rs=DB::select($sql,[
+            return $rs=collect(DB::select($sql,[
                 "origen" => $origen,
                 "cordis" => $this->nNumero,
-            ]);
-        }else{
-            // return $this->aEstado;
-            return $this->hasOne(CorridasEstados::class, 'id', 'aEstado');
+            ]))->first();
         }
     }
     public function promociones(){
@@ -188,16 +203,16 @@ class CorridasDisponibles extends Model
 
         $registro=DB::select(
             "SELECT iti.nItinerario, iti.nConsecutivo as consecutivo, reg.nCorrida as registro ,reg.despachado, reg.fSalida, reg.fLlegada,
-                max(iti.nConsecutivo) maxConsecutivo
+                max(iti.nConsecutivo) maxConsecutivo, tr.nDestino as destino
             FROM corridasDisponibles cordis
             INNER JOIN itinerario iti ON iti.nItinerario=cordis.nItinerario
             LEFT JOIN registropasopuntos reg ON reg.nCorrida=cordis.nNumero AND reg.nConsecutivo=iti.nConsecutivo
+            LEFT JOIN tramos tr on tr.nNumero=iti.nTramo
             WHERE cordis.nNumero=:id AND ( reg.fSalida IS NULL || reg.fLlegada IS NULL )
             ORDER BY iti.nConsecutivo ASC LIMIT 1",[
                 "id" => $this->nNumero,
             ]
         );
-        // dd("consecutivo", $registro[0]);
         if($registro==null){
             return false;
         }else{
@@ -211,6 +226,13 @@ class CorridasDisponibles extends Model
                 if($registro[0]->consecutivo == $registro[0]->maxConsecutivo && $registro[0]->fLlegada==null){
                     $this->update([
                         "aEstado" => "T"
+                    ]);
+                    CorridasDisponiblesHistorial::create([
+                        "corrida_disponible" => $this->nNumero,
+                        "aEstadoAnterior" => "R",
+                        "aEstadoNuevo" => "T",
+                        "user" => Auth::user()->id,
+                        "nNumeroOficina" => $registro[0]->destino,
                     ]);
                 }
                 $registro=RegistroPasoPuntos::upsert(
@@ -294,7 +316,6 @@ class CorridasDisponibles extends Model
 
 
                 autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
-                -- count(bol.nNumero) as ocupados,
                 (SELECT
                 COUNT(DISTINCT(nAsiento))
                 FROM `disponibilidadasientos` disa

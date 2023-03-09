@@ -280,6 +280,29 @@ CREATE TABLE `conductores` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `corridas_conductores`
+--
+
+DROP TABLE IF EXISTS `corridas_conductores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corridas_conductores` (
+  `nNumeroCorrida` bigint(20) unsigned NOT NULL,
+  `nNumeroConductor` int(10) unsigned NOT NULL,
+  `nNumeroUsuario` bigint(20) unsigned NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  KEY `nNumeroCorrida` (`nNumeroCorrida`),
+  KEY `nNumeroConductor` (`nNumeroConductor`),
+  KEY `nNumeroUsuario` (`nNumeroUsuario`),
+  CONSTRAINT `corridas_conductores_ibfk_1` FOREIGN KEY (`nNumeroCorrida`) REFERENCES `corridasdisponibles` (`nNumero`),
+  CONSTRAINT `corridas_conductores_ibfk_2` FOREIGN KEY (`nNumeroConductor`) REFERENCES `conductores` (`nNumeroConductor`),
+  CONSTRAINT `corridas_conductores_ibfk_3` FOREIGN KEY (`nNumeroUsuario`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `corridas_disponibles_historial`
 --
 
@@ -292,23 +315,19 @@ CREATE TABLE `corridas_disponibles_historial` (
   `nNumeroOficina` int(10) unsigned NOT NULL,
   `aEstadoAnterior` varchar(1) NOT NULL,
   `aEstadoNuevo` varchar(1) NOT NULL,
-  `nConductor` int(10) unsigned DEFAULT NULL,
   `user` bigint(20) unsigned NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `nConsecutivo` smallint(5) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `corrida_disponible` (`corrida_disponible`),
   KEY `aEstadoAnterior` (`aEstadoAnterior`),
   KEY `aEstadoNuevo` (`aEstadoNuevo`),
-  KEY `nConductor` (`nConductor`),
   KEY `user` (`user`),
   KEY `nNumeroOficina` (`nNumeroOficina`),
   CONSTRAINT `corridas_disponibles_historial_ibfk_1` FOREIGN KEY (`corrida_disponible`) REFERENCES `corridasdisponibles` (`nNumero`) ON UPDATE CASCADE,
   CONSTRAINT `corridas_disponibles_historial_ibfk_2` FOREIGN KEY (`aEstadoAnterior`) REFERENCES `corridas_estados` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `corridas_disponibles_historial_ibfk_3` FOREIGN KEY (`aEstadoNuevo`) REFERENCES `corridas_estados` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `corridas_disponibles_historial_ibfk_5` FOREIGN KEY (`nConductor`) REFERENCES `conductores` (`nNumeroConductor`) ON UPDATE CASCADE,
   CONSTRAINT `corridas_disponibles_historial_ibfk_6` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `corridas_disponibles_historial_ibfk_7` FOREIGN KEY (`nNumeroOficina`) REFERENCES `oficinas` (`nNumero`) ON UPDATE CASCADE,
   CONSTRAINT `corridas_disponibles_historial_ibfk_8` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON UPDATE CASCADE
@@ -516,9 +535,7 @@ CREATE TABLE `disponibilidadasientos` (
   `nBoleto` bigint(20) unsigned DEFAULT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `nDisponibilidad` (`nDisponibilidad`,`nAsiento`),
   UNIQUE KEY `id` (`id`) USING BTREE,
-  KEY `disponibilidadasientos_IN` (`nDisponibilidad`,`nAsiento`),
   KEY `nBoleto` (`nBoleto`),
   KEY `dispAsientos_user_id_FK` (`user_id`),
   CONSTRAINT `dispAsientos_user_id_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
@@ -566,23 +583,6 @@ CREATE TABLE `factorpaqueteria` (
 -- Table structure for table `failed_jobs`
 --
 
-DROP TABLE IF EXISTS `failed_jobs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `failed_jobs` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(255) NOT NULL,
-  `connection` text NOT NULL,
-  `queue` text NOT NULL,
-  `payload` longtext NOT NULL,
-  `exception` longtext NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `familiares`
 --
 
@@ -658,51 +658,6 @@ CREATE TABLE `itinerario` (
 -- Table structure for table `migrations`
 --
 
-DROP TABLE IF EXISTS `migrations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `migrations` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `model_has_permissions`
---
-
--- DROP TABLE IF EXISTS `model_has_permissions`;
--- /*!40101 SET @saved_cs_client     = @@character_set_client */;
--- /*!40101 SET character_set_client = utf8 */;
--- CREATE TABLE `model_has_permissions` (
---   `permission_id` bigint(20) unsigned NOT NULL,
---   `model_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
---   `model_id` bigint(20) unsigned NOT NULL,
---   PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
---   KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`),
---   CONSTRAINT `model_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
--- /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `model_has_roles`
---
-
-DROP TABLE IF EXISTS `model_has_roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `model_has_roles` (
-  `role_id` bigint(20) unsigned NOT NULL,
-  `model_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `model_id` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`role_id`,`model_id`,`model_type`),
-  KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`),
-  CONSTRAINT `model_has_roles_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Table structure for table `oficinas`
 --
@@ -745,61 +700,6 @@ CREATE TABLE `origenesdestinos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `password_resets`
---
-
-DROP TABLE IF EXISTS `password_resets`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `password_resets` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  KEY `password_resets_email_index` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `permissions`
---
-
--- DROP TABLE IF EXISTS `permissions`;
--- /*!40101 SET @saved_cs_client     = @@character_set_client */;
--- /*!40101 SET character_set_client = utf8 */;
--- CREATE TABLE `permissions` (
---   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
---   `name` varchar(255) NOT NULL,
---   `guard_name` varchar(255) NOT NULL,
---   `created_at` timestamp NULL DEFAULT NULL,
---   `updated_at` timestamp NULL DEFAULT NULL,
---   PRIMARY KEY (`id`),
---   UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`)
--- ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
--- /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `personal_access_tokens`
---
-
-DROP TABLE IF EXISTS `personal_access_tokens`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `personal_access_tokens` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `tokenable_type` varchar(255) NOT NULL,
-  `tokenable_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `abilities` text DEFAULT NULL,
-  `last_used_at` timestamp NULL DEFAULT NULL,
-  `expires_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
-  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `personas`
@@ -898,42 +798,6 @@ CREATE TABLE `registropasopuntos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `role_has_permissions`
---
-
--- DROP TABLE IF EXISTS `role_has_permissions`;
--- /*!40101 SET @saved_cs_client     = @@character_set_client */;
--- /*!40101 SET character_set_client = utf8 */;
--- CREATE TABLE `role_has_permissions` (
---   `permission_id` bigint(20) unsigned NOT NULL,
---   `role_id` bigint(20) unsigned NOT NULL,
---   PRIMARY KEY (`permission_id`,`role_id`),
---   KEY `role_has_permissions_role_id_foreign` (`role_id`),
---   CONSTRAINT `role_has_permissions_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE,
---   CONSTRAINT `role_has_permissions_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
--- /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `roles`
---
-
-DROP TABLE IF EXISTS `roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `roles` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `guard_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `sesiones`
 --
 
@@ -975,7 +839,7 @@ CREATE TABLE `tarifastramos` (
   `fAplicacion` date NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `deleted_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`nNumero`),
   UNIQUE KEY `nNumero` (`nNumero`),
   KEY `nOrigen` (`nOrigen`),
@@ -1140,7 +1004,7 @@ CREATE TABLE `tramos` (
   `nEstancia` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `deleted_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`nNumero`),
   UNIQUE KEY `nNumero` (`nNumero`),
   KEY `nOrigen` (`nOrigen`),
@@ -1151,10 +1015,7 @@ CREATE TABLE `tramos` (
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `users`
---
---
+
 -- Table structure for table `venta`
 --
 
@@ -1219,24 +1080,6 @@ CREATE TABLE `ventascliente` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary table structure for view `vw_iti_tra`
---
-
-DROP TABLE IF EXISTS `vw_iti_tra`;
-/*!50001 DROP VIEW IF EXISTS `vw_iti_tra`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `vw_iti_tra` (
-  `itinerario` tinyint NOT NULL,
-  `iti_consecutivo` tinyint NOT NULL,
-  `tra_consecutivo` tinyint NOT NULL,
-  `tramo` tinyint NOT NULL,
-  `tra_origen` tinyint NOT NULL,
-  `tra_destino` tinyint NOT NULL
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
-
---
 -- Dumping routines for database 'laravel'
 --
 /*!50003 DROP FUNCTION IF EXISTS `apartar_asiento` */;
@@ -1262,9 +1105,9 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `apartar_asiento`(IN_nCorrida INT,
     ) RETURNS text CHARSET utf8mb4
 BEGIN
 
-    DECLARE specialty CONDITION FOR SQLSTATE '45000'; 
+    DECLARE specialty CONDITION FOR SQLSTATE '45000'; -- es como declarar una excepcion
 
-    DECLARE retorno TEXT DEFAULT ""; 
+    DECLARE retorno TEXT DEFAULT ""; -- mi respuesta
 
     
 
@@ -1302,7 +1145,7 @@ BEGIN
 
                     INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
 
-                    WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=IN_nOrigen 
+                    WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=IN_nOrigen -- mi origen
 
                     ),
 
@@ -1318,7 +1161,7 @@ BEGIN
 
                         INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
 
-                        WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=IN_nOrigen 
+                        WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=IN_nOrigen -- mi origen
 
                     ),
 
@@ -1340,7 +1183,7 @@ BEGIN
 
                         INNER JOIN tramos as trSub ON trSub.nNumero=itiSub.nTramo
 
-                        WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=IN_nDestino 
+                        WHERE itiSub.nItinerario=vw.itinerario and trSub.nDestino=IN_nDestino -- mi destino
 
                     )+1,
 
@@ -1358,39 +1201,39 @@ BEGIN
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done_restriccion = TRUE;
 
-    
+    -- Para errores
 
     declare exit handler for sqlexception BEGIN
 
-        
+        -- ROLLBACK;
 
-        
+        -- RETURN CONCAT("ERROR KK",retorno);
 
-        SIGNAL SQLSTATE '45000' 
+        SIGNAL SQLSTATE '45000' -- Lanza un error, indicando qué tipo es ej. 45000=Error no manejado
 
-			SET MESSAGE_TEXT = "Error al insertar pasajero"; 
+			SET MESSAGE_TEXT = "Error al insertar pasajero"; -- declarar mensaje de error
 
-				
+				-- MYSQL_ERRNO  = 1000; -- número que identifica el error (opcional), ej. Problema de claves
 
     END;
 
 
 
+-- START TRANSACTION; -- Nos permite echar atrás las transacciones (más adelante)
 
-
-    
+    -- VALIDACION
 
 	IF IN_nAsientos="" OR IN_user=0 THEN
 
-        SIGNAL SQLSTATE '45000' 
+        SIGNAL SQLSTATE '45000' -- Lanza un error, indicando qué tipo es ej. 45000=Error no manejado
 
-        SET MESSAGE_TEXT = 'ESCRIBA TODOS LOS DATOS DEL PASAJERO'; 
+        SET MESSAGE_TEXT = 'ESCRIBA TODOS LOS DATOS DEL PASAJERO'; -- declarar mensaje de error
 
 	END IF;
 
 
 
-    
+    -- LIMITAR OCUPACION
 
     OPEN crsr_restriccion;
 
@@ -1406,7 +1249,7 @@ BEGIN
 
             
 
-            
+            -- insertar cada uno
 
             SET @aux=CONCAT(IN_nAsientos,",");
 
@@ -1440,7 +1283,7 @@ BEGIN
 
     END;
 
-
+-- COMMIT;
 
 END ;;
 DELIMITER ;
@@ -4075,4 +3918,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-07 16:44:28
+-- Dump completed on 2023-03-09 17:06:43

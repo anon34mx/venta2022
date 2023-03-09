@@ -14,6 +14,7 @@ use App\Models\Oficinas;
 use App\Models\Disponibilidad;
 use App\Models\DisponibilidadAsientos;
 use App\Models\TarifasTramo;
+use App\Models\CorridasConductores;
 use App\Models\Promociones;
 
 use App\Http\Controllers\SmsController;
@@ -100,7 +101,7 @@ class CorridasDisponiblesController extends Controller
             )")
             ->orderBy("conductores.nNumeroConductor", "ASC")
             ->get();
-        $estadoActual=$corridaDisponible->estado($oficina)[0];
+        $estadoActual=$corridaDisponible->estadoActual($oficina);
         // dd($estadoActual);
 
         return view('corridasDisponibles.edit',[
@@ -133,6 +134,13 @@ class CorridasDisponiblesController extends Controller
         }
         if($request->conductor!=null && $corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C"){ //
             $data["nNumeroConductor"]=$request->conductor;
+            // dd($corridaDisponible->nNumero);
+            $historialConductor=CorridasConductores::create([
+                "nNumeroCorrida" => $corridaDisponible->nNumero,
+                "nNumeroConductor" => $request->conductor,
+                "nNumeroUsuario" => Auth::user()->id,
+            ]);
+            // dd($historialConductor);
         }
         if($corridaDisponible->nNumeroConductor==null && $request->conductor!=null){
             $data["aEstado"]="A";
@@ -203,9 +211,9 @@ class CorridasDisponiblesController extends Controller
                 "nNumeroOficina" => $oficina,
                 "aEstadoAnterior" => @$historial->aEstadoNuevo ?: "D",
                 "aEstadoNuevo" => "R",
-                "nConductor" => @$historial->nConductor ?: null,
                 "user" => Auth::user()->id,
             ]);
+            // "nConductor" => @$historial->nConductor ?: null,
             $corridaDisponible->update(["aEstado"=>"R"]); #-- ver donde pongo este cambio
             // dd($request->all());
             $corridaDisponible->despachar($consecutivo);

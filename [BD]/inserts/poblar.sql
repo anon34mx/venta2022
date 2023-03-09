@@ -292,18 +292,26 @@ INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 (5, "DO", "Vales SEDENA", 0);
 
 
--- para venta al publico
--- INSERT INTO promociones (nNumero,aTipo, aDescripcion, nDescuento, fInicio, fFin) VALUES
--- (1,"ES", "Desc INSEN", 12, "2022-09-01", "2022-12-31");
+INSERT INTO `tramos` (`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 8, 5, 1, 1, 1, '2023-03-10 05:25:57', '2023-03-10 05:25:57', '0000-00-00 00:00:00'),
+(2, 5, 7, 1, 1, 1, '2023-03-10 05:25:57', '2023-03-10 05:25:57', '0000-00-00 00:00:00');
 
-
--- truncate tarifastramos;
-/*
+INSERT INTO `itinerario` (`nItinerario`, `nConsecutivo`, `nTramo`) VALUES
+(1, 1, 1),
+(1, 2, 2);
+INSERT INTO promociones (nNumero,aTipo, aDescripcion, nDescuento, fInicio, fFin) VALUES
+(1,"ES", "Desc INSEN", 12, "2022-09-01", "2022-12-31");
 INSERT INTO `tarifastramos`
 (`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
 VALUES
 ('1', '8', '10', '150', '130', '2021-01-01'),
-('2', '8', '10', '150', '130', '2021-01-01'),
+('2', '8', '10', '150', '130', '2021-01-01');
+
+
+/*
+INSERT INTO `tarifastramos`
+(`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
+VALUES
 ('3', '8', '10', '150', '130', '2021-01-01'),
 
 ('1', '8', '10', '201', '190', '2022-11-20'),

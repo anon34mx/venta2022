@@ -39,7 +39,7 @@ class ventaSeeder extends Seeder
         ");
         DB::unprepared("ALTER TABLE corridas_disponibles_historial
             ADD FOREIGN KEY(user)
-        REFERENCES users(id)
+            REFERENCES users(id)
             ON UPDATE CASCADE ON DELETE RESTRICT
         ");
     
