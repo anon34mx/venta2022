@@ -43,7 +43,20 @@ async function oneTab(pagina){
         $("#oneTab").remove();
     }, 100);
 }
+setInterval(() => {
+    $.ajax({
+        url: route("tiempoRestanteCompra"),
+        success: function (response) {
+            window.tiempoRestante=parseInt(response);
+        },
+        error: function (e) {
+            console.log(e);
+        }
+    });
+}, 1000);
 
 // oneTab("/ventaInterna");
 oneTab("{{$rest}}");
+</script>
+<script>
 </script>

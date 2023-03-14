@@ -21,18 +21,32 @@ class Oficinas extends Model
     }
 
     public static function destinos($origen, $comprimir){
-        $origenesDestinos = DB::table('origenesdestinos as od')
-            ->selectRaw('od.nOrigen, od.nDestino,
-                ori.aNombre as origen,
-                des.aNombre as destino')
-            ->join("oficinas as ori", "ori.nNumero", "=", "od.nOrigen")
-            ->join("oficinas as des", "des.nNumero", "=", "od.nDestino")
-            ->whereRaw("ori.lDisponible=1 AND des.lDisponible=1");
-        if($origen!=0 && $origen!="todos"){
-            $origenesDestinos->whereRaw("od.nOrigen=".$origen);
+        
+        if($origen=="todos" || $origen==0){
+            // $origenesDestinos = Oficinas::where("lDestino", "=", "1")->get();
+            $origenesDestinos = DB::table('origenesdestinos as od')
+                ->selectRaw('distinct(od.nOrigen) as nDestino, 
+                    ori.aNombre as destino,
+                
+                    0 as nOrigen,
+                    "todos" as origen')
+                ->join("oficinas as ori", "ori.nNumero", "=", "od.nOrigen")
+                ->join("oficinas as des", "des.nNumero", "=", "od.nDestino")
+                ->whereRaw("ori.lDisponible=1 AND des.lDisponible=1");
+        }else{
+            $origenesDestinos = DB::table('origenesdestinos as od')
+                ->selectRaw('od.nOrigen, od.nDestino,
+                    ori.aNombre as origen,
+                    des.aNombre as destino')
+                ->join("oficinas as ori", "ori.nNumero", "=", "od.nOrigen")
+                ->join("oficinas as des", "des.nNumero", "=", "od.nDestino")
+                ->whereRaw("ori.lDisponible=1 AND des.lDisponible=1")
+                ->whereRaw("od.nOrigen=".$origen);
+            // if($origen!=0 && $origen!="todos"){
+            // }
         }
         $origenesDestinos=$origenesDestinos->get();
-        // dd($comprimir);
+
         if($comprimir=="true"){
             // dd("comprimir");
             $last="";

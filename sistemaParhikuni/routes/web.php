@@ -170,8 +170,15 @@ Route::post('/corridas/disponibles/{corridaDisponible}/puntosDeControl/registrar
 Route::get('/corridas/disponibles/{corridaDisponible}/itinerario', [App\Http\Controllers\CorridasDisponiblesController::class, 'itinerario'])
     ->name('corridas.disponibles.itinerario');
 Route::get('/corridas/disponibles/{corridaDisponible}/recorrido/{origen}/{destino}', [App\Http\Controllers\CorridasDisponiblesController::class, 'recorrido'])
-    ->name('corridas.disponibles.recorrido/{origen}/{destino}');
+    ->name('corridas.disponibles.recorrido');
     // ->middleware('permission:corridas.disponibles.registrarPuntoDeControl');
+    //  PERIODO VACACIONAL
+Route::get('/corridas/periodosVacacionales', [App\Http\Controllers\PerodiodosVacacionalesController::class, 'index'])
+    ->name('corridas.vacaciones.index')->middleware('permission:corridas.vacaciones');
+Route::get('/corridas/periodosVacacionales/store', [App\Http\Controllers\PerodiodosVacacionalesController::class, 'store'])
+    ->name('corridas.vacaciones.store')->middleware('permission:corridas.vacaciones');
+Route::post('/corridas/periodosVacacionales/{id}/destroy', [App\Http\Controllers\PerodiodosVacacionalesController::class, 'destroy'])
+    ->name('corridas.vacaciones.destroy')->middleware('permission:corridas.vacaciones');
 
 
 // BOLETOS VENDIDOS
@@ -253,13 +260,16 @@ Route::post('/sesionesVenta/abrir', [App\Http\Controllers\sesionesVentaControlle
 Route::get('/cookies', function(){
     dd(session()->all(), Auth()->user()); //, Auth::user()->personas
 });
+Route::get('/ventaInterna/tiempoRestanteCompra', function(){
+    return session()->has("cmpra_tiempoCompra") ? session("cmpra_tiempoCompra")-time() : 0;
+})->name("tiempoRestanteCompra");
 Route::get('/deleteCookies', function(){
     setcookie('tiempoCompra', null, -1);
     session()->forget("corrida");
     session()->forget("disponibilidad");
     session()->forget("pasajeros");
     session()->forget("asientosID");
-    session()->forget("tiempoCompra");
+    session()->forget("cmpra_tiempoCompra");
     session()->forget("origen");
     session()->forget("destino");
     session()->forget("IDventa");

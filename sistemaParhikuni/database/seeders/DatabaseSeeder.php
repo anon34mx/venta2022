@@ -49,6 +49,8 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'corridas.disponibles.despachar']);
         Permission::create(['name' => 'corridas.disponibles.guiaPasajeros']);
         
+        Permission::create(['name' => 'corridas.vacaciones']);
+        
         //      Boletos
         Permission::create(['name' => 'boletos.limbo.show']);
         

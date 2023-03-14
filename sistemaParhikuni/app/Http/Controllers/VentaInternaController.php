@@ -14,6 +14,7 @@ use App\Models\TipoPasajero;
 use App\Models\BoletosVendidos;
 use App\Models\VentaPago;
 use App\Models\Sesiones;
+use App\Models\PeriodosVacacionales;
 
 use Auth;
 use Carbon\Carbon;
@@ -62,6 +63,7 @@ class VentaInternaController extends Controller
             ],
             $request->hInicio, $request->hFin, $request->usarPromocion
         );
+        // dd(Oficinas::destinos(0,true)[0]["destinos"], Oficinas::destinos(8,true), Oficinas::destinos("todos",true));
         return view('venta.interna.corridasFiltradas',[
             "corridas" => $cordis->paginate(25),
             "origen" => Oficinas::find($request->origen),
@@ -73,10 +75,11 @@ class VentaInternaController extends Controller
             "profesores"=> $request->profesores!=null ? $request->profesores : 0,
             "promociones"=>$request->has("usarPromocion"),
             "fechaDeSalida" => $fechaSalida,
-            "fechaMax" => $request->fechaMax,
-            "oficinas" => Oficinas::destinos(0,true),
+            // "fechaMax" => $request->fechaMax,
+            "oficinas" => Oficinas::destinos("todos",true)[0]["destinos"],
             "horario" => $request->horario,
             "viajeRedondo" => $request->has("tipoDeViaje"),
+            "vacaciones" => PeriodosVacacionales::aplicable($fechaSalida, $request->fechaRegreso),
         ]);
     }
     // Paso 0.1 // guardar la corrida seleccionada
@@ -124,6 +127,7 @@ class VentaInternaController extends Controller
                 
                 "reg_origen" => $disponibilidad->nDestino,
                 "reg_destino" => $disponibilidad->nOrigen,
+                "reg_fecha" => @$request->fechaRegreso,
             ]);
         }
         session()->save();
@@ -248,7 +252,10 @@ class VentaInternaController extends Controller
         $cordis=new CorridasDisponibles();
         $corridaIda=CorridasDisponibles::find(session("ida_corrida"));
         $horaMin=0;
-        $fechaSalida=$request->fechaDeSalida ?: $corridaIda->fSalida;
+        $fechaSalida=$request->fechaDeSalida ?: session("reg_fecha"); //$corridaIda->fSalida;
+        // if(isset($request->fechaDeSalida)){
+        //     $fechaSalida=$request->fechaDeSalida;
+        // }
         if($fechaSalida==$corridaIda->fSalida){
             $horaMin=$corridaIda->hSalida;
         }else{
@@ -268,7 +275,7 @@ class VentaInternaController extends Controller
         return view('venta.interna.corridasRegreso',[
             "corridas" => $cordis->paginate(25),
             // "origen" => Oficinas::find($request->origen),
-            // "destino" => Oficinas::find($request->destino),
+            "vacaciones" => PeriodosVacacionales::aplicable($fechaSalida),
             "adultos" => session("cmpra_adultos"),
             "niños" => session("cmpra_niños"),
             "insen" => session("cmpra_insen"),
@@ -371,8 +378,6 @@ class VentaInternaController extends Controller
             $reg_promocionesAplicables=Promociones::aplicables($reg_disponibilidad->nOrigen, $reg_disponibilidad->nDestino, session("oficinaid"), $reg_cordis->nNumero, session("cmpra_viajeRedondo"), $reg_cordis->nTipoServicio);
         }
 
-        // dd($promocionesAplicables);
-        // dd($promocionesAplicables, $reg_promocionesAplicables);
         $tiempoRestante=null;
         if( $fActual->lte($fVenta) ){
             $tiempoRestante=$fActual->diffInSeconds($fVenta);
@@ -406,7 +411,7 @@ class VentaInternaController extends Controller
         $pasajeros=json_decode(session("ida_pasajeros"));
         $promociones=@$request->except("_token")["promoIda"];
         $tarifas=$disp->tarifas();
-
+        
         if(@session("cmpra_viajeRedondo")){
             $reg_cordis=CorridasDisponibles::find(session("reg_corrida"));
             $reg_disp=Disponibilidad::find(session("reg_disponibilidad"));
@@ -414,13 +419,13 @@ class VentaInternaController extends Controller
             $reg_promociones=@$request->except("_token")["promoReg"];
             $reg_tarifas=$reg_disp->tarifas();
             $promosCorrReg=json_decode($reg_cordis->promociones());
-            if(@session("cmpra_usarPromocion")==true){
+            if(@session("cmpra_usarPromocion")==true && $reg_promociones!=null){
                 if(count(array_filter($reg_promociones, function($value){return $value != "NA";})) > $promosCorrReg->disponibles){
                     return redirect(route("venta.interna.confirmacion"))->withErrors('Se pasó el límmite de promociones de ida');
                 }
             }
         }
-        if(@session("cmpra_usarPromocion")==true){
+        if(@session("cmpra_usarPromocion")==true && $promociones!=null){
             $promosCorrIda=json_decode($cordis->promociones());
             if(count(array_filter($promociones, function($value){return $value != "NA";})) > $promosCorrIda->disponibles){
                 return redirect(route("venta.interna.confirmacion"))->withErrors('Se pasó el límmite de promociones de ida');
@@ -440,9 +445,9 @@ class VentaInternaController extends Controller
             if(!isset($pasajeros[$i]->boleto)){
                 $boleto=null;
                 if(session("cmpra_usarPromocion")){
-                    $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $cordis, $disp, $tarifas, $promociones[$i], $pasajeros[$i]);
+                    $boleto=$this->registrarBoleto(false,session("cmpra_IDventa"), $cordis, $disp, $tarifas, @$promociones[$i], $pasajeros[$i]);
                 }else{
-                    $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $cordis, $disp, $tarifas, "NA", $pasajeros[$i]);
+                    $boleto=$this->registrarBoleto(false,session("cmpra_IDventa"), $cordis, $disp, $tarifas, "NA", $pasajeros[$i]);
                 }
                 $pasajeros[$i] = (object) array_merge((array) $pasajeros[$i], (array) array(
                     "boleto"=>$boleto->nNumero,
@@ -459,9 +464,9 @@ class VentaInternaController extends Controller
                 if(!isset($reg_pasajeros[$i]->boleto)){
                     $boleto=null;
                     if(session("cmpra_usarPromocion")){
-                        $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $reg_cordis, $reg_disp, $reg_tarifas, $reg_promociones[$i], $reg_pasajeros[$i]);
+                        $boleto=$this->registrarBoleto(true,session("cmpra_IDventa"), $reg_cordis, $reg_disp, $reg_tarifas, @$reg_promociones[$i], $reg_pasajeros[$i]);
                     }else{
-                        $boleto=$this->registrarBoleto(session("cmpra_IDventa"), $reg_cordis, $reg_disp, $reg_tarifas, "NA", $reg_pasajeros[$i]);
+                        $boleto=$this->registrarBoleto(true,session("cmpra_IDventa"), $reg_cordis, $reg_disp, $reg_tarifas, "NA", $reg_pasajeros[$i]);
                     }
                     $reg_pasajeros[$i] = (object) array_merge((array) $reg_pasajeros[$i], (array) array(
                         "boleto"=>$boleto->nNumero,
@@ -483,7 +488,8 @@ class VentaInternaController extends Controller
         return redirect(route("venta.interna.pago"));
     }
     // paso 3.1.1
-    private function registrarBoleto($idVenta, $corrida, $disponibilidad, $tarifas, $promo, $pasajero){
+    private function registrarBoleto($esRegreso, $idVenta, $corrida, $disponibilidad, $tarifas, $promo, $pasajero){
+        // dd("debug");
         // registra el boleto para generar el adeudo
         $promoAplicada=null;
         $porcentajeAplicado=null;
@@ -509,6 +515,7 @@ class VentaInternaController extends Controller
         $boleto=BoletosVendidos::create([
             'nVenta' => $idVenta,
             'nCorrida' => $corrida->nNumero,
+            'lRegreso' => $esRegreso,
             'fSalida' => $corrida->fSalida,
             'hSalida' => $corrida->hSalida,
             'nOrigen' => $disponibilidad->nOrigen,
@@ -554,7 +561,7 @@ class VentaInternaController extends Controller
             session()->forget("cmpra_IDventa");
 
 
-            return redirect(route('venta.interna.boletos',[
+            return redirect(route('venta.interna.boletosPreview',[
                 "venta" => $venta
             ]));
         }else{
@@ -637,6 +644,9 @@ class VentaInternaController extends Controller
         if(session()->has("ida_asientosID")){
             $desocupados=DisponibilidadAsientos::desocupar(session("ida_asientosID"));
         }
+        if(session()->has("reg_asientosID")){
+            $desocupados=DisponibilidadAsientos::desocupar(session("reg_asientosID"));
+        }
 
         // venta
 		session()->forget("cmpra_pasoVenta");
@@ -664,6 +674,7 @@ class VentaInternaController extends Controller
 		session()->forget("reg_destino");
 		session()->forget("reg_pasajeros");
 		session()->forget("reg_asientosID");
+		session()->forget("reg_fecha");
 		
         session([
 			"cmpra_pasoVenta"=>0,

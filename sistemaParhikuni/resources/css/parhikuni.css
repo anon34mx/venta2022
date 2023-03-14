@@ -255,10 +255,18 @@ tr.selected td{
 	color:white;
 }
 
+
 .fecha{
 	white-space: nowrap;
 }
 
+#filtros{
+	position: initial;
+	top: 0px;
+}
+#pasajeros{
+	
+}
 .tiempoRestanteCont{
 	width: 206px;
 	width: fit-content; /* si se puede, este, si no el anterior (por compatibilidad9*/
@@ -408,7 +416,12 @@ footer div{
 	}
 }
 @media (min-width: 576px) {
-	/**/
+	#filtros {
+		height: fit-content;
+		display: block;
+		position: sticky;
+		top: 70px;
+	}
 }
 
 @media print {
@@ -458,3 +471,4 @@ footer div{
 		display: none !important;
 	}
 }
+/* *** */

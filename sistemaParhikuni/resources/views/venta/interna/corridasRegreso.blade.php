@@ -63,7 +63,7 @@
             </div>
     </form>
 
-    <div class="col-12 col-sm-9 row pr-0">
+    <div class="col-12 col-sm-9 row pr-0 pt-5">
         <form id="tbl-corridas" action="{{route('venta.interna.corridasRegresoGuardar')}}" class="pr-0" onsubmit="return validarFiltros()" method="post">
             @csrf
             <table class="table table-stripe.d table-parhi" style="">
@@ -146,9 +146,9 @@
             <input id="adultos" hidden readonly name="AD" type="" value="{{ $adultos}}">
             <input id="niños" hidden readonly name="NI" type="" value="{{ $niños}}">
             <input id="insen" hidden readonly name="IN" type="" value="{{ $insen}}">
-            @if(false==true)
-            <input id="insen" hidden readonly name="ES" type="" value="{{ $insen}}">
-            <input id="insen" hidden readonly name="MA" type="" value="{{ $profesores}}">
+            @if($vacaciones)
+            <input id="estudiantes" hidden readonly name="ES" type="" value="{{ $estudiantes}}">
+            <input id="profesores" hidden readonly name="MA" type="" value="{{ $profesores}}">
             @endif
             <input id="Continuar" class="btn" type="submit" hidden>
         </form>

@@ -1,15 +1,49 @@
 @extends('layouts.parhikuni')
 @section('content')
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
-    @include('venta.interna.tiempo&alertas',[
-        "rest" => "/ventaInterna"
-        ])
+    @if($errors->any())
+        <div class="card-body mt-2 mb-2 ">
+            <div class="alert-danger px-3 py-3">
+                @foreach($errors->all() as $error)
+                - {{$error}}<br>
+                @endforeach
+            </div>
+        </div>
+    @endif
+    @if(session()->has('status'))
+        <div>
+            <p class="alert alert-success">{{session('status')}}</p>
+        </div>
+    @endif
+<script id="oneTab">
+async function oneTab(pagina){
+    // Broadcast that you're opening a page.
+    localStorage.openpages = await Date.now();
+    var onLocalStorageEvent = await function(e){
+        if(e.key == "openpages"){
+            // otras pestañas
+            localStorage.page_available = Date.now();
+        }
+        if(e.key == "page_available"){
+            //esta pestaña
+            window.location.replace( route('oneTab', {reason: "Sólo puedes abrir una instancia de la venta"}) );
+        }
+        if(e.url.match(window.location.origin+pagina)){
+        }
+    };
+    var urlbase=window.location.origin+"/ventaInterna/";
+    await window.addEventListener('storage', onLocalStorageEvent, false);
+    setTimeout(function(){
+        $("#oneTab").remove();
+    }, 100);
+}
+oneTab("/ventaInterna");
+</script>
+
 <div class="col-12 row px-0 mx-0">
-    <form action="#" class="col-12 col-sm-3 col-xl-3 row px-0 mx-0 " style="height: fit-content;display: block;position: sticky;top: 70px;">
-        <h3 class="titleWithAnchor" id="nuevoUsuario">
-            <a href="#nuevoUsuario">Filtros</a>
-        </h3>
-        <div class="col-12 col-md-12 row mx-0 my-1">
+    <form id="filtros" action="#" class="col-12 col-sm-3 col-xl-3 row px-0 ml-0 mr-2" style="" target="_self">
+        <h3 class="titleWithAnchor" id="nuevoUsuario">Filtros</h3>
+        <div class="col-12 col-md-12 row mx-0 my-1 px-0 px-md-2">
             <div class="">Tipo de viaje</div>
             <div class="px-0 col-12 col-md-6 lbl-radio px-1">
                 <input class="tipoDeViaje" type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo"
@@ -25,7 +59,7 @@
             </div>
         </div>
         @if(Auth::user()->hasRole('Admin'))
-        <div class="col-12 col-md-12 row mx-0 my-1">
+        <div class="col-12 col-md-12 row mx-0 my-1 px-0 px-md-2">
             <div class="">Corrida</div>
             <div class="px-0 col-12">
                 <input type="text" class="form-control use-inputmask" name="corrida" value="{{Request::get('corrida')}}"
@@ -33,12 +67,12 @@
             </div>
         </div>
         @endif
-        <div class="row col-12 mx-0 px-2">
-            <div class="col-12 col-sm-6 row mx-0 px-1 my-1">
+        <div class="col-12 col-md-12 row mx-0 my-1 px-0 px-md-2">
+            <div class="col-12 col-sm-6 row mx-0 px-1 px-md-0">
                 <div class="">Origen</div>
                 <div class="px-0 col-12">
-                    <select class="form-control" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
-                        <option value="" >Seleccione Origen</option>
+                    <select class="form-control px-1 px-md-2" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
+                        <option value="" >Seleccione</option>
                         <option value="todos" 
                             @if(request()->get('origen')=="todos" )
                                 {{"selected"}}
@@ -58,51 +92,55 @@
                                         {{"selected"}}
                                    @endif
                                 @endif
-                            >{{@$key["origen"]}}</option>
+                            >{{@$key["aNombre"]}}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 row mx-0 px-1 my-1">
+            <div class="col-12 col-sm-6 row mx-0 px-1 px-md-0">
                 <div class="">Destino</div>
                 <div class="px-0 col-12">
-                    <select class="form-control" name="destino" id="destino">
-                        <option value="" >Seleccione Destino</option>
+                    <select class="form-control px-1 px-md-2" name="destino" id="destino">
+                        <option value="" >Seleccione</option>
                         @foreach($oficinas as $key)
-                            <option value="{{$key['nNumero']}}" {{@$key['nNumero']==@$destino->nNumero ? "selected": "" }}>{{@$key["origen"]}}</option>
+                            <option value="{{$key['nNumero']}}" {{@$key['nNumero']==@$destino->nNumero ? "selected": "" }}>{{$key["aNombre"]}}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
         </div>
         <div class="col-12 px-0 mx-0 row">
-            <div class="col-12 col-lg-6 row mx-0 my-1">
+            <div class="col-12 col-lg-6 row mx-0 my-1 px-1 px-md-2">
                 <div class="">Fecha</div>
                 <div class="px-0 col-12">
                     <input class="form-control px-2 fechaSalida" type="date" min="{{date('Y-m-d')}}" name="fechaDeSalida" value="{{$fechaDeSalida}}">
                 </div>
             </div>
-            <div class="col-12 col-lg-6 row mx-0 my-1">
+            <div class="col-12 col-lg-6 row mx-0 my-1 px-1 px-md-2 selectReg 
+                {{@Request::get('tipoDeViaje')=='redondo' ? '' : 'hidden'}}
+            ">
                 <div class="">Regreso</div>
                 <div class="px-0 col-12">
-                    <input class="form-control px-2 fechaRegreso" type="date" min="{{date('Y-m-d')}}" name="fechaDeSalida" value="{{$fechaDeSalida}}">
+                    <input class="form-control px-2 fechaRegreso mirrorInput" type="date" target="#fechaRegreso"
+                    min="{{date('Y-m-d')}}" name="fechaRegreso" value="{{ Request::get('fechaRegreso')}}">
                 </div>
             </div>
         </div>
-        <div class="col-6 col-sm-12 row mx-0 my-1">
-            <div class="custom-control custom-checkbox pl-4">
+        <div class="col-6 col-sm-12 row mx-0 my-2 px-0 px-md-2">
+            <div class="custom-control custom-checkbox pl-4 ">
                 <input class="form-check-input" id="usarPromocionF" name="usarPromocion" type="checkbox" target="usarPromocion" {{ Request::get('usarPromocion') ? "checked": ""}}>
                 <label class="form-check-label" for="usarPromocionF">Utilizar promoción</label>
             </div>
         </div>
         <!-- PASAJEROS -->
-        <div class="col-12 row mx-0 my-1">
+        <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
             <div class="col-2 mx-0 px-0">
                 <button id="adultos+" class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
             </div>
             <div class="col-8 mx-0 px-2">
-                <input readonly id="inpt-adultos" name="adultos" class="form-control contadorPasajeros col-12 px-2" type="text" value="{{$adultos}}" step="1" min="0" max="10">
+                <input readonly id="inpt-adultos" name="adultos" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$adultos}}" step="1" min="0" max="10">
                 <label for="inpt-adultos" style="
+                    pointer-events:none;
                     position: absolute;
                     top: 7px;
                     left: 36px;
@@ -112,13 +150,14 @@
                 <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
             </div>
         </div>
-        <div class="col-12 row mx-0 my-1">
+        <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
             <div class="col-2 mx-0 px-0">
                 <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
             </div>
             <div class="col-8 mx-0 px-2">
-                <input readonly id="inpt-niños" name="niños" class="form-control contadorPasajeros col-12 px-2" type="text" value="{{$niños}}" step="1" min="0" max="10">
+                <input readonly id="inpt-niños" name="niños" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$niños}}" step="1" min="0" max="10">
                 <label for="inpt-adultos" style="
+                    pointer-events:none;
                     position: absolute;
                     top: 7px;
                     left: 36px;
@@ -128,13 +167,14 @@
                 <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
             </div>
         </div>
-        <div class="col-12 row mx-0 my-1">
+        <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
             <div class="col-2 mx-0 px-0">
                 <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
             </div>
             <div class="col-8 mx-0 px-2">
-                <input readonly id="inpt-insen" name="insen" class="form-control contadorPasajeros col-12 px-2" type="text" value="{{$insen}}" step="1" min="0" max="10">
+                <input readonly id="inpt-insen" name="insen" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$insen}}" step="1" min="0" max="10">
                 <label for="inpt-adultos" style="
+                    pointer-events:none;
                     position: absolute;
                     top: 7px;
                     left: 36px;
@@ -144,28 +184,38 @@
                 <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
             </div>
         </div>
-        @if(false==true)
-            <div class="col-6 col-sm-12 row mx-0 my-1">
-                <div class="col-12">Estudiantes</div>
-                <div class="col-2">
+        @if($vacaciones==true)
+            <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
+                <div class="col-2 mx-0 px-0">
                     <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
                 </div>
-                <div class="col-8 mx-0 px-0">
-                    <input readonly id="inpt-estudiantes" name="estudiantes" class="form-control contadorPasajeros col-12 px-2" type="text" value="{{$estudiantes}}" step="1" min="0" max="10">
+                <div class="col-8 mx-0 px-2">
+                    <input readonly id="inpt-estudiantes" name="estudiantes" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$estudiantes}}" step="1" min="0" max="10">
+                    <label for="inpt-adultos" style="
+                        pointer-events:none;
+                        position: absolute;
+                        top: 7px;
+                        left: 36px;
+                    ">Estudiantes</label>
                 </div>
-                <div class="col-2">
+                <div class="col-2 mx-0 px-0">
                     <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
                 </div>
             </div>
-            <div class="col-6 col-sm-12 row mx-0 my-1">
-                <div class="col-12">Profesores</div>
-                <div class="col-3">
+            <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
+                <div class="col-2 mx-0 px-0">
                     <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
                 </div>
-                <div class="col-6">
-                    <input readonly id="inpt-profesores" name="profesores" class="form-control contadorPasajeros col-12" type="text" value="{{$profesores}}" step="1" min="0" max="10">
+                <div class="col-8 mx-0 px-2">
+                    <input readonly id="inpt-profesores" name="profesores" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$profesores}}" step="1" min="0" max="10">
+                    <label for="inpt-adultos" style="
+                        pointer-events:none;
+                        position: absolute;
+                        top: 7px;
+                        left: 36px;
+                    ">Profesores</label>
                 </div>
-                <div class="col-3">
+                <div class="col-2 mx-0 px-0">
                     <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
                 </div>
             </div>
@@ -179,50 +229,51 @@
         </div>
         <div class="col-12 row mx-0 my-1 no-padding btn-group" role="group" aria-label="horario">
             <div class="col-12 lbl-radio">
-                <input id="horarioCompleto" class="" value="Completo" type="radio" name="horario" {{@Request::get('horario')=='Completo' ? 'checked':''}} hidden autocomplete="off">
-                <label for="horarioCompleto" class="col-12 btn lbl-horario {{Request::get('horario')=='Completo' ? 'selected' : ''}}" onclick="cambiarHorario('completo',event, 'lbl-horario')">
-                    Todo el día
-                </label>
+                <input id="horarioCompleto" class="" value="Completo" type="radio"
+                    name="horario" {{@Request::get('horario')=='Completo' ? 'checked':''}} hidden>
+                <label for="horarioCompleto" onclick='cambiarHorario("completo", new Event(""), "lbl-horario")'
+                    class="col-12 btn lbl-horario {{Request::get('horario')=='Completo' ? '' : ''}}"
+                    >Todo el día</label>
             </div>
             <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioMadr" class="" value="Madr" type="radio" name="horario" {{@Request::get('horario')=='Madr' ? 'checked':''}} hidden autocomplete="off">
-                <label for="horarioMadr" class="col-12 btn lbl-horario {{Request::get('horario')=='Madr' ? 'selected' : ''}}" onclick="cambiarHorario('Madr',event, 'lbl-horario')">
+                <input id="horarioMadr" class="" value="Madr" type="radio" name="horario" {{@Request::get('horario')=='Madr' ? 'checked':''}} hidden>
+                <label for="horarioMadr" class="col-12 btn lbl-horario {{Request::get('horario')=='Madr' ? '' : ''}}" onclick="cambiarHorario('Madr',event, 'lbl-horario')">
                     Madrugada
                 </label>
             </div>
             <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioMaña" class="" value="Maña" type="radio" name="horario" {{@Request::get('horario')=='Maña' ? 'checked':''}} hidden autocomplete="off">
-                <label for="horarioMaña" class="col-12 btn lbl-horario {{Request::get('horario')=='Maña' ? 'selected' : ''}}" onclick="cambiarHorario('Maña',event, 'lbl-horario')">
+                <input id="horarioMaña" class="" value="Maña" type="radio" name="horario" {{@Request::get('horario')=='Maña' ? 'checked':''}} hidden>
+                <label for="horarioMaña" class="col-12 btn lbl-horario {{Request::get('horario')=='Maña' ? '' : ''}}" onclick="cambiarHorario('Maña',event, 'lbl-horario')">
                     Mañana
                 </label>
             </div>
             <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioTard" class="" value="Tard" type="radio" name="horario" {{@Request::get('horario')=='Tard' ? 'checked':''}} hidden autocomplete="off">
-                <label for="horarioTard" class="col-12 btn lbl-horario {{Request::get('horario')=='Tard' ? 'selected' : ''}}" onclick="cambiarHorario('Tard',event, 'lbl-horario')">
+                <input id="horarioTard" class="" value="Tard" type="radio" name="horario" {{@Request::get('horario')=='Tard' ? 'checked':''}} hidden>
+                <label for="horarioTard" class="col-12 btn lbl-horario {{Request::get('horario')=='Tard' ? '' : ''}}" onclick="cambiarHorario('Tard',event, 'lbl-horario')">
                     Tarde
                 </label>
             </div>
             <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioNoch" class="" value="Noch" type="radio" name="horario" {{@Request::get('horario')=='Noch' ? 'checked':''}} hidden autocomplete="off">
-                <label for="horarioNoch" class="col-12 btn lbl-horario {{Request::get('horario')=='Noch' ? 'selected' : ''}}" onclick="cambiarHorario('Noch',event, 'lbl-horario')">
+                <input id="horarioNoch" class="" value="Noch" type="radio" name="horario" {{@Request::get('horario')=='Noch' ? 'checked':''}} hidden>
+                <label for="horarioNoch" class="col-12 btn lbl-horario {{Request::get('horario')=='Noch' ? '' : ''}}" onclick="cambiarHorario('Noch',event, 'lbl-horario')">
                     Noche
                 </label>
             </div>
         </div>
 
-            <div class="row nopadding mx-0">
-                <div class="col-6 row mx-0 my-3">
-                    <button class="btn btn-sm btn-parhi-primary">Filtrar</button>
-                </div>
-                <div class="col-6 row mx-0 my-3">
-                    <input class="btn btn-sm btn-warning" type="button" onclick="quitarFiltros()" value="Quitar filtros">
-                </div>
+        <div class="col-12 row nopadding mx-0 px-0 px-md-2">
+            <div class="col-12 col-md-6 row mx-0 my-2">
+                <button class="btn btn-sm btn-parhi-primary" target="_self">Filtrar</button>
             </div>
+            <div class="col-12 col-md-6 row mx-0 my-2">
+                <input class="btn btn-sm btn-warning" type="button" onclick="quitarFiltros()" value="Quitar filtros">
+            </div>
+        </div>
         <!-- </div> -->
     </form>
 
     <div class="col-12 col-sm-9 row pr-0">
-        <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="pr-0" onsubmit="return validarFiltros()" method="post">
+        <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="pr-0" onsubmit="return validarFiltros()" method="post" target="_self">
             @csrf
             <table class="table table-stripe.d table-parhi" style="">
                 <thead style="position: sticky;top: 69px;">
@@ -301,11 +352,16 @@
             <input id="adultos" hidden name="AD" type="" value="{{ Request::get('adultos') ?: 0 }}">
             <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
             <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
-            <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox"
-                {{Request::get("tipoDeViaje")=="redondo" ? 'checked':''}}
-                >
+            @if($vacaciones)
+            <input id="estudiantes" hidden name="ES" type="" value="{{ Request::get('estudiantes') ?: 0 }}">
+            <input id="profesores" hidden name="MA" type="" value="{{ Request::get('profesores') ?: 0 }}">
+            @endif
+            <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox" {{ @Request::get('tipoDeViaje')=='redondo' ? 'checked': '' }}>
+            <label hidden for="tipoDeViaje">Viaje redondo</label>
             <input hidden class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox"
-                {{ Request::get('usarPromocion') ? 'checked': ''}}>
+            {{ Request::get('usarPromocion') ? 'checked': ''}}>
+            <label hidden for="usarPromocion">Usar promocion</label>
+            <input id="fechaRegreso" hidden name="fechaRegreso" type="date" readonly value="{{Request::get('fechaRegreso')}}"}}>
             <div class="col-12">
                 @if(sizeof($corridas)>0)
                 <span class="btn-collap float-right mx-1" title="Continuar">

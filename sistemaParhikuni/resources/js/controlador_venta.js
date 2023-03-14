@@ -43,14 +43,12 @@ window.getRecorrido = function (corridaDisponible, origen, destino) {
     });
 }
 window.cambiarHorario=(horario, ev, elementos)=>{
-    console.log(ev.target);
     ev.preventDefault();
     $("."+elementos).removeClass("selected");
     $(ev.target).addClass("selected");
-
     $("#horario"+horario).prop("checked", true);
-
     var hInicio, hFin;
+    console.log(horario);
     switch (horario) {
         case "Madr":
             hInicio = "00:00:00";
@@ -68,12 +66,11 @@ window.cambiarHorario=(horario, ev, elementos)=>{
             hInicio = "18:00:00";
             hFin = "23:59";
             break;
-        case "completo":
+        default:
             hInicio = "00:00:00";
             hFin = "23:59";
             break;
     }
-
     $("#hInicio").val(hInicio);
     $("#hFin").val(hFin);
 }
@@ -83,9 +80,9 @@ window.validarFiltros=()=>{
     var adultos =       parseInt($("#adultos").val() | 0);
     var niños =         parseInt($("#niños").val() | 0);
     var insen =         parseInt($("#insen").val() | 0);
-    var estudiantes =   parseInt($("#insen").val() | 0);
+    var estudiantes =   parseInt($("#estudiantes").val() | 0);
     var profesores =    parseInt($("#profesores").val() | 0);
-    var tarifa = parseFloat($("#disp-" + disponibilidad + " .tarifa span").html() | 0);
+    var tarifa =        parseFloat($("#disp-" + disponibilidad + " .tarifa span").html() | 0);
 
     var errorMsg="";
 
@@ -332,7 +329,15 @@ window.calcularDescuento= async function(row){
     }
     var ttl = $(row).parent().find(".total").html("$"+totalApagar.toFixed(2));
 }
+
+window.mirrorInput=function(inp){
+    $($(inp).attr("target")).val($(inp).val());
+}
 $(document).ready(()=>{
+    $(".mirrorInput").on("change", function(event){
+        mirrorInput(this);
+    });
+
     $(".fechaSalida").on("change", validarFechaReg);
 
     setTimeout(() => {
@@ -406,56 +411,19 @@ $(document).ready(()=>{
     $(".promociones").change(function(){
         calcularDescuento(this.parentElement.parentElement);
     });
-    // $(".promociones").change((ev)=>{
-    //     var prms = $(".promociones");
-    //     var seleccionadas=0;
-    //     var selectList = ev.target; // donde cambie el valor
-    //     var row = ev.target.attributes.row.value;
-    //     for(var i=0; i<prms.length; i++){
-    //         var list = $("#" + prms[i].id);
-    //         if (list.value!=""){
-    //             seleccionadas++;
-    //         }
-    //     };
-    //     if (seleccionadas > promos.disponibles){
-    //         ev.target.value="";
-    //         alert("No se pueden usar más promociones");
-    //     }else{
-    //         var idsel = $(selectList).children()[selectList.selectedIndex].value; // la fila
-    //         // var importe = $("#asiento-"+row+" .tarifa .siniva").html(); //columna importe
-    //         var importe = $("#asiento-" + row +" .tarifa span.siniva").html(); //columna importe
-    //         console.log(importe);
-    //         var importeSinDescConIVA=(importe*1.16).toFixed(2);
-    //         if (ev.target.value!=""){
-    //             var descuentoAplicado = $("#promo-" + idsel + " span").html(); // descuento seleccionado de la lista
-    //             var importeConDescuentoConIva = ((importe - (importe * descuentoAplicado)) * 1.16).toFixed(2);
-                
-    //             $("#asiento-" + row + " .subtotal").html(
-    //                 '<span class="original textoTachado">$'+importeSinDescConIVA+'</span>'
-    //                 +'$<span class="porPagar">' + importeConDescuentoConIva + '</span>');
-    //         }else{
-    //             $("#asiento-" + row +" .subtotal").html('$<span class="porPagar">'+importeSinDescConIVA+'</span>')
-    //         }
-    //         var x = $(".porPagar");
-    //         var total=0;
-    //         for (let i = 0; i < x.length; i++) {
-    //             total = total + parseFloat($(x[i]).html());
-    //         }
-    //         $("#total").html("$"+total.toFixed(2));
-    //     }
-        
-    // });
+
     $(".tipoDeViaje").on("change",function(){
-        // $("#tipoDeViaje").val(this.value);
-        console.log(this.value);
         if (this.value == "redondo"){
             $("#tipoDeViaje").prop("checked", true);
+            $(".selectReg").fadeIn();
         }else{
             $("#tipoDeViaje").prop("checked", false);
+            $(".selectReg").fadeOut();
         }
     });
 
     $("#tiempoRestante").val(convertirSegundosaTiempo(window.tiempoRestante));
+
     window.IntTiempoRestante=setInterval(()=>{
         window.tiempoRestante = window.tiempoRestante-1;
         $("#tiempoRestante").val(convertirSegundosaTiempo(window.tiempoRestante));

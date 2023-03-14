@@ -113,6 +113,13 @@
                             <li>
                                 <a href="{{route('corridas.disponibles.index')}}">Firmas</a>
                             </li>
+                            @can([
+                                "corridas.vacaciones"
+                                ])
+                                <li>
+                                    <a href="{{route('corridas.vacaciones.index')}}">Periodo vacacional</a>
+                                </li>
+                            @endcan
                         </ul>
                     </li>
                 
