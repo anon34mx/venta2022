@@ -27,7 +27,8 @@
                 </div>
                 <div class="col-12 col-md-8">
                     <input id="nombreDeUsuario" class="form-control" type="text" name="nombreDeUsuario" placeholder="Nombre de usuario"
-                        value="{!! $user->name !!}" pattern="(^([a-zA-Z0-9\.-_]+)(\d+)?$)">
+                        value="{!! $user->name !!}" pattern="(^([a-zA-Z0-9\.-_]+)(\d+)?$)" required>
+                    <div class="invalid-feedback">Escriba un nombre de usuario</div>
                 </div>
             </div>
             <div class="col-12 col-lg-6 col-xl-4 row mb-2">
@@ -36,7 +37,8 @@
                 </div>
                 <div class="col-12 col-md-8">
                     <input id="correoElectronico" type="email" name="correoElectronico" placeholder="Email" class="form-control"
-                    value="{!! $user->email !!}" @if(!Auth::user()->hasRole('Admin')) {{"readonly"}} @endif>
+                        value="{!! $user->email !!}" @if(!Auth::user()->hasRole('Admin')) {{"readonly"}} @endif required>
+                    <div class="invalid-feedback">Escriba un nombre de usuario</div>
                 </div>
             </div>
             <div class="col-12 col-lg-6 col-xl-4 row mb-2">
@@ -70,7 +72,7 @@
                             pattern="([a-zA-ZÀ-ÖØ-öø-ÿ]{3,})+([ a-zA-ZÀ-ÖØ-öø-ÿ]{3,})?">
                             <!-- pattern="^([a-zA-ZÀ-ÖØ-öø-ÿ]){3,}(\x20)+(([a-zA-ZÀ-ÖØ-öø-ÿ']){3,}|([a-zA-ZÀ-ÖØ-öø-ÿ']{1,2}) [a-zA-ZÀ-ÖØ-öø-ÿ']{2,})" -->
                             <div class="invalid-feedback">
-                                Esciba un nombre
+                                Escriba un nombre
                             </div>
                     </div>
                 </div>
@@ -80,6 +82,9 @@
                     </div>
                     <div class="col-12 col-md-8">
                         <input id="apellidos" type="text" name="apellidos" placeholder="Apellidos" class="form-control" value="{!! @$user->personas->aApellidos !!}" @if(!Auth::user()->hasRole('Admin')) {{"readonly"}} @endif>
+                        <div class="invalid-feedback">
+                                Escriba los apellidos
+                            </div>
                     </div>
                 </div>
                 <div class="col-12 col-lg-6 col-xl-4 row mb-2">
@@ -94,6 +99,7 @@
                             <option value="{{$oficina->nNumero}}" {{ $oficina->nNumero==@$user->personas->nOficina ? "selected" : ""}} >{{ $oficina->aNombre }}</option>
                             @endforeach
                         </select>
+                        <div class="invalid-feedback">Selecione una opción</div>
                     </div>
                 </div>
                 <div class="col-12 col-lg-6 col-xl-4 row mb-2">
@@ -102,7 +108,7 @@
                     </div>
                     <div class="col-12 col-md-8">
                         <select name="tipoPersona" id="tipoPersona" class="form-control">
-                            <option value="">Seleccione</option>
+                            <option value="" disabled>Seleccione</option>
                             @foreach($tipospersonas as $tipopersona)
                             <option value="{{$tipopersona->aTipo}}"
                                 {{$tipopersona->aTipo==@$user->personas->aTipo ? "selected":""}}
@@ -111,6 +117,7 @@
                             </option>
                             @endforeach
                         </select>
+                        <div class="invalid-feedback">Selecione una opción</div>
                     </div>
                 </div>
             </div>
@@ -160,7 +167,7 @@
             <p>El usuario no tiene un rol asignado. <b>Necesita un rol</b> para tener acceso a las funciones del sistema.</p>
             @endif
             <h3 class="mt-4">Añadir rol</h3>
-            <form action="{{route('users.addrol', $user->id)}}" class="" method="post">
+            <form action="{{route('users.addrol', $user->id)}}" class="needs-validation" novalidate method="post">
                 @csrf
                 <div class="row">
                     <div class="col-12 col-md-10">

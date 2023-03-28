@@ -19,11 +19,27 @@
     <h3>Itinerarios</h3>
 
     
-    <div class="col-8 mx-auto">
-        <a href="{{route('itinerarios.create')}}">
-            <button>Nuevo</button>
+    <div class="col-8 mx-auto" style="display: flow-root;">
+        <a href="{{route('itinerarios.create')}}" class="float-right">
+            <span class="btn-collap" title="Añadir">
+                <label class="btn btn-sm btn-primary" for="nuevo">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Añadir</span>
+                </label>
+            </span>
         </a>
     </div>
+    <!--
+        <div class="col-8 mx-auto">
+            <span class="btn-collap" title="Añadir">
+                <label class="btn btn-sm btn-primary float-right" for="nuevo">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Añadir</span>
+                </label>
+                <input id="nuevo" type="submit" class="btn">
+            </span>
+        </div>
+-->
     <div class="col-8 mx-auto">
         <table class="table table-parhi">
             <thead>
@@ -52,7 +68,13 @@
                         </td>
                         <td>
                             <a href="{{route('itinerarios.edit',$itinerario[0]->id)}}">
-                                editar
+                                <span class="btn-collap" title="Editar">
+                                    <label class="btn btn-sm btn-primary" for="edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Editar</span>
+                                    </label>
+                                    <input id="edit" type="submit" class="btn" onclick="">
+                                </span>
                             </a>
                         </td>
                     </tr>

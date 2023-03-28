@@ -18,23 +18,38 @@
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
     <h3>Tramos</h3>
     <div class="col-12">
-        <form action="">
-            <div class="col-12">
-                <select name="busqueda" id="busqueda" class="">
-                    <option value="">Todos</option>
-                    @foreach($oficinas as $oficina)
-                        <option value="{{$oficina->nNumero}}">{{$oficina->aNombre}}</option>
-                    @endforeach
-                </select>
-                <input type="submit" class="" value="Buscar">
+        <form action="" class="">
+            <div class="col-12 col-md-10 col-lg-6 row mx-auto">
+                <div class="col-12 col-sm-9">
+                    <select name="busqueda" id="busqueda" class="form-control">
+                        <option value="">Todos</option>
+                        @foreach($oficinas as $oficina)
+                            <option value="{{$oficina->nNumero}}">{{$oficina->aNombre}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-sm-3 my-2 my-sm-0">
+                    <span class="btn-collap col-auto" title="Buscar">
+                        <label class="btn btn-sm btn-parhi-primary" for="buscar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Buscar</span>
+                        </label>
+                        <input id="buscar" type="submit" class="btn">
+                    </span>
+                </div>
             </div>
-
         </form>
     </div>
 
     <div class="col-12">
         <a href="{{route('tramos.create')}}">
-            <button>Crear</button>
+            <span class="btn-collap" title="Añadir">
+                <label class="btn btn-sm btn-primary float-right" for="addpermission">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Añadir</span>
+                </label>
+                <input id="addpermission" type="submit" class="btn">
+            </span>
         </a>
     </div>
 
@@ -70,7 +85,13 @@
                     <td>{{$tramo->nEstancia}}</td>
                     <td>
                         <a href="{{route('tramos.edit', $tramo)}}">
-                            <button>editar</button>
+                            <span class="btn-collap" title="Editar">
+                                <label class="btn btn-sm btn-primary" for="edit-">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Editar</span>
+                                </label>
+                                <input id="edit-" type="submit" class="btn" onclick="">
+                            </span>
                         </a>
                     </td>
                 </tr>

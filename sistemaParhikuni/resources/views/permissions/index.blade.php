@@ -21,14 +21,14 @@
             </div>
         @endif
 
-        <form action="{{route('permission.store')}}" method="post" class="mt-4">
+        <form action="{{route('permission.store')}}" method="post" class="mt-4 needs-validation" novalidate>
             @csrf
             <div class="col-11 row">
                 <div class="col-12 col-md-6">
                     <label class="" for="">Nuevo permiso</label>
                 </div>
                 <div class="col-12 col-md-3">
-                    <input class="form-control" type="text" name="newPermission">
+                    <input class="form-control" type="text" name="newPermission" required>
                 </div>
                 <div class="col-12 col-md-auto">
                     <span class="btn-collap" title="Eliminar">

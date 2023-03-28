@@ -16,7 +16,7 @@
     @endif
 <div class="mx-auto col-12 col-sm-11 col-md-11 col-lg-11 px-0 row mx-auto">
     <h4>Tarifas</h4>
-        <form class="col-12 row mx-0" method="post" action="{{route('tarifas.update', $tarifa)}}">
+        <form class="col-12 row mx-0 needs-validation" method="post" action="{{route('tarifas.update', $tarifa)}}" novalidate>
             <div class="col-12 col-sm-6 col-lg-4 row mx-0 my-1">
                 <label for="claseDeServicio" class="col-12 col-sm-6">Servicio</label>
                 <div class="col-12 col-sm-6">

@@ -98,7 +98,7 @@ class CorridasDisponiblesController extends Controller
         $conductores=conductores::
             whereRaw("conductores.nNumeroConductor NOT IN (
                 SELECT IF(cordis.nNumeroConductor is NULL, 0 , cordis.nNumeroConductor) FROM corridasdisponibles cordis WHERE cordis.aEstado IN ('A','S', 'R') GROUP BY cordis.nNumeroConductor
-            )")
+            ) AND conductores.aEstado!='BA'")
             ->orderBy("conductores.nNumeroConductor", "ASC")
             ->get();
         $estadoActual=$corridaDisponible->estadoActual($oficina);

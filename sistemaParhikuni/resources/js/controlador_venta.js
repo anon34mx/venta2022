@@ -31,6 +31,13 @@ window.validarFechaReg = function () {
         $(".fechaRegreso").val($(".fechaSalida").val())
     }
 }
+window.validarFechas = function (primera, segunda) {
+    $(segunda).attr("min", $(primera).val());
+
+    if ($(segunda).val() < $(primera).val()){
+        $(segunda).val($(primera).val())
+    }
+}
 
 window.getRecorrido = function (corridaDisponible, origen, destino) {
     // es el itinerario pero ya con fecha y hora

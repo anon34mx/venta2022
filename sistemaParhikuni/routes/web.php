@@ -16,8 +16,8 @@ use Carbon\Carbon;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('base');
+})->middleware("auth");
 // Login
 Auth::routes();
 // Route::get("/"); // poner enlace para logout por get
@@ -172,6 +172,7 @@ Route::get('/corridas/disponibles/{corridaDisponible}/itinerario', [App\Http\Con
 Route::get('/corridas/disponibles/{corridaDisponible}/recorrido/{origen}/{destino}', [App\Http\Controllers\CorridasDisponiblesController::class, 'recorrido'])
     ->name('corridas.disponibles.recorrido');
     // ->middleware('permission:corridas.disponibles.registrarPuntoDeControl');
+
     //  PERIODO VACACIONAL
 Route::get('/corridas/periodosVacacionales', [App\Http\Controllers\PerodiodosVacacionalesController::class, 'index'])
     ->name('corridas.vacaciones.index')->middleware('permission:corridas.vacaciones');
@@ -180,6 +181,17 @@ Route::get('/corridas/periodosVacacionales/store', [App\Http\Controllers\Perodio
 Route::post('/corridas/periodosVacacionales/{id}/destroy', [App\Http\Controllers\PerodiodosVacacionalesController::class, 'destroy'])
     ->name('corridas.vacaciones.destroy')->middleware('permission:corridas.vacaciones');
 
+    //  PROMOCIONES
+Route::get('/promociones', [App\Http\Controllers\PromocionesController::class, 'index'])
+    ->name('corridas.promociones.index');//->middleware('permission:corridas.vacaciones');
+Route::get('/promociones/create', [App\Http\Controllers\PromocionesController::class, 'create'])
+    ->name('promociones.create');//->middleware('permission:corridas.vacaciones');
+Route::post('/promociones/store', [App\Http\Controllers\PromocionesController::class, 'store'])
+    ->name('promociones.store');//->middleware('permission:corridas.vacaciones');
+Route::get('/promociones/{promocion}', [App\Http\Controllers\PromocionesController::class, 'edit'])
+    ->name('promociones.edit');//->middleware('permission:corridas.vacaciones');
+Route::post('/promociones/{promocion}/update', [App\Http\Controllers\PromocionesController::class, 'update'])
+    ->name('promociones.update');//->middleware('permission:corridas.vacaciones');
 
 // BOLETOS VENDIDOS
 ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
@@ -257,9 +269,6 @@ Route::post('/sesionesVenta/{sesion}/update', [App\Http\Controllers\sesionesVent
 Route::post('/sesionesVenta/abrir', [App\Http\Controllers\sesionesVentaController::class, 'store'])
     ->name("sesionesventa.abrir");
     
-Route::get('/cookies', function(){
-    dd(session()->all(), Auth()->user()); //, Auth::user()->personas
-});
 Route::get('/ventaInterna/tiempoRestanteCompra', function(){
     return session()->has("cmpra_tiempoCompra") ? session("cmpra_tiempoCompra")-time() : 0;
 })->name("tiempoRestanteCompra");
@@ -287,6 +296,32 @@ Route::get('/personal/conductores/{conductor}/edit', [App\Http\Controllers\Condu
 Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\ConductoresController::class, 'update'])
     ->name("personal.conductores.update");
     // ->middleware('permission:corridasDisponibles.index');
+
+
+
+
+    // DEBUG
+Route::get('/browser', function(){
+echo "<h5><center>Debug</center></h5><br>";
+echo "<pre>";
+
+var_dump($_SERVER);
+/**
+ * REMOTE_ADDR
+ * 
+ */
+
+// no sé si sirva :v 
+// print_r(get_browser(null, true));
+    
+echo "</pre>";
+})->name("debug.browser");
+
+
+
+Route::get('/cookies', function(){
+    dd(session()->all(), Auth()->user()); //, Auth::user()->personas
+});
 Route::get('/phpinfo', function() {
     return phpinfo();
 });
@@ -295,6 +330,9 @@ Route::get('/oneTab', function(Request $request) {
         "reason" => @$_GET["reason"]
     ]);
 })->name("oneTab");
+Route::get('/base', function(Request $request) {
+    return view("base");
+})->name("base");
 
 Route::get('/logout', function(Request $request){
     try {

@@ -70,16 +70,21 @@ $(document).ready(()=>{
 });
 
 window.toggler=function(inpt, target){
+    // input para saber el valor, si deben ser requeridos o no
+    // target, el contenedor de los elementos
     if($(inpt).prop("checked") == true){
         $(target).show();
         if ($(inpt).attr("targetRequired") == "" || $(inpt).attr("targetRequired") == "required") {
             $(target + " input").attr("required", "required")
+            $(target + " select").attr("required", "required")
         } else {
             $(target + " input").removeAttr("required");
+            $(target + " select").removeAttr("required");
         }
     }else{
         $(target).hide();
         $(target + " input").removeAttr("required");
+        $(target + " select").removeAttr("required");
     }
 }
 window.quitarFiltros=()=>{

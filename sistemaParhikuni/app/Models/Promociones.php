@@ -4,11 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TipoPasajero;
 use DB;
 
 class Promociones extends Model
 {
     use HasFactory;
+
+    protected $primaryKey = 'nNumero';
+    protected $fillable = [
+        "aTipo",
+        "aDescripcion",
+        "nDescuento",
+        "nCorridaProgramada",
+        "nOficina",
+        "nOrigen",
+        "nDestino",
+        "viajeRedondo",
+        "fInicio",
+        "fFin",
+        "nTipoServicio",
+    ];
+
+    public function tipoPasajero(){
+        return $this->hasOne(TipoPasajero::class, "aClave", "aTipo");
+    }
 
     public static function aplicables($origen, $destino, $oficina, $corrida, $viajeRedondo, $claseServicio){
         $rs=collect(\DB::select("(

@@ -58,5 +58,3 @@ setInterval(() => {
 // oneTab("/ventaInterna");
 oneTab("{{$rest}}");
 </script>
-<script>
-</script>

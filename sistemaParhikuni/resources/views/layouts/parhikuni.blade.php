@@ -110,14 +110,21 @@
                                     <a href="{{route('corridas.disponibles.index')}}">Disponibles</a>
                                 </li>
                             @endcan
-                            <li>
+                            <!-- <li>
                                 <a href="{{route('corridas.disponibles.index')}}">Firmas</a>
-                            </li>
+                            </li> -->
                             @can([
                                 "corridas.vacaciones"
                                 ])
                                 <li>
                                     <a href="{{route('corridas.vacaciones.index')}}">Periodo vacacional</a>
+                                </li>
+                            @endcan
+                            @can([
+                                "corridas.vacaciones"
+                                ])
+                                <li>
+                                    <a href="{{route('corridas.promociones.index')}}">Promociones</a>
                                 </li>
                             @endcan
                         </ul>
@@ -138,9 +145,16 @@
                 <li>
                     <a href="{{route('venta.interna.corridas')}}">Venta de boletos</a>
                 </li>
-
                 <li>
                     <a href="#">About</a>
+                </li>
+                <li class="active">
+                    <a href="#menuDebug" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">DEBUG</a>
+                    <ul class="collapse list-unstyled" id="menuDebug">
+                        <li>
+                            <a href="{{route('debug.browser')}}">browser</a>
+                        </li>
+                    </ul>
                 </li>
                 
             </ul>

@@ -154,6 +154,6 @@ class DatabaseSeeder extends Seeder
         ]);
         // OficinasSeeder::run();
 
-        DB::unprepared('SELECT corridasPorDia("2023-03-08", 60);');
+        // DB::unprepared('SELECT corridasPorDia("2023-03-08", 60);');
     }
 }

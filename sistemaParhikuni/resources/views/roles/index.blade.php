@@ -2,12 +2,22 @@
 
 @section('content')
     <div class="col-12">
+        <details>
+            <summary class="text-right">
+                <div class="btn btn-sm btn-info">Ayuda</div>
+                <!-- <i class="fa-solid fa-question"></i> -->
+            </summary>
+            <div class="pl-5">
+                <p>
+                    El rol es el papel que puede cumplir un usuario dentro del sistema.
+                    <br>
+                    Cada rol se asocia con permisos, para realizar acciones dentro del sistema.
+                </p>
+            </div>
+        </details>
         <h3 class="titleWithAnchor" id="nuevoUsuario">
             <a href="#nuevoUsuario">Roles</a>
         </h3>
-        <p>
-            El rol es el papel que puede cumplir un usuario dentro del sistema.
-        </p>
 
         @if($errors->any())
             <div class="card-body mt-2 mb-2 ">
@@ -24,18 +34,18 @@
             </div>
         @endif
 
-        <form action="{{route('roles.store')}}" class="mt-3" method="post">
+        <form action="{{route('roles.store')}}" class="needs-validation" novalidate method="post">
             @csrf
             <div class="col-12 row">
                 <div class="col-12 col-sm-4">
                     <label for="">Nuevo rol</label>
                 </div>
                 <div class="col-12 col-sm-6">
-                    <input type="text" name="newRole" class="form-control col-12">
+                    <input type="text" name="newRole" class="form-control col-12" required>
                 </div>
                 <div class="col-auto">
                     <span class="btn-collap" title="Eliminar">
-                        <label class="btn btn-sm btn-parhi-primary"
+                        <label class="btn btn-sm btn-parhi-primary float-right"
                             for="newPermissionBtn">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span>Guardar</span>

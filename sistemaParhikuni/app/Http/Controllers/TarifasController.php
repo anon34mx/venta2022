@@ -45,7 +45,6 @@ class TarifasController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         try {
             $tarifasNvas=TarifasTramo::create([
                 "nTipoServicio" => $request->claseDeServicio,

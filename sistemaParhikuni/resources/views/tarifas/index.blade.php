@@ -18,7 +18,13 @@
 <div class="col-12 col-sm-11 col-md-11 col-lg-11 mx-auto px-0 row">
     <h4>Tarifas</h4>
     <a href="{{route('tarifas.create')}}">
-        <button>Nuevo</button>
+        <span class="btn-collap" title="Añadir">
+            <label class="btn btn-sm btn-primary float-right" for="añadir">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Añadir</span>
+            </label>
+            <input id="añadir" type="submit" class="btn">
+        </span>
     </a>
     <table class="table table-parhi">
         <thead>
@@ -55,7 +61,13 @@
                 </td>
                 <td>
                     <a href="{{route('tarifas.edit', $tarifa)}}">
-                        <button>editar o algo</button>
+                        <span class="btn-collap" title="Editar">
+                            <label class="btn btn-sm btn-primary" for="edit-{{$tarifa}}">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Editar</span>
+                            </label>
+                            <input id="edit-{{$tarifa}}" type="submit" class="btn" onclick="">
+                        </span>
                     </a>
                 </td>
             </tr>

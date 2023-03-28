@@ -16,14 +16,18 @@
     @endif
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 px-3 pt-2">
     <h4>Periodos vacacionales</h4>
-    <form action="{{route('corridas.vacaciones.store')}}" class="col-12 col-sm-10 col-md-8 col-lg-6 row mx-auto">
-        <div class="col-12 col-md-4 row">
-            <input class="form-control" type="date" name="fechaInicio" min="{{date('Y-m-d')}}" required>
+    <form action="{{route('corridas.vacaciones.store')}}" class="col-12 col-sm-10 col-lg-6 row mx-auto needs-validation" novalidate>
+        <div class="col-12 col-md-5 row px-2">
+            <div class="col-12">
+                <input class="form-control" type="date" name="fechaInicio" min="{{date('Y-m-d')}}" required>
+            </div>
         </div>
-        <div class="col-12 col-md-4 row">
-            <input class="form-control" type="date" name="fechaFin" min="{{date('Y-m-d')}}" required>
+        <div class="col-12 col-md-5 row px-2">
+            <div class="col-12">
+                <input class="form-control" type="date" name="fechaFin" min="{{date('Y-m-d')}}" required>
+            </div>
         </div>
-        <div class="col-12 col-md-4 row">
+        <div class="col-12 col-md-2 row px-2">
             <input class="hidden"  id="guardar" type="submit">
             <span class="btn-collap" title="Guardar">
                 <label class="btn btn-sm btn-parhi-primary" for="guardar">
@@ -50,7 +54,14 @@
                 <td>
                     <form action="{{route('corridas.vacaciones.destroy', $periodo)}}" method="post">
                         @csrf
-                        <input type="submit" value="borrar" onclick="confirm('¿Eliminar este registro?')">
+                        <span class="btn-collap" title="Eliminar">
+                            <label class="btn btn-sm btn-danger" for="borrar-{{$periodo}}">
+                                <i class="fa-solid fa-circle-minus"></i>
+                                <span>Eliminar</span>
+                            </label>
+                            <input id="borrar-{{$periodo}}" type="submit" value="borrar" onclick="confirm('¿Eliminar este registro?')">
+                            <!-- <input id="del" type="submit" class="btn" onclick="return confirm('¿Eliminar usuario?')"> -->
+                        </span>
                     </form>
                 </td>
             </tr>

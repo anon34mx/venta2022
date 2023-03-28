@@ -19,11 +19,11 @@
     <h3>Itinerario</h3>
     <div class="col-10 mx-auto row">
         
-        <table>
+        <table class="table table-striped table-parhi">
             <thead>
                 <tr>
                     <th>Consecutivo</th>
-                    <th>origen - destino</th>
+                    <th>Origen - Destino</th>
                     <th></th>
                 </tr>
             </thead>
@@ -64,6 +64,7 @@
                         }
                     }
                 @endphp
+                @if(sizeof($posiblesTramos)>0)
                 <tr>
                     <td colspan="2">
                         <form action="{{route('itinerarios.update', $tramos[0]->id)}}" method="post">
@@ -83,13 +84,20 @@
                     <td>
                         <span class="btn-collap" title="Añadir">
                             <label class="btn btn-sm btn-primary"
-                                for="btn-add">
-                                <i class="fa-solid fa-circle-plus"></i>
-                                <span>Añadir</span>
-                            </label>
-                        </span>
-                    </td>
-                </tr>
+                            for="btn-add">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span>Añadir</span>
+                        </label>
+                    </span>
+                </td>
+            </tr>
+            @else
+            <tr>
+                <td colspan="3">
+                    <div for="" class="p-3 mb-2 bg-info text-white rounded">No hay más tramos disponibles. Revisa desde la sección de tramos.</div>
+                </td>
+            </tr>
+            @endif
             </tbody>
         </table>
         <div class="col-12">

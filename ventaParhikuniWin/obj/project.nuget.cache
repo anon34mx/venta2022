@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "FocRNk/rHVkcX/9KuMORvxQGuEpzaAitrdZ95aPedc+nWKP9gHQYNuLF5E0qyDC/ux+HndsUIaLbV+wFm41+7w==",
+  "success": true,
+  "projectFilePath": "C:\\xampp\\htdocs\\venta2022\\ventaParhikuniWin\\ventaParhikuniWin.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\aaron\\.nuget\\packages\\microsoft.web.webview2\\1.0.1661.34\\microsoft.web.webview2.1.0.1661.34.nupkg.sha512"
+  ],
+  "logs": []
+}

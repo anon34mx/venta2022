@@ -6,13 +6,29 @@
     --parh-acc-navbar: #ff6239;
     --parh-btn-primary: #ff7f21;
 }
+
+summary::marker {
+	display: none;
+	content: '';
+	font-weight: bold;
+}
+details>summary .btn::before {
+	content: "► ";
+}
+details[open]>summary .btn::before {
+	content: "▼ ";
+}
+/* details[open]>summary:after {
+	content: "";
+} */
+
 .no-padding,
 px-0{
 	padding: 0;
 }
-*:focus{
+/* *:focus{
 	outline: 2px solid red;
-}
+} */
 .alert-float-br{ /* bottom rigth */
 	position: fixed;
 	bottom: 20px;
@@ -107,7 +123,7 @@ input[type="radio"]:checked+label {
 
 *{
 	/* font-family: 'Open Sans', sans-serif !important; */
-	/* outline: 1px solid tomato; */
+	outline: 1px solid tomato;
 }
 html{
 	/* background-color: #dbe6e7; */

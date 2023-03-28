@@ -5,6 +5,10 @@
         <h3 class="titleWithAnchor" id="nuevoUsuario">
             <a href="#nuevoUsuario">Nuevo usuario</a>
         </h3>
+        <details>
+            <summary>Ayuda</summary>
+            <p>En esta página vemos los usuarios que tienen acceso a este sistema</p>
+        </details>
         @if($errors->any())
             <div class="card-body mt-2 mb-2 ">
                 <div class="alert-danger px-3 py-3">
@@ -14,7 +18,7 @@
                 </div>
             </div>
         @endif
-        <form action="{{route('users.store')}}" method="POST">
+        <form action="{{route('users.store')}}" method="POST" class="needs-validation" novalidate>
             <div class="row form-group">
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <input type="text" name="name" placeholder="Nombre de usuario" class="form-control" value="{{old('name')}}" required>
@@ -27,7 +31,7 @@
                 </div>
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     <select name="role" id="role" class="form-control" required>
-                        <option value="">Rol de usuario</option>
+                        <option value="" selected disabled >Rol de usuario</option>
                         @foreach($roles as $rol)
                             <option value="{{$rol->id}}">{{$rol->name}}</option>
                         @endforeach
@@ -53,7 +57,7 @@
                 <div class="col-12 mt-1 mb-1 col-md-6 col-lg-6">
                     
                     <select name="nOficina" id="nClaveOficina" class="form-control">
-                        <option value="" disabled checked>Oficina</option>
+                        <option value="" disabled selected>Oficina</option>
                         <option value="null">Ninguna</option>
                         @foreach($oficinas as $oficina)
                         <option value="{{$oficina->nNumero}}">{{ $oficina->aNombre }}</option>
@@ -106,7 +110,7 @@
             @csrf
             <div class="col-12 row">
                 <div class="col-9">
-                    <input type="search" placeholder="Buscar por nombre" name="search"
+                    <input type="search" placeholder="Buscar" name="search"
                     class="form-control" id="search"
                     value="{{$search}}" style="padding-right: 30px;"/>
                     <div onclick="event.preventDefault();$('#search').val('')"

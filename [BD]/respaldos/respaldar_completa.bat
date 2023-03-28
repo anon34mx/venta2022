@@ -1,1 +1,1 @@
-C:\xampp\mysql\bin\mysqldump -u "root" -p laravel>completa_funciona_2023-03-09__17-07h.sql --no-data --routines
+C:\xampp\mysql\bin\mysqldump -u "root" -p laravel>comp_2023-03-14__16-23h.sql --no-data --routines

@@ -1,0 +1,9 @@
+CREATE DEFINER=`root`@`localhost` EVENT `crear_corridasDia` ON SCHEDULE EVERY 1 DAY STARTS '2022-08-12 09:31:00' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+
+    SELECT corridasPorDia(current_date,10);
+
+END
+
+CREATE DEFINER=`root`@`localhost` EVENT `liberar_apartados` ON SCHEDULE EVERY 1 MINUTE STARTS '2000-12-19 17:11:52' ON COMPLETION PRESERVE ENABLE DO DELETE FROM disponibilidadasientos
+    WHERE aEstadoAsiento='a'
+    AND MINUTE(TIMEDIFF(CURRENT_TIMESTAMP,last_update))>15

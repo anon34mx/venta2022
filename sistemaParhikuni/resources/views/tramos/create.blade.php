@@ -21,7 +21,7 @@
 <div class="col-12 col-sm-11 col-md-11 col-lg-11 px-0 mx-auto">
     <h3>Nuevo tramo</h3>
     <div class="col-12">
-        <form action="{{route('tramos.store')}}" method="post">
+        <form action="{{route('tramos.store')}}" method="post" class="needs-validation" novalidate>
             @csrf
             <table id="tbl-NvoItinerario" class="table table-parhi col-12">
                 <thead>
