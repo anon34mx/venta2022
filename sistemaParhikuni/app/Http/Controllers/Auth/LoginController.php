@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth,Session;
 use App\Models\Oficinas;
 use App\Models\Sesiones;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -42,8 +43,18 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function authenticated(){
+    public function authenticated(Request $request){
         $tipoPersona = Auth::user()->personas->aTipo;
+        if(!Auth::user()->hasRole('Admin') && !$request->has("browserValidator")){
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return back()->withErrors("Ingresa con un software autorizado");
+        }elseif($request->has("browserValidator")){
+            Session::put('validBrowser', true);
+        }else{
+            Session::put('validBrowser', false);
+        }
         if($tipoPersona=="EI" || $tipoPersona=="PA"){
             $oficina=Auth::user()->personas->nOficina;
             $oficina=Oficinas::find($oficina);
@@ -53,6 +64,7 @@ class LoginController extends Controller
                 ->first();
             Session::put('oficinaNombre', $oficina->aNombre);
             Session::put('oficinaid', $oficina->nNumero);
+            
             if($sesion){
                 if($sesion["fCerrada"]==null){
                     Session::put('sesionVenta', $sesion->nNumero);

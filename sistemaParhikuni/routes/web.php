@@ -17,7 +17,7 @@ use Carbon\Carbon;
 
 Route::get('/', function () {
     return view('base');
-})->middleware("auth");
+})->middleware(["auth","validBrowser"]); // ,"validBrowser"
 // Login
 Auth::routes();
 // Route::get("/"); // poner enlace para logout por get
