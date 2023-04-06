@@ -14,11 +14,15 @@
 @endif
 
 @if(session()->has("cmpra_tiempoCompra"))
-<div class="tiempoRestanteCont">
-    <span class="mx-1">Tiempo para la compra</span>
-    <input id="tiempoRestante"
-        readonly
-        step="3600000" initial="{{session("cmpra_tiempoCompra")-time()}}">
+<div class="tiempoRestanteCont row col-12 mx-0 px-1 linea-inf-bnco">
+    <div class="col-12 col-md-6 mx-0 px-0 text-center float-right">
+        Tiempo para la compra
+    </div>
+    <div class="col-12 col-md-6 mx-0 px-0 px-0 float-right">
+        <input id="tiempoRestante"
+            readonly class="text-center input-trans-osc"
+            step="3600000" initial="{{session("cmpra_tiempoCompra")-time()}}">
+    </div>
 </div>
 @endif
 <script id="oneTab">

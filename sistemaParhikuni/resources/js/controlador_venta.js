@@ -51,7 +51,7 @@ window.getRecorrido = function (corridaDisponible, origen, destino) {
 }
 window.cambiarHorario=(horario, ev, elementos)=>{
     ev.preventDefault();
-    $("."+elementos).removeClass("selected");
+    // $("."+elementos).removeClass("selected");
     $(ev.target).addClass("selected");
     $("#horario"+horario).prop("checked", true);
     var hInicio, hFin;
@@ -60,22 +60,32 @@ window.cambiarHorario=(horario, ev, elementos)=>{
         case "Madr":
             hInicio = "00:00:00";
             hFin = "06:00:00";
+            $("#inptbusH").val("0%");
+            $(".horarioTxt").html("madrugada");
             break;
         case "Maña":
             hInicio = "06:00:00";
             hFin = "12:00:00";
+            $("#inptbusH").val("25%");
+            $(".horarioTxt").html("mañana");
             break;
         case "Tard":
             hInicio = "12:00:00";
             hFin = "18:00:00";
+            $("#inptbusH").val("50%");
+            $(".horarioTxt").html("tarde");
             break;
         case "Noch":
             hInicio = "18:00:00";
             hFin = "23:59";
+            $("#inptbusH").val("75%");
+            $(".horarioTxt").html("noche");
             break;
         default:
             hInicio = "00:00:00";
             hFin = "23:59";
+            $("#inptbusH").val("100%");
+            $(".horarioTxt").html("todo el día");
             break;
     }
     $("#hInicio").val(hInicio);
@@ -127,10 +137,10 @@ window.selecAsiento=function(){
                 </td>
                 <td class="px-2">
                     <input type="number" name="asiento[]" id="asiento[{{$contAuxPasajeros}}]"
-                        class="px-2 form-control pasajeroAsiento" value="${this.attributes.numero.value}" readonly>
+                        class="px-2 form-control form-control-sm pasajeroAsiento" value="${this.attributes.numero.value}" readonly>
                 </td>
                 <td class="px-2">
-                    <input class="form-control pasajeroNombre" type="text" name="pasajero[]" id="pasajero[{{$contAuxPasajeros}}]"
+                    <input class="form-control form-control-sm pasajeroNombre" type="text" name="pasajero[]" id="pasajero[{{$contAuxPasajeros}}]"
                         value="" autocomplete="off" list="listaPasajeros">
                 </td>
                 <td class="px-2">
@@ -338,7 +348,12 @@ window.calcularDescuento= async function(row){
 }
 
 window.mirrorInput=function(inp){
+    console.log(inp);
     $($(inp).attr("target")).val($(inp).val());
+}
+
+window.autobusHora=function(pos){
+    $("#busH").css("left", pos+"%")
 }
 $(document).ready(()=>{
     $(".mirrorInput").on("change", function(event){

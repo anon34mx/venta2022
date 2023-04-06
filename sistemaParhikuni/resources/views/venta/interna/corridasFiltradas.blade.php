@@ -1,6 +1,6 @@
 @extends('layouts.parhikuni')
 @section('content')
-<div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0">
+<div class="col-12 col-sm-12 col-md-12 col-lg-12 px-0" style="min-height: 100vh;">
     @if($errors->any())
         <div class="card-body mt-2 mb-2 ">
             <div class="alert-danger px-3 py-3">
@@ -41,42 +41,20 @@ oneTab("/ventaInterna");
 </script>
 
 <div class="col-12 row px-0 mx-0">
-    <form id="filtros" action="#" class="col-12 col-sm-3 col-xl-3 row px-0 ml-0 mr-2" style="" target="_self">
-        <h3 class="titleWithAnchor" id="nuevoUsuario">Filtros</h3>
-        <div class="col-12 col-md-12 row mx-0 my-1 px-0 px-md-2">
-            <div class="">Tipo de viaje</div>
-            <div class="px-0 col-12 col-md-6 lbl-radio px-1">
-                <input class="tipoDeViaje" type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo"
-                    @if (Request::get('tipoDeViaje')=='sencillo' || !Request::has("tipoDeViaje"))
-                    {{"checked"}}
-                    @endif
-                    >
-                <label for="viajeSencillo" class="btn col-12 px-1">sencillo</label>
-            </div>
-            <div class="px-0 col-12 col-md-6 lbl-radio px-1">
-                <input class="tipoDeViaje" type="radio" id="viajeRedondo" name="tipoDeViaje" value="redondo" {{Request::get('tipoDeViaje')=='redondo' ? 'checked':''}}>
-                <label for="viajeRedondo" class="btn col-12 px-1">redondo</label>
-            </div>
+    <form id="filtros" action="#" class="col-sm-3 px-0 py-0 mx-0 my-0 pt-4" target="_self">
+        <div class="linea-inf-bnco px-3">
+            <h3 class="titleWithAnchor" id="x">Filtros</h3>
         </div>
-        @if(Auth::user()->hasRole('Admin'))
-        <div class="col-12 col-md-12 row mx-0 my-1 px-0 px-md-2">
-            <div class="">Corrida</div>
-            <div class="px-0 col-12">
-                <input type="text" class="form-control use-inputmask" name="corrida" value="{{Request::get('corrida')}}"
-                data-inputmask-regex="[0-9]{1,}" placeholder="#" autocomplete="off">
-            </div>
-        </div>
-        @endif
-        <div class="col-12 col-md-12 row mx-0 my-1 px-0 px-md-2">
-            <div class="col-12 col-sm-6 row mx-0 px-1 px-md-0">
-                <div class="">Origen</div>
-                <div class="px-0 col-12">
-                    <select class="form-control px-1 px-md-2" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
-                        <option value="" >Seleccione</option>
-                        <option value="todos" 
-                            @if(request()->get('origen')=="todos" )
-                                {{"selected"}}
-                            @endif
+
+
+        <div class="col-12 row mx-0 linea-inf-bnco py-1 gpo-btns">
+            <div class="col-12 col-sm-6 row my-1 mx-0 px-sm-0">
+                <select class="form-control form-control-sm px-1 px-md-2 text-center mx-auto" name="origen" id="origen" onChange="cargarDestinos(this.value,false)">
+                    <option value="" >Origen</option>
+                    <option value="todos" 
+                        @if(request()->get('origen')=="todos" )
+                            {{"selected"}}
+                        @endif
                         >Todos</option>
                         @php
                         $origenEncontrado = false;
@@ -84,181 +62,230 @@ oneTab("/ventaInterna");
                         @foreach($oficinas as $key)
                             <option value="{{$key['nNumero']}}"
                                 @if(request()->get('origen')!=null)
-                                   @if(request()->get('origen')==$key['nNumero'])
+                                @if(request()->get('origen')==$key['nNumero'])
                                         {{"selected"}}
-                                   @endif
+                                @endif
                                 @else
-                                   @if($key['nNumero']==session("oficinaid"))
+                                @if($key['nNumero']==session("oficinaid"))
                                         {{"selected"}}
-                                   @endif
+                                @endif
                                 @endif
                             >{{@$key["aNombre"]}}</option>
                         @endforeach
-                    </select>
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 row my-1 mx-0 px-sm-0">
+                <select class="form-control form-control-sm px-1 px-md-2 text-center mx-auto" name="destino" id="destino">
+                    <option value="" >Destino</option>
+                    @foreach($oficinas as $key)
+                        <option value="{{$key['nNumero']}}" {{@$key['nNumero']==@$destino->nNumero ? "selected": "" }}>{{$key["aNombre"]}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+
+        <div class="col-12 row mx-0 my-0 px-0 px-md-2 linea-inf-bnco py-1">
+            <!-- <div class="">Tipo de viaje</div> -->
+            <div class="px-0 col-6 col-md-6 lbl-radio px-1">
+                <div class="float-right">
+                    <input class="tipoDeViaje " type="radio" id="viajeSencillo" name="tipoDeViaje" value="sencillo"
+                        @if (Request::get('tipoDeViaje')=='sencillo' || !Request::has("tipoDeViaje"))
+                        {{"checked"}}
+                        @endif
+                        >
+                    <label for="viajeSencillo" class="">sencillo</label>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 row mx-0 px-1 px-md-0">
-                <div class="">Destino</div>
-                <div class="px-0 col-12">
-                    <select class="form-control px-1 px-md-2" name="destino" id="destino">
-                        <option value="" >Seleccione</option>
-                        @foreach($oficinas as $key)
-                            <option value="{{$key['nNumero']}}" {{@$key['nNumero']==@$destino->nNumero ? "selected": "" }}>{{$key["aNombre"]}}</option>
-                        @endforeach
-                    </select>
+            <div class="px-0 col-6 col-md-6 lbl-radio px-1">
+                <div class="float-left">
+                    <input class="tipoDeViaje" type="radio" id="viajeRedondo" name="tipoDeViaje" value="redondo" {{Request::get('tipoDeViaje')=='redondo' ? 'checked':''}}>
+                    <label for="viajeRedondo" class="">redondo</label>
                 </div>
             </div>
         </div>
-        <div class="col-12 px-0 mx-0 row">
-            <div class="col-12 col-lg-6 row mx-0 my-1 px-1 px-md-2">
-                <div class="">Fecha</div>
+
+
+        @if(Auth::user()->hasRole('Admin'))
+        <div class="col-12 col-md-12 row mx-0 px-0 px-md-2 linea-inf-bnco py-1">
+            <div class="float-left">
                 <div class="px-0 col-12">
-                    <input class="form-control px-2 fechaSalida" type="date" min="{{date('Y-m-d')}}" name="fechaDeSalida" value="{{$fechaDeSalida}}">
+                    <input type="text" class="form-control use-inputmask" name="corrida" value="{{Request::get('corrida')}}"
+                    data-inputmask-regex="[0-9]{1,}" placeholder="Corrida" autocomplete="off">
                 </div>
             </div>
-            <div class="col-12 col-lg-6 row mx-0 my-1 px-1 px-md-2 selectReg 
-                {{@Request::get('tipoDeViaje')=='redondo' ? '' : 'hidden'}}
-            ">
-                <div class="">Regreso</div>
-                <div class="px-0 col-12">
-                    <input class="form-control px-2 fechaRegreso mirrorInput" type="date" target="#fechaRegreso"
+        </div>
+        @endif
+        
+
+        <div class="col-12 px-0 mx-0 row linea-inf-bnco gpo-btns">
+            <div class="col-12">Fecha</div>
+            <div class="col-6 col-lg-6 row mx-0 my-1 gpo-btns pr-sm-0">
+                <input class="form-control px-2 fechaSalida mirrorInput" type="date" target="#fechaSalida"
+                    min="{{date('Y-m-d')}}" name="fechaDeSalida" value="{{$fechaDeSalida}}" >
+            </div>
+            <div class="col-6 col-lg-6 row mx-0 my-1 gpo-btns pl-sm-0 selectReg {{@Request::get('tipoDeViaje')=='redondo' ? '' : 'hidden'}}">
+                <input class="form-control px-2 fechaRegreso mirrorInput" type="date" target="#fechaRegreso"
                     min="{{date('Y-m-d')}}" name="fechaRegreso" value="{{ Request::get('fechaRegreso')}}">
-                </div>
             </div>
         </div>
-        <div class="col-6 col-sm-12 row mx-0 my-2 px-0 px-md-2">
-            <div class="custom-control custom-checkbox pl-4 ">
+
+        
+        <div class="col-12 row mx-0 px-0 px-md-2 linea-inf-bnco">
+            <div class="col-6 col-sm-12 custom-control custom-checkbox pl-4 mx-auto">
                 <input class="form-check-input" id="usarPromocionF" name="usarPromocion" type="checkbox" target="usarPromocion" {{ Request::get('usarPromocion') ? "checked": ""}}>
                 <label class="form-check-label" for="usarPromocionF">Utilizar promoción</label>
             </div>
         </div>
         <!-- PASAJEROS -->
-        <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
-            <div class="col-2 mx-0 px-0">
-                <button id="adultos+" class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
-            </div>
-            <div class="col-8 mx-0 px-2">
-                <input readonly id="inpt-adultos" name="adultos" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$adultos}}" step="1" min="0" max="10">
-                <label for="inpt-adultos" style="
-                    pointer-events:none;
-                    position: absolute;
-                    top: 7px;
-                    left: 36px;
-                ">Adultos</label>
-            </div>
-            <div class="col-2 mx-0 px-0">
-                <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
-            </div>
-        </div>
-        <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
-            <div class="col-2 mx-0 px-0">
-                <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
-            </div>
-            <div class="col-8 mx-0 px-2">
-                <input readonly id="inpt-niños" name="niños" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$niños}}" step="1" min="0" max="10">
-                <label for="inpt-adultos" style="
-                    pointer-events:none;
-                    position: absolute;
-                    top: 7px;
-                    left: 36px;
-                ">Menores</label>
-            </div>
-            <div class="col-2 mx-0 px-0">
-                <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
-            </div>
-        </div>
-        <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
-            <div class="col-2 mx-0 px-0">
-                <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
-            </div>
-            <div class="col-8 mx-0 px-2">
-                <input readonly id="inpt-insen" name="insen" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$insen}}" step="1" min="0" max="10">
-                <label for="inpt-adultos" style="
-                    pointer-events:none;
-                    position: absolute;
-                    top: 7px;
-                    left: 36px;
-                ">Insen</label>
-            </div>
-            <div class="col-2 mx-0 px-0">
-                <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
-            </div>
-        </div>
-        @if($vacaciones==true)
-            <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
+        <div class="linea-inf-bnco">
+            <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros ">
                 <div class="col-2 mx-0 px-0">
-                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
+                    <button id="adultos+" class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                 </div>
-                <div class="col-8 mx-0 px-2">
-                    <input readonly id="inpt-estudiantes" name="estudiantes" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$estudiantes}}" step="1" min="0" max="10">
+                <div class="col-8 mx-0 px-0">
+                    <input readonly id="inpt-adultos" name="adultos" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$adultos}}" step="1" min="0" max="10">
                     <label for="inpt-adultos" style="
                         pointer-events:none;
+                        color:black;
                         position: absolute;
                         top: 7px;
                         left: 36px;
-                    ">Estudiantes</label>
+                    ">Adultos</label>
                 </div>
                 <div class="col-2 mx-0 px-0">
-                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
+                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary float-right" value="-">-</button>
                 </div>
             </div>
             <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
                 <div class="col-2 mx-0 px-0">
-                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="+">+</button>
+                    <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                 </div>
-                <div class="col-8 mx-0 px-2">
-                    <input readonly id="inpt-profesores" name="profesores" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$profesores}}" step="1" min="0" max="10">
+                <div class="col-8 mx-0 px-0">
+                    <input readonly id="inpt-niños" name="niños" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$niños}}" step="1" min="0" max="10">
                     <label for="inpt-adultos" style="
                         pointer-events:none;
+                        color:black;
                         position: absolute;
                         top: 7px;
                         left: 36px;
-                    ">Profesores</label>
+                    ">Menores</label>
                 </div>
                 <div class="col-2 mx-0 px-0">
-                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary" value="-">-</button>
+                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary float-right" value="-">-</button>
                 </div>
             </div>
-        @endif
-        <div class="col-6 col-sm-12 row mx-0 my-1">
-            <div class="">Horario</div>
+            <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
+                <div class="col-2 mx-0 px-0">
+                    <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
+                </div>
+                <div class="col-8 mx-0 px-0">
+                    <input readonly id="inpt-insen" name="insen" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$insen}}" step="1" min="0" max="10">
+                    <label for="inpt-adultos" style="
+                        pointer-events:none;
+                        color:black;
+                        position: absolute;
+                        top: 7px;
+                        left: 36px;
+                    ">Insen</label>
+                </div>
+                <div class="col-2 mx-0 px-0">
+                    <button class="cantidadPasajeros btn btn-sm btn-parhi-primary float-right" value="-">-</button>
+                </div>
+            </div>
+            @if($vacaciones==true)
+                <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
+                    <div class="col-2 mx-0 px-0">
+                        <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
+                    </div>
+                    <div class="col-8 mx-0 px-0">
+                        <input readonly id="inpt-estudiantes" name="estudiantes" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$estudiantes}}" step="1" min="0" max="10">
+                        <label for="inpt-adultos" style="
+                            pointer-events:none;
+                            color:black;
+                            position: absolute;
+                            top: 7px;
+                            left: 36px;
+                        ">Estudiantes</label>
+                    </div>
+                    <div class="col-2 mx-0 px-0">
+                        <button class="cantidadPasajeros btn btn-sm btn-parhi-primary float-right" value="-">-</button>
+                    </div>
+                </div>
+                <div class="col-12 row mx-0 my-2 px-1 px-md-2 pasajeros">
+                    <div class="col-2 mx-0 px-0">
+                        <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
+                    </div>
+                    <div class="col-8 mx-0 px-0">
+                        <input readonly id="inpt-profesores" name="profesores" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$profesores}}" step="1" min="0" max="10">
+                        <label for="inpt-adultos" style="
+                            pointer-events:none;
+                            color:black;
+                            position: absolute;
+                            top: 7px;
+                            left: 36px;
+                        ">Profesores</label>
+                    </div>
+                    <div class="col-2 mx-0 px-0">
+                        <button class="cantidadPasajeros btn btn-sm btn-parhi-primary float-right" value="-">-</button>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        <div class="col-12 col-sm-12 row mx-0 my-1">
+            <div class="col-12">
+                Horario
+                <span class="horarioTxt">
+                    @if(@Request::get('horario') == "Madr")
+                        madrugada
+                    @elseif(@Request::get('horario') == "Maña")
+                        mañana
+                    @elseif(@Request::get('horario') == "Tard")
+                        tarde
+                    @elseif(@Request::get('horario') == "Noch")
+                        noche
+                    @else
+                        todo el día
+                    @endif
+                </span>
+            </div>
             <div class="px-0 col-12">
                 <input class="form-control" hidden type="time" id="hInicio" name="hInicio" value="{{@Request::get('hInicio')}}" >
                 <input class="form-control" hidden type="time" id="hFin" name="hFin" value="{{@Request::get('hFin')}}" >
             </div>
         </div>
-        <div class="col-12 row mx-0 my-1 no-padding btn-group" role="group" aria-label="horario">
-            <div class="col-12 lbl-radio">
-                <input id="horarioCompleto" class="" value="Completo" type="radio"
-                    name="horario" {{@Request::get('horario')=='Completo' ? 'checked':''}} hidden>
-                <label for="horarioCompleto" onclick='cambiarHorario("completo", new Event(""), "lbl-horario")'
-                    class="col-12 btn lbl-horario {{Request::get('horario')=='Completo' ? '' : ''}}"
-                    >Todo el día</label>
+        <div class="col-12 col-sm-12 row mx-0 my-1">
+            <div class="col-6 col-sm-12 row px-0 mx-auto selectH">
+                <img id="busH" src="{{ Vite::asset('resources/images/bus_selec.png') }}" alt=""
+                    style="width: 60px;
+                        position: absolute;
+                        bottom: 6px;
+                        left: {{@Request::get('inptbusH') ?: '100%'}};
+                        display: block;
+                        z-index: 5;
+                        pointer-events: none;
+                        transition:0.5s;">
+                <input id="inptbusH" name="inptbusH" value="{{@Request::get('inptbusH')}}" hidden>
+
+                <input id="horarioMadr" class="" value="Madr" type="radio" name="horario"{{@Request::get('horario')=='Madr' ? 'checked':''}} hidden >
+                <label for="horarioMadr" class="col-3" onclick="cambiarHorario('Madr', new Event(''), 'lbl-horario');autobusHora(0)"> </label>
+
+                <input id="horarioMaña" class="" value="Maña" type="radio" name="horario"{{@Request::get('horario')=='Maña' ? 'checked':''}} hidden>
+                <label for="horarioMaña" class="col-3" onclick="cambiarHorario('Maña', new Event(''), 'lbl-horario');autobusHora(25)"> </label>
+
+                <input id="horarioTard" class="" value="Tard" type="radio" name="horario"{{@Request::get('horario')=='Tard' ? 'checked':''}} hidden>
+                <label for="horarioTard" class="col-3" onclick="cambiarHorario('Tard', new Event(''), 'lbl-horario');autobusHora(50)"> </label>
+
+                <input id="horarioNoch" class="" value="Noch" type="radio" name="horario"{{@Request::get('horario')=='Noch' ? 'checked':''}} hidden>
+                <label for="horarioNoch" class="col-3" onclick="cambiarHorario('Noch', new Event(''), 'lbl-horario');autobusHora(75)"> </label>
+
             </div>
-            <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioMadr" class="" value="Madr" type="radio" name="horario" {{@Request::get('horario')=='Madr' ? 'checked':''}} hidden>
-                <label for="horarioMadr" class="col-12 btn lbl-horario {{Request::get('horario')=='Madr' ? '' : ''}}" onclick="cambiarHorario('Madr',event, 'lbl-horario')">
-                    Madrugada
-                </label>
-            </div>
-            <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioMaña" class="" value="Maña" type="radio" name="horario" {{@Request::get('horario')=='Maña' ? 'checked':''}} hidden>
-                <label for="horarioMaña" class="col-12 btn lbl-horario {{Request::get('horario')=='Maña' ? '' : ''}}" onclick="cambiarHorario('Maña',event, 'lbl-horario')">
-                    Mañana
-                </label>
-            </div>
-            <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioTard" class="" value="Tard" type="radio" name="horario" {{@Request::get('horario')=='Tard' ? 'checked':''}} hidden>
-                <label for="horarioTard" class="col-12 btn lbl-horario {{Request::get('horario')=='Tard' ? '' : ''}}" onclick="cambiarHorario('Tard',event, 'lbl-horario')">
-                    Tarde
-                </label>
-            </div>
-            <div class="col-12 col-lg-6 lbl-radio">
-                <input id="horarioNoch" class="" value="Noch" type="radio" name="horario" {{@Request::get('horario')=='Noch' ? 'checked':''}} hidden>
-                <label for="horarioNoch" class="col-12 btn lbl-horario {{Request::get('horario')=='Noch' ? '' : ''}}" onclick="cambiarHorario('Noch',event, 'lbl-horario')">
-                    Noche
-                </label>
-            </div>
+            <input id="horarioCompleto" class="" value="Completo" type="radio"
+                name="horario" {{@Request::get('horario')=='Completo' ? 'checked':''}} hidden>
+            <label for="horarioCompleto" onclick='cambiarHorario("completo", new Event(""), "lbl-horario");autobusHora(100);'
+                class="btn-parhi-primary col-6 col-sm-12 btn lbl-horario my-2 {{Request::get('horario')=='Completo' ? '' : ''}}"
+                >Todo el día</label>
         </div>
 
         <div class="col-12 row nopadding mx-0 px-0 px-md-2">
@@ -272,108 +299,166 @@ oneTab("/ventaInterna");
         <!-- </div> -->
     </form>
 
-    <div class="col-12 col-sm-9 row pr-0">
-        <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="pr-0" onsubmit="return validarFiltros()" method="post" target="_self">
-            @csrf
-            <table class="table table-stripe.d table-parhi" style="">
-                <thead style="position: sticky;top: 69px;">
-                    <tr>
-                        <th></th>
-                        <th>Servicio</th>
-                        <th >Salida</th>
-                        <th>Llegada</th>
-                        <th>Origen
-                            <br> 
-                            Destino</th>
-                        <th>Tarifa</th>
-                        <th>Ocupacion</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if(sizeof($corridas)<=0)
-                        <tr>
-                            <td colspan="8">No se encontraron corridas con los parámetros especificados</td>
-                        </tr>
-                    @endif
-                    @foreach($corridas as $corrida)
-                    @if($corrida->estadoCorrida=='B' || $corrida->estadoCorrida=='C' || $corrida->estadoCorrida=='T' || $corrida->estadoCorrida=='L')
-                        <tr class="bg-danger text-danger">
-                    @elseif($corrida->estadoCorrida=="S" || $corrida->estadoCorrida=="R")
-                        <tr class="bg-warning text-warning">
-                    @else
-                        <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
-                    @endif
-                            <td>{{$corrida->corrida}}
-                            -{{($corrida->disp)}}-
-                                <br>
-                                {{$corrida->estadoCorrida}}
-                            </td>
-                            <td>{{($corrida->claseServicio)}}</td>
-                            @php
-                                $fechoraHoraSalida=\Carbon\Carbon::parse($corrida->fSalida." ".$corrida->hSalida);
-                                $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
-                            @endphp
-                            <td class="fecha">
-                                {{$fechoraHoraSalida->format("d/m/Y")}}
-                                <br>
-                                <b>
-                                    {{$fechoraHoraSalida->format("H:i:s")}}
-                                </b>
-                            </td>
-                            <td class="hora">
-                                {{$fechaHoraLlegada->format("d/m/Y")}}
-                                <br>
-                                {{$fechaHoraLlegada->format("H:i:s")}}
-                            </td>
-                            <td>{{$corrida->origen}}<br>{{$corrida->destino}}</td>
-                            <td class="tarifa">$<span>{{number_format($corrida->tarifaBase + $corrida->iva,2)}}</span></td>
-                            <td>
-                                <span class="ocupados">{{($corrida->boletosVendidos)}}</span>
-                                <span class="ocupados">{{($corrida->ocupados)}}</span>
-                                /
-                                <span class="totalAsientos">{{$corrida->totalAsientos}}</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-success btn-samall" onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >
-                                    <i class="fa-solid fa-map-location-dot"></i>
-                                    Itinerario
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div class="mt-3 d-flex justify-content-center">
-                {!! $corridas->appends(Request::all())->links("pagination::bootstrap-5") !!}
+    <!-- <div class="col-12 col-sm-8 row pr-0"></div> -->
+    <div class="col-sm-9 px-0 mx-0">
+        <div class="row px-0 mx-0 ">
+            <div class="col-12 px-0 mx-0">
+                <div class="col-10 row float-right mx-0 px-0 "> <!--  -->
+                    <div class="text-center py-1 col-3 pasosDeCompra-selected">
+                        <b>Viaje</b>
+                    </div>
+                    <div class="text-center py-1 col-3 pasosDeCompra">
+                        <b>Asientos</b>
+                    </div>
+                    <div class="text-center py-1 col-3 pasosDeCompra">
+                        <b>Confirmación</b>
+                    </div>
+                    <div class="text-center py-1 col-3 pasosDeCompra">
+                        <b>Pago</b>
+                    </div>
+                </div>
             </div>
-            <input id="corr" hidden name="cor" type="" value="{{ Request::get('cor') ?: 0 }}">
-            <input id="disp" hidden name="disp" type="" value="{{ Request::get('disp') ?: 0 }}">
-            <input id="adultos" hidden name="AD" type="" value="{{ Request::get('adultos') ?: 0 }}">
-            <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
-            <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
-            @if($vacaciones)
-            <input id="estudiantes" hidden name="ES" type="" value="{{ Request::get('estudiantes') ?: 0 }}">
-            <input id="profesores" hidden name="MA" type="" value="{{ Request::get('profesores') ?: 0 }}">
-            @endif
-            <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox" {{ @Request::get('tipoDeViaje')=='redondo' ? 'checked': '' }}>
-            <label hidden for="tipoDeViaje">Viaje redondo</label>
-            <input hidden class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox"
-            {{ Request::get('usarPromocion') ? 'checked': ''}}>
-            <label hidden for="usarPromocion">Usar promocion</label>
-            <input id="fechaRegreso" hidden name="fechaRegreso" type="date" readonly value="{{Request::get('fechaRegreso')}}"}}>
-            <div class="col-12">
-                @if(sizeof($corridas)>0)
-                <span class="btn-collap float-right mx-1" title="Continuar">
-                    <label for="Continuar" class="btn btn-sm btn-parhi-primary">
-                        <i class="fa-solid fa-arrow-right"></i>
-                        <span>Continuar</span>
-                    </label>
-                    <input id="Continuar" class="btn" type="submit">
-                </span>
+            <div class="row col-12 mx-0 px-0 bg-gris">
+                <div class="col-2 mx-auto linea-inf-EX">Express</div>
+                <div class="col-2 mx-auto linea-inf-PC">Premium</div>
+                <div class="col-2 mx-auto linea-inf-UL">Ultra</div>
+                <div class="col-2 mx-auto linea-inf-PL">Platinum</div>
+                <div class="col-2 mx-auto linea-inf-BC">Business Class</div>
+            </div>
+        </div>
+            <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="px-0" onsubmit="return validarFiltros()" method="post" target="_self">
+                @csrf
+                <div class="">
+                    <table class="table table-stripe.d table-parhi-osc" style="">
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>serv</th>
+                                <th>Salida</th>
+                                <th>Llegada</th>
+                                <th>Escalas</th>
+                                <th>Ocupacion</th>
+                                <th>Tarifa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for($i=0; $i<0; $i++)
+                                <tr>
+                                    <td>00988</td>
+                                    <td>
+                                        <div class="circ-serv bg-clase-PL"></div>
+                                    </td>
+                                    <td>
+                                        MORELIA
+                                        <br>
+                                        14:00h
+                                    </td>
+                                    <td>
+                                        URUAPAN
+                                        <br>
+                                        16:00h
+                                    </td>
+                                    <td>Escalas</td>
+                                    <td>08/15</td>
+                                    <td>
+                                        <div class="col-12">
+                                            $000.00
+                                        </div>
+                                        <sub class="col-12 mt-2">
+                                            $000.00
+                                        </sub>
+                                    </td>
+                                </tr>
+                            @endfor
+                            @if(sizeof($corridas)<=0)
+                                <tr>
+                                    <td colspan="8">No se encontraron corridas con los parámetros especificados</td>
+                                </tr>
+                            @endif
+                            @foreach($corridas as $corrida)
+                            @if($corrida->estadoCorrida=='B' || $corrida->estadoCorrida=='C' || $corrida->estadoCorrida=='T' || $corrida->estadoCorrida=='L')
+                                <tr class="bg-danger text-danger">
+                            @elseif($corrida->estadoCorrida=="S" || $corrida->estadoCorrida=="R")
+                                <tr class="bg-warning text-warning">
+                            @else
+                                <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
+                            @endif
+                                    <td>{{$corrida->corrida}}-{{($corrida->disp)}}
+                                        <br>
+                                        {{$corrida->estadoCorrida}}
+                                    </td>
+                                    <td>
+                                        <div class="circ-serv bg-clase-{{($corrida->claveServicio)}}" title="{{($corrida->claseServicio)}}"></div>
+                                    </td>
+                                    @php
+                                        $fechoraHoraSalida=\Carbon\Carbon::parse($corrida->fSalida." ".$corrida->hSalida);
+                                        $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
+                                    @endphp
+                                    <td class="fecha">
+                                        <!-- {{$fechoraHoraSalida->format("d/m/Y")}} -->
+                                        {{$corrida->origen}}
+                                        <br>
+                                        <b>
+                                            {{$fechoraHoraSalida->format("H:i:s")}}
+                                        </b>
+                                    </td>
+                                    <td class="hora">
+                                        <!-- {{$fechaHoraLlegada->format("d/m/Y")}} -->
+                                        {{$corrida->destino}}
+                                        <br>
+                                        {{$fechaHoraLlegada->format("H:i:s")}}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-success btn-samall" onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >
+                                            <i class="fa-solid fa-map-location-dot"></i>
+                                            Itinerario
+                                        </button>
+                                    </td>
+                                    <!-- <td>{{$corrida->origen}}<br>{{$corrida->destino}}</td> -->
+                                    <td>
+                                        <span class="ocupados">{{($corrida->boletosVendidos)}}</span>
+                                        <span class="ocupados">{{($corrida->ocupados)}}</span>
+                                        /
+                                        <span class="totalAsientos">{{$corrida->totalAsientos}}</span>
+                                    </td>
+                                    <td class="tarifa">$<span>{{number_format($corrida->tarifaBase + $corrida->iva,2)}}</span></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 d-flex justify-content-center">
+                    {!! $corridas->appends(Request::all())->links("pagination::bootstrap-5") !!}
+                </div>
+                <input id="corr" hidden name="cor" type="" value="{{ Request::get('cor') ?: 0 }}">
+                <input id="disp" hidden name="disp" type="" value="{{ Request::get('disp') ?: 0 }}">
+                <input id="adultos" hidden name="AD" type="" value="{{ Request::get('adultos') ?: 0 }}">
+                <input id="niños" hidden name="NI" type="" value="{{ Request::get('niños') ?: 0 }}">
+                <input id="insen" hidden name="IN" type="" value="{{ Request::get('insen') ?: 0 }}">
+                @if($vacaciones)
+                <input id="estudiantes" hidden name="ES" type="" value="{{ Request::get('estudiantes') ?: 0 }}">
+                <input id="profesores" hidden name="MA" type="" value="{{ Request::get('profesores') ?: 0 }}">
                 @endif
-            </div>
-        </form>
+                <input id="tipoDeViaje" hidden name="tipoDeViaje" type="checkbox" {{ @Request::get('tipoDeViaje')=='redondo' ? 'checked': '' }}>
+                <label hidden for="tipoDeViaje">Viaje redondo</label>
+                <input hidden class="form-check-input" id="usarPromocion" name="usarPromocion" type="checkbox"
+                {{ Request::get('usarPromocion') ? 'checked': ''}}>
+                <label hidden for="usarPromocion">Usar promocion</label>
+                <input id="fechaSalida" hidden name="fechaSalida" type="date" readonly value="{{Request::get('fechaDeSalida')}}"}}>
+                <input id="fechaRegreso" hidden name="fechaRegreso" type="date" readonly value="{{Request::get('fechaRegreso')}}"}}>
+                <div class="col-12">
+                    @if(sizeof($corridas)>0)
+                    <span class="btn-collap float-right mx-1" title="Continuar">
+                        <label for="Continuar" class="btn btn-sm btn-parhi-primary">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>Continuar</span>
+                        </label>
+                        <input id="Continuar" class="btn" type="submit">
+                    </span>
+                    @endif
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 </div>

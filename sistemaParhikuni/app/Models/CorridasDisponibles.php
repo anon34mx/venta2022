@@ -315,7 +315,7 @@ class CorridasDisponibles extends Model
                 cordis.aEstado, IFNULL(hist.aEstadoNuevo, 'D') as 'estadoCorrida',
 
 
-                autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio,
+                autobus.nNumeroEconomico as autobus, dist.nAsientos as totalAsientos, autobus.nTipoServicio as claveServicio, tser.aDescripcion as claseServicio, tser.aClave as claveServicio,
                 (SELECT
                 COUNT(DISTINCT(nAsiento))
                 FROM `disponibilidadasientos` disa

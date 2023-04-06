@@ -5,6 +5,19 @@
     --parh-bg-cont:#d8e4e4;
     --parh-acc-navbar: #ff6239;
     --parh-btn-primary: #ff7f21;
+
+	--parh-bg-gris:rgb(198,198,198);
+	--parh-bg-inpt:rgb(230,230,230);
+	--parh-acc-azl:#59b5b0;
+	--parh-bg-rojo-osc:rgb(140 14 14);
+	--parh-clase-PL:rgb(227,6,19);
+	--parh-clase-BC:rgb(0,160,226);
+	--parh-clase-UL:rgb(103,38,132);
+	--parh-clase-PC:rgb(29,29,27);
+	--parh-clase-EX:rgb(255,174,20);
+	--parh-asnt-ocu:rgb(140,14,14);
+	--parh-asnt-dsp:transparent;
+	--parh-asnt-sel:rgb(89,172,181);
 }
 
 summary::marker {
@@ -26,9 +39,7 @@ details[open]>summary .btn::before {
 px-0{
 	padding: 0;
 }
-/* *:focus{
-	outline: 2px solid red;
-} */
+
 .alert-float-br{ /* bottom rigth */
 	position: fixed;
 	bottom: 20px;
@@ -57,33 +68,27 @@ px-0{
 	--bs-btn-disabled-border-color: var(--parh-btn-primary);
 }
 
-input[type="radio"] {
+input[type="radio"].hidden{
 	display: none;
 }
 
 .lbl-radio label{
-	background-color: #f8fafc;
+	/* background-color: #f8fafc; */
 	/* box-shadow: none !important; */
+	margin: 0;
 }
-input[type="radio"]:checked+label {
+input[type="radio"].estilo1:checked+label {
 	/* background-image: url("data:image/svg+xml,%0A%3Csvg%20fill%3D%22%23262626%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M12%207c-2.76%200-5%202.24-5%205s2.24%205%205%205%205-2.24%205-5-2.24-5-5-5zm0-5C6.48%202%202%206.48%202%2012s4.48%2010%2010%2010%2010-4.48%2010-10S17.52%202%2012%202zm0%2018c-4.42%200-8-3.58-8-8s3.58-8%208-8%208%203.58%208%208-3.58%208-8%208z%22%3E%3C%2Fpath%3E%0A%20%20%20%20%3Cpath%20d%3D%22M0%200h24v24H0z%22%20fill%3D%22none%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E"); */
 	background-color: var(--parh-btn-primary) !important;
 	color: white;
 }
 
-/* label.selected{
-	background-color: var(--parh-btn-primary) !important;
+.table-containter{
+	width: 100%;
+	height: 180px;
+	overflow: auto;
 }
-.lbl-radio label{
-	background-color: #f8fafc;
-	
-}
-.lbl-radio input[type="radio"]+label{
-	background-color: red;
-}
-.lbl-radio input[type="radio"]:checked>label{
-	background-color: red;
-} */
+
 .tbl-padding{
 	border-collapse: separate;
 	border-spacing: 0 1em;
@@ -94,8 +99,26 @@ input[type="radio"]:checked+label {
 }
 .table-parhi th{
 	color: white;
-	--bs-table-bg:var(--parh-bg-color);
+	background-color:var(--parh-bg-color);
 }
+.table-parhi-osc{
+	--bs-table-bg:white;
+	--bs-table-striped-color: var(--bs-body-color);
+}
+.table-parhi-osc thead{
+	position: sticky;
+	top: -1px;
+	z-index: 1;
+	background-color: var(--parh-bg-rojo-osc);
+}
+.table-parhi-osc th{
+	color: white;
+	background-color:var(--parh-bg-rojo-osc);
+}
+.table-parhi-osc tr.selected {
+	border: 3px solid var(--parh-btn-primary);
+}
+
 .btn-link{
 	box-shadow: none;
 }
@@ -122,20 +145,16 @@ input[type="radio"]:checked+label {
 
 
 *{
-	/* font-family: 'Open Sans', sans-serif !important; */
-	outline: 1px solid tomato;
+	/* outline: 1px solid tomato; */
 }
 html{
-	/* background-color: #dbe6e7; */
 	background: linear-gradient(45deg, #e1e5e2, #d7e4e4);
 	width: 100%;
 }
 body{
-	/* min-height: 100vh !important; */
 	background: linear-gradient(45deg, #e1e5e2, #d7e4e4);
 	width: 100%;
 	position: inherit;
-	/* background: blue; */
 }
 table{
 	width: 100%;
@@ -172,8 +191,25 @@ table{
 #sidebar::-webkit-scrollbar-thumb:hover {
 	background: #555;
 }
-/* 5 */
 /* ************************** */
+.bg-gris{
+	background-color:var(--parh-bg-gris);
+}
+.bg-clase-PL{
+	background-color:var(--parh-clase-PL);
+}
+.bg-clase-BC{
+	background-color:var(--parh-clase-BC);
+}
+.bg-clase-UL{
+	background-color:var(--parh-clase-UL);
+}
+.bg-clase-PC{
+	background-color:var(--parh-clase-PC);
+}
+.bg-clase-EX{
+	background-color:var(--parh-clase-EX);
+}
 .titleWithAnchor{
 	/* Es mucho espacio :c */
 	/* padding-top: 70px; */ 
@@ -263,73 +299,95 @@ ul.list-desp .list-cont li:hover{
 	white-space: nowrap;
 }
 
-tr.selected{
-	
-}
-tr.selected td{
+.table-parhi tr.selected td{
 	background-color: var(--parh-btn-primary);
 	color:white;
-}
+} 
+
 
 
 .fecha{
 	white-space: nowrap;
 }
 
-#filtros{
-	position: initial;
-	top: 0px;
-}
+
 #pasajeros{
 	
 }
 .tiempoRestanteCont{
-	width: 206px;
-	width: fit-content; /* si se puede, este, si no el anterior (por compatibilidad9*/
-	display: inline-flex;
-	position: fixed;
-	right: 0px;
-	top: 70px;
-	background: var(--parh-bg-navbar);
 	pointer-events: none;
-	box-shadow: -3px 3px 5px #00000077;
 }
 .tiempoRestanteCont #tiempoRestante{
+	width: 100%;
 	font-weight: bold;
-	width: 50px;
+	color: white;
+	font-size: 30px;
 }
 
 .tbl-datosPasajeros{
 	border-collapse: separate;
 	border-spacing: 0 1em;	
 }
-.tbl-diagrama-bus{
-	transform: rotate(180deg);
+.tbl-datosPasajeros input,
+.tbl-datosPasajeros select
+{
+	border-radius: 0px;
+	border:2px solid black;
+	background-color: var(--parh-bg-inpt);
+}
+.tbl-datosPasajeros thead{
+	background-color: var(--parh-bg-gris);
+}
+
+.ocupado{
+	background-color: var(--parh-asnt-ocu);
+	color: white;
+}
+.libre{
+	background-color: var(--parh-asnt-dsp);
+}
+.apartado{
+	background-color: var(--parh-asnt-sel);
 }
 .asiento_nmr{
-	transform: rotate(180deg);
+	/* transform: rotate(180deg); */
+	background-color: red;
+}
+.pasillo{
+	display: block;
+	width: 38px;
+	height: 38px;
 }
 .asiento{
-	content: url("../images/asientos/asientolibre.png");
-	width: 44px;
-	transform: rotate(180deg);
+	/* content: url("../images/asientos/asientolibre.png"); */
+	background-color: transparent;
+	width: 38px;
+	height: 38px;
+	margin: 2px auto;
+	border:2px solid black;
+	border-radius: 8px;
+	/* transform: rotate(180deg); */
 }
 .asiento.tv{
-	content: url("../images/asientos/asientolibreTV.png");
+	/* content: url("../images/asientos/asientolibreTV.png"); */
+	/* background-color: blue; */
 }
 
 .asiento.apartado{
-	content: url("../images/asientos/asientoSeleccionado.png");
+	border:2px solid transparent;
+	background-color: var(--parh-asnt-sel);
 }
 .asiento.tv.apartado{
-	content: url("../images/asientos/asientoSeleccionadoTV.png");
+	border:2px solid transparent;
+	background-color: var(--parh-asnt-sel);
 }
-
 .asiento.ocupado{
-	content: url("../images/asientos/asientoOcupado.png");
+	border:2px solid transparent;
+	background-color: var(--parh-asnt-ocu);
 }
 .asiento.tv.ocupado{
-	content: url("../images/asientos/asientoOcupadoTV.png");
+	border:2px solid transparent;
+	background-color: var(--parh-asnt-ocu);
 }
 
 .textoTachado{
@@ -392,7 +450,166 @@ footer img{
 footer div{
 	position: relative;
 }
+/*
+POR PANTALLA [INICIO]
+*/
+input[type="radio"]{
+	height: 23px;
+	vertical-align: middle
+}
+#filtros {
+	position: initial;
+	top: 0px;
+	background: var(--parh-bg-rojo-osc);
+	border-radius: 0 1.2rem 1.2rem 0;
+	color: white;
+	/* min-width: 188px; */
+}
+.linea-inf-bnco{
+	border-bottom: 2px solid white;
+}
+.linea-inf-PL{
+	border-bottom: 4px solid var(--parh-clase-PL);
+}
+.linea-inf-BC{
+	border-bottom: 4px solid var(--parh-clase-BC);
+}
+.linea-inf-UL{
+	border-bottom: 4px solid var(--parh-clase-UL);
+}
+.linea-inf-PC{
+	border-bottom: 4px solid var(--parh-clase-PC);
+}
+.linea-inf-EX{
+	border-bottom: 4px solid var(--parh-clase-EX);
+}
+#origen::before{
+	content: '<div>asd</div>';
+	color: red;
+}
+.selectH{
+	background: rgb(43, 175, 203);
+	background: linear-gradient(90deg,
+		rgba(43, 175, 203, 1) 0%,
+		rgba(95, 95, 238, 1) 25%,
+		rgba(6, 66, 159, 1) 50%,
+		rgba(0, 9, 102, 1) 75%,
+		rgba(0, 4, 42, 1) 100%);
+	overflow: hidden;
+}
+.selectH input[type="radio"] {
+	/* display: none; */
+}
 
+.selectH label{
+	margin: 0px;
+	cursor: pointer;
+	border:1px solid transparent;
+	height: 40px;
+	transition: 0.2s;
+	backdrop-filter: grayscale(1);
+	/* background-image: url(http://localhost:5173/resources/images/bus_selec.png);
+	background-size: 40px;
+	background-position: bottom left;
+	background-repeat: no-repeat;
+	background-position-x: -40px; */
+}
+
+.selectH input[type="radio"]:checked+label {
+	backdrop-filter: none;
+	/* background-color: red !important; */
+	/* background-image: url(http://localhost:5173/resources/images/bus_selec.png);
+	background-size: 40px;
+	background-position: bottom center;
+	background-repeat: no-repeat; */
+	border: 1px solid white;
+}
+.gpo-btns select, .gpo-btns button, .gpo-btns input{
+	border: 2px solid black;
+}
+
+.pasosDeCompra{
+	background-color: var(--parh-acc-azl);
+	color: white;
+	margin-top: 10px;
+}
+.pasosDeCompra-selected{
+	background-color: var(--parh-bg-gris);
+	color:black;
+	border-radius: 10px 10px 0px 0px;
+}
+.circ-serv{
+	display: block;
+	border: 2px solid black;
+	border-radius: 100%;
+	width: 20px;
+	height: 20px;
+}
+.linea-recorrido .inicio{
+	display: block;
+	width: 12px;
+	height: 12px;
+	background-color: white;
+	border-radius: 100%;
+	position: absolute;
+	top: -12px;
+	left: -6px;
+}
+.linea-recorrido .fin{
+	display: block;
+	width: 12px;
+	height: 12px;
+	background-color: white;
+	border-radius: 100%;
+	position: absolute;
+	bottom: -12px;
+	left: -6px;
+}
+/* asientos */
+.tbl-diagrama-bus{
+	border-radius: 30px 30px 0 0;
+	background-color: var(--parh-bg-gris);
+}
+
+.tbl-diagrama-bus tr:nth-child(2)>td{
+	/* #asientos-ida tr:nth-last-child(3)>td { */
+	border-top: 2px solid gray !important;
+}
+.tbl-diagrama-bus tr:nth-child(2)>td:nth-child(3){
+	border-top: 2px solid transparent !important;
+}
+.tbl-diagrama-bus tr td:nth-child(1),
+.tbl-diagrama-bus tr td:nth-child(4){
+	border-left: 2px solid black;
+}
+.tbl-diagrama-bus tr td:nth-child(5),
+.tbl-diagrama-bus tr td:nth-child(2){
+	border-right: 2px solid black;
+}
+
+.tbl-diagrama-bus tr:nth-last-child(3)>td {
+	border-bottom: 2px solid green;
+}
+.tbl-diagrama-bus tr:nth-last-child(3)>td:nth-child(3){
+	border-bottom: 2px solid transparent;
+}
+.tbl-diagrama-bus tr:first-child > td,
+.tbl-diagrama-bus tr:nth-last-child(1) > td,
+.tbl-diagrama-bus tr:nth-last-child(2)>td{
+	border-left: 2px solid transparent;
+	border-right: 2px solid transparent;
+	background-color: transparent;
+}
+
+.input-trans-osc{
+	background-color: transparent;
+	color:white;
+	border:none;
+	pointer-events: none;
+}
+/*
+POR PANTALLA [FIN]
+*/
 
 @media (max-width: 768px) {
 	/* .btn-collap label span {
@@ -439,7 +656,6 @@ footer div{
 		top: 70px;
 	}
 }
-
 @media print {
 	html, body{
 		background: white;
@@ -487,4 +703,3 @@ footer div{
 		display: none !important;
 	}
 }
-/* *** */

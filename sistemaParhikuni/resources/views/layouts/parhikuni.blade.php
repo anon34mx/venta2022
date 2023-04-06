@@ -249,15 +249,15 @@
                 @yield('content')
 
 	        </main>
-            <footer class="mt-4">
-                <div>
+            <!-- <footer class="col-12 row">
+                <div class="col-12">
                     <img alt="" style=""
                         src="{{ Vite::asset('resources/images/logo_parhikuni.png') }}">
                 </div>
-            </footer>
-            <div class="text-center">
-                Destinos Parhíkuni ©2022-<?=date("Y")?>
-            </div>
+                <div class="col-12 text-center">
+                    Destinos Parhíkuni ©2022-<?=date("Y")?>
+                </div>
+            </footer> -->
         </div>
         <nav id="sidebar" style="display:none;">
             <div class="sidebar-header">

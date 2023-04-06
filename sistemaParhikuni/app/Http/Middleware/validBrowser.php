@@ -18,13 +18,16 @@ class validBrowser
     public function handle(Request $request, Closure $next)
     {   
         // dd(session("validBrowser"));
-        if(!session("validBrowser")){
-            // Aquí va la validación del navegador
-            //!Auth::user()->hasRole('Admin') && !$request->has("browserValidator")
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect(route('login'))->withErrors("Ingresa con un software autorizado");
+        // dd(Auth::user()->hasRole('Admin'));
+        if(!Auth::user()->hasRole('Admin')){
+            if(!session("validBrowser")){
+                // Aquí va la validación del navegador
+                //!Auth::user()->hasRole('Admin') && !$request->has("browserValidator")
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect(route('login'))->withErrors("Ingresa con un software autorizado");
+            }
         }
         return $next($request);
     }

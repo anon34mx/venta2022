@@ -84,15 +84,12 @@ class VentaInternaController extends Controller
     }
     // Paso 0.1 // guardar la corrida seleccionada
     public function guardarFiltros(Request $request){
+        // dd($request->all());
         $cordis=CorridasDisponibles::find($request->cor);
         $disponibilidad=Disponibilidad::find($request->disp);
-        // $estado=$cordis->estado($disponibilidad->nOrigen);
-        // if($estado->estadoID!="D"){
-        //     // echo "cancelar el estado de la corrida es ".$estado->estado;
-        //     return redirect(route('venta.interna.cancelarCompra', [
-        //         "cancelada" => "El estado de la corrida es: ".strtolower($estado->estado)
-        //     ]));
-        // }
+        $origen = Oficinas::find($disponibilidad->nOrigen);
+        $destino = Oficinas::find($disponibilidad->nDestino);
+        // dd($origen, $destino);
         if(!session()->has("cmpra_tiempoCompra")){ // para evitar sobreescribir
             $venceCompra=time() + ENV("TIEMPO_PARA_LA_COMPA")*60;
             $now=Carbon::now();
@@ -123,10 +120,15 @@ class VentaInternaController extends Controller
                 "ida_corrida"=>$request->cor,
                 "ida_disponibilidad"=>$request->disp,
                 "ida_origen" => $disponibilidad->nOrigen."",
+                "ida_origenNombre" => $origen->aNombre,
                 "ida_destino" => $disponibilidad->nDestino."",
+                "ida_destinoNombre" => $destino->aNombre,
+                "ida_fecha" => $disponibilidad->fSalida."",
                 
                 "reg_origen" => $disponibilidad->nDestino,
+                "reg_origenNombre" => $destino->aNombre,
                 "reg_destino" => $disponibilidad->nOrigen,
+                "reg_destinoNombre" => $origen->aNombre,
                 "reg_fecha" => @$request->fechaRegreso,
             ]);
         }
@@ -302,10 +304,10 @@ class VentaInternaController extends Controller
     }
     public function asientosRegreso(Request $request){
         $cordis=CorridasDisponibles::find(session("reg_corrida"));
-        $disp=Disponibilidad::find(session("ida_disponibilidad"));
+        $disp=Disponibilidad::find(session("reg_disponibilidad"));
         $asientos=new DisponibilidadAsientos();
         $pasajeros=json_decode(session("ida_pasajeros"));
-        // dd($pasajeros);
+        // dd($disp);
         return view('venta.interna.asientosRegreso',[
             "disponibilidad"=>$disp,
             "cordis"=>$cordis,
