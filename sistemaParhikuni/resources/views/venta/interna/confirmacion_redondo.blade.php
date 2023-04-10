@@ -289,14 +289,14 @@ $totalReg=0;
                             </tr>
                         @endfor
                     </tbody>
-                    <thead>
+                    <tfoot>
                         <tr>
                             <th colspan="{{ session('cmpra_usarPromocion') ? 6 : 5 }}">
                                 <!-- if(session("cmpra_usarPromocion")==true) -->
                                 TOTAL ${{number_format($total,2)}}
                             </th>
                         </tr>
-                    </thead>
+                    </tfoot>
                 </table>
             </div>
         </form>

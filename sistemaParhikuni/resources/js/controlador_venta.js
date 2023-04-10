@@ -462,10 +462,17 @@ $(document).ready(()=>{
     $("#recibido")
         .change(calcularCambio)
         .keydown(calcularCambio)
-        .keyup(calcularCambio);
+        .keyup(calcularCambio)
+        .focus(calcularCambio);
+        
+    // $("#borrarRecibido").click(function(event){
+    //     event.preventDefault();
+    //     calcularCambio();
+    // });
     $("#borrarRecibido").on("click", function(event){
         event.preventDefault();
         $('#recibido').val('')
+        $("#recibido").focus();
     });
 });
 

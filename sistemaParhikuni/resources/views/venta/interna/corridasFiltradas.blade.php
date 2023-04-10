@@ -329,7 +329,7 @@ oneTab("/ventaInterna");
             <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="px-0" onsubmit="return validarFiltros()" method="post" target="_self">
                 @csrf
                 <div class="">
-                    <table class="table table-stripe.d table-parhi-osc" style="">
+                    <table class="table table-striped table-parhi-osc" style="">
                         <thead>
                             <tr>
                                 <th>id</th>

@@ -73,5 +73,10 @@ namespace ventaParhikuniWin
         {
             webView21.ExecuteScriptAsync(@"print()");
         }
+
+        private void acercadeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

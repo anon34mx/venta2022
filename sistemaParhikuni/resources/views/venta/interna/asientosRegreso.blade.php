@@ -15,7 +15,7 @@ $contAuxPasajeros=0;
                     Detalles del viaje ✅
                 </div>
                 <div class="col-12 px-0 mx-0">
-                    <input class="input-trans-osc text-center col-12 px-0" type="date" value="{{session('reg_fecha')}}" readonly>
+                    <input class="input-trans-osc text-center col-12 px-0" type="date" value="{{session('reg_fecha')}}" readonly style="display: inline-grid;">
                 </div>
                 <div class="linea-inf-bnco">
                     <div class="col-12 row mx-0 px-0">
