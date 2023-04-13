@@ -1,6 +1,6 @@
 .vs/
 ventaParhikuniWin/bin/Debug/
-ventaParhikuniWin/bin/Debug/*
+ventaParhikuniWin/obj/Debug/*
 *.cache
 *.old
 *.log
