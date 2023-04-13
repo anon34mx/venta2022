@@ -337,14 +337,10 @@ window.calcularDescuento= async function(row){
 
     var sb = $(row).parent().find(".porPagar");
     var totalApagar=0;
-    // sb.forEach(element => {
-    //     console.log(element);
-    //     totalApagar += parseFloat(element[0].innerHTML)
-    // });
     for (let index = 0; index < sb.length; index++) {
         totalApagar += parseFloat(sb[index].innerHTML)
     }
-    var ttl = $(row).parent().find(".total").html("$"+totalApagar.toFixed(2));
+    var ttl = $(row).parent().parent().find("tfoot tr th .total").html("$"+totalApagar.toFixed(2));
 }
 
 window.mirrorInput=function(inp){
@@ -355,6 +351,24 @@ window.mirrorInput=function(inp){
 window.autobusHora=function(pos){
     $("#busH").css("left", pos+"%")
 }
+window.leerTarjetaBancaria = function(){
+    window.chrome.webview.postMessage("leerTarjetaBancaria");
+}
+window.llenarTarjeta = function(datos) {
+    document.getElementById('tarjeta').value = datos.tarjeta;
+    document.getElementById('expiracion').value = datos.expiracion;
+    document.getElementById('ccv').value = datos.ccv;
+}
+window.consultarBoletos=function(IDventa){
+    $.ajax({
+        url: route('venta.interna.boletos', { 'venta': IDventa, 'formato': 'B64'}),
+        success: function(response) {
+            $("#embededTicket").attr("src", "data:application/pdf;base64," + response);
+            window.chrome.webview.postMessage("{metodo:'leerTarjetaBancaria'}");
+        }
+    });
+}
+// INICIO
 $(document).ready(()=>{
     $(".mirrorInput").on("change", function(event){
         mirrorInput(this);

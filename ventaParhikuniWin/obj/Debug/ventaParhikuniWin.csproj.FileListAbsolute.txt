@@ -19,3 +19,4 @@ C:\xampp\htdocs\venta2022\ventaParhikuniWin\obj\Debug\ventaParhikuniWin.csproj.C
 C:\xampp\htdocs\venta2022\ventaParhikuniWin\obj\Debug\ventaParhikuniWin.csproj.CopyComplete
 C:\xampp\htdocs\venta2022\ventaParhikuniWin\obj\Debug\ventaParhikuniWin.exe
 C:\xampp\htdocs\venta2022\ventaParhikuniWin\obj\Debug\ventaParhikuniWin.pdb
+C:\xampp\htdocs\venta2022\ventaParhikuniWin\obj\Debug\ventaParhikuniWin.AcercaDe.resources

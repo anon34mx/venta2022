@@ -242,9 +242,9 @@ Route::get('/ventaInterna/pago', [App\Http\Controllers\VentaInternaController::c
 Route::post('/ventaInterna/abonar', [App\Http\Controllers\VentaInternaController::class, 'abonar'])
     ->name("venta.interna.abonar");
     //  PASO 5 [FIN]
-Route::get('/ventaInterna/{venta}/boletos', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
+Route::get('/ventaInterna/{venta}/boletos/{formato}', [App\Http\Controllers\VentaInternaController::class, 'boletos'])
     ->name("venta.interna.boletos");
-Route::get('/ventaInterna/{venta}/boletos/preview', [App\Http\Controllers\VentaInternaController::class, 'boletosPreview'])
+Route::get('/ventaInterna/{venta}/boletos/preview/{formato}', [App\Http\Controllers\VentaInternaController::class, 'boletosPreview'])
     ->name("venta.interna.boletosPreview");
 
     //  PASO X
@@ -296,28 +296,38 @@ Route::get('/personal/conductores/{conductor}/edit', [App\Http\Controllers\Condu
 Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\ConductoresController::class, 'update'])
     ->name("personal.conductores.update");
     // ->middleware('permission:corridasDisponibles.index');
-
-
+    
+    Route::get('/logout', function(Request $request){
+        try {
+            //code...
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect('/');
+        } catch (\Throwable $th) {
+            //throw $th;
+            return redirect('/');
+        }
+    })->name("logout");
+    
 
 
     // DEBUG
 Route::get('/browser', function(){
-echo "<h5><center>Debug</center></h5><br>";
-echo "<pre>";
+    echo "<h5><center>Debug</center></h5><br>";
+    echo "<pre>";
 
-var_dump($_SERVER);
-/**
- * REMOTE_ADDR
- * 
- */
+    var_dump($_SERVER);
+    /**
+     * REMOTE_ADDR
+     * 
+     */
 
-// no sé si sirva :v 
-// print_r(get_browser(null, true));
-    
-echo "</pre>";
+    // no sé si sirva :v 
+    // print_r(get_browser(null, true));
+        
+    echo "</pre>";
 })->name("debug.browser");
-
-
 
 Route::get('/cookies', function(){
     dd(session()->all(), Auth()->user()); //, Auth::user()->personas
@@ -334,15 +344,36 @@ Route::get('/base', function(Request $request) {
     return view("base");
 })->name("base");
 
-Route::get('/logout', function(Request $request){
-    try {
-        //code...
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/');
-    } catch (\Throwable $th) {
-        //throw $th;
-        return redirect('/');
-    }
-})->name("logout");
+Route::get('/comm', function(Request $request){
+    echo '<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>';
+    echo "leer archivo
+        <br>
+        <button onclick='leerTarjetaBancaria()' >exec c#</button>
+        ";
+    echo "
+    <script>
+        function saludar(nombre){
+            alert('hola '+nombre)
+        }
+
+        // llenarTarjeta({tarjeta:0, expiracion:'10/23', ccv:'123'})
+        function llenarTarjeta(datos){
+            document.getElementById('tarjeta').value=datos.tarjeta;
+            document.getElementById('expiracion').value=datos.expiracion;
+            document.getElementById('ccv').value=datos.ccv;
+        }
+
+        window.leerTarjetaBancaria = function(){
+            window.chrome.webview.postMessage(\"{leerTarjetaBancaria:true}\");
+        }
+
+        function retorno(){
+            return 'retorno';
+        }
+    </script>
+    <br>
+    <input id='tarjeta' placeholder='tarjeta'>
+    <input id='expiracion' placeholder='expiracion'>
+    <input id='ccv' placeholder='ccv'>
+    ";
+});

@@ -480,10 +480,6 @@ class VentaInternaController extends Controller
                 }
             }
         }
-
-
-
-
         session([
             "cmpra_pasoVenta" => 5
         ]);
@@ -577,12 +573,21 @@ class VentaInternaController extends Controller
         if(!$request->has("cantidadRecibida") || $request->cantidadRecibida==null){
             return back()->with("status", "Cantidad inválida.");
         }
+        $cantidadRecibida=preg_replace('/\_/', "", $request->cantidadRecibida);
+        // dd($cantidadRecibida);
         switch ($request->formaDePago) {
             case 'EF':
                 VentaPago::create([
                     "nVenta" => session("cmpra_IDventa"),
                     "aFormaPago" => "EF",
-                    "nMonto" => $request->cantidadRecibida,
+                    "nMonto" => $cantidadRecibida,
+                ]);
+                break;
+            case 'TB':
+                VentaPago::create([
+                    "nVenta" => session("cmpra_IDventa"),
+                    "aFormaPago" => "TB",
+                    "nMonto" => $cantidadRecibida,
                 ]);
                 break;
             default:
@@ -592,7 +597,7 @@ class VentaInternaController extends Controller
         return redirect(route("venta.interna.pago"));
     }
     // paso 6 [fin]
-    function boletos(Venta $venta){
+    function boletos(Venta $venta, $formato){
         $boletos = new BoletosVendidos();
         $boletos=$boletos->where("nVenta","=",$venta->nNumero)->get();
 
@@ -615,27 +620,23 @@ class VentaInternaController extends Controller
                 "color" => '#aa2825'
             ])
             ->setPaper('letter', 'portrait');
-            // ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
-            
-            // ->download("a.pdf");
-            // return $pdf->download("boletos.pdf");
-            // return $pdf;
-            
-            if(0){//base64
+
+            if($formato == "B64"){//base64
                 return base64_encode($pdf->output());exit;
-            }elseif(1){//PDF
+            }elseif($formato == "PDF"){//PDF
                 return $pdf //->setPaper('letter', 'portrait')
                     ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
-            }elseif(0){//DESCARGAR SIN VER
-                return $pdf->setPaper('letter', 'portrait')
-                    ->download("a.pdf");
+            }elseif($formato == "DWN"){//DESCARGAR SIN VER
+                return $pdf->download('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+                // ->setPaper('letter', 'portrait')
             }
         }
     }
 
-    function boletosPreview(Venta $venta){
+    function boletosPreview(Venta $venta, $formato){
         return view("PDF.boleto.preview",[
-            "venta" => $venta
+            "venta" => $venta,
+            "formato" => $formato
         ]);
     }
     function enviarBoletos(){

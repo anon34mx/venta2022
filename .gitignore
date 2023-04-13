@@ -1,3 +1,5 @@
-
-\[BD\]/~$pruebas escritorio.xlsx
-ventaParhikuniWin/bin/Debug
+.vs/
+ventaParhikuniWin/bin/Debug/
+ventaParhikuniWin/bin/Debug/*
+*.cache
+*.old

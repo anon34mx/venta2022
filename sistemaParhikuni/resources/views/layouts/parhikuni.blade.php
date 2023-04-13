@@ -39,6 +39,8 @@
         'resources/css/jquery.dataTables.min.css',
         'resources/js/RobinHerbots-Inputmask-87c76c7/dist/jquery.inputmask.min.js',
         'resources/js/RobinHerbots-Inputmask-87c76c7/dist/inputmask.js',
+        'resources/js/jquery-ui-1.13.2/jquery-ui.min.js',
+        'resources/js/jquery-ui-1.13.2/jquery-ui.min.css',
     ])
 </head>
 
@@ -321,14 +323,38 @@
     <!-- Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
+    <script type="module">
+        // bindKey('f1', function(event){
+        //     console.log(event.preventDefault());
+        // })
+        
+        bindKeyCombo('ctrl > y, r', () =>
+            console.log('You pressed "ctrl" then "y", released both, and are pressing "r"'))        
+    </script>
     <script type="text/javascript">
         $(document).ready(function () {
             $(".use-inputmask").inputmask();
-
             $('#sidebarCollapse').on('click', function () {
                 $('#sidebar').toggleClass('active');
             });
+
+            // $(document).bind("keydown", function(e){
+            //     e = e || window.event;
+            //     var charCode = e.which || e.keyCode;
+            //     if(charCode == 123){
+            //         let clave = prompt("Ingrese contraseña de desarrollador", "");
+            //         if (clave!="123") {
+            //             event.preventDefault();
+            //             console.error("ño :c");
+            //         }
+            //     }
+            // });
         });
+        /*
+
+
+        console.log('%c', devtools);
+        */
     </script>
 </body>
 

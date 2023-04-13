@@ -67,6 +67,11 @@ $(document).ready(()=>{
         toggler($(this), $(this).attr("target"));
     });
     
+    // $(".tabGroup input[type='radio']").change(function(){
+    //     $(this).parent().parent().find(".views").hide(0);
+    //     $(this).parent().parent().parent().find($(this).attr("target")).show(0);
+    // });
+    pestanas(".tabGroup");
 });
 
 window.toggler=function(inpt, target){
@@ -89,4 +94,23 @@ window.toggler=function(inpt, target){
 }
 window.quitarFiltros=()=>{
     window.location = window.location.pathname;
+}
+
+
+/***/
+
+window.pestanas=function(group){
+    $(group).find("input[type='radio']").change(function () {
+        var target = $(group).find("input[type='radio']:checked");
+        var views = $(this).parent().parent().parent()
+
+        console.log($(target.attr("target")))
+        $(views).find(".views").css("display", "none");
+        $(views).find(".views input:not([readonly]), select").prop("disabled",true);
+        
+        setTimeout(() => {
+            $(target.attr("target")).css("display", "block");
+            $(target.attr("target")).find("input:not([readonly]), select").prop("disabled", false);
+        }, 30);
+    });
 }

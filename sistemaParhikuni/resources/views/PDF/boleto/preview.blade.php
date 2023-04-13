@@ -21,11 +21,24 @@
     @endif
 
     
-    <iframe src="{{route('venta.interna.boletos', $venta)}}"
-    width="50%" height="450px"> </iframe>
-    asd
-    <embed
-    src="data:application/pdf;base64,{{@$boleto}}"
+    <!-- <iframe src="{{route('venta.interna.boletos', ['venta'=>$venta, 'formato'=>$formato])}}"
+    width="100%" height="450px"> </iframe>
+    <br> -->
+    <embed id="embededTicket"
+    src="data:application/pdf;base64,"
     type="application/pdf" width="100%" height="600px"/>
 </div>
+<script>
+    // function consultarBoletos(){
+    //     $.ajax({
+    //         url: route('venta.interna.boletos', {'venta':{!!$venta->nNumero!!}, 'formato':'B64'}),
+    //         success:function(response){
+    //             $("#embededTicket").attr("src", "data:application/pdf;base64,"+response);
+    //         }
+    //     });
+    // }
+    document.addEventListener("DOMContentLoaded",function(){
+        consultarBoletos({!!$venta->nNumero!!});
+    });
+</script>
 @endsection
