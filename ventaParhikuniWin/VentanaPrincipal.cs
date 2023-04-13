@@ -153,6 +153,7 @@ namespace ventaParhikuniWin
                 Console.WriteLine("Aquí debe comunicarse con JS");
                 string[] lines = File.ReadAllLines("C:\\Lector\\tarjeta.txt");
                 // Console.WriteLine(lines[0]);
+
                 webView21.ExecuteScriptAsync("llenarTarjeta({tarjeta:'" + lines[0] + "', expiracion:'" + lines[1] + "', ccv:'" + lines[2] + "'})");
             }
             catch (IOException e)
