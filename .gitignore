@@ -3,3 +3,4 @@ ventaParhikuniWin/bin/Debug/
 ventaParhikuniWin/bin/Debug/*
 *.cache
 *.old
+*.log
