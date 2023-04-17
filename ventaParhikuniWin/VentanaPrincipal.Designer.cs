@@ -34,7 +34,6 @@
             this.webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.panelHerramientas = new System.Windows.Forms.Panel();
             this.panelNavegacion = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
             this.barraDireccion = new System.Windows.Forms.TextBox();
             this.home = new System.Windows.Forms.Button();
             this.reload = new System.Windows.Forms.Button();
@@ -133,7 +132,6 @@
             this.panelNavegacion.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelNavegacion.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.panelNavegacion.Controls.Add(this.button1);
             this.panelNavegacion.Controls.Add(this.barraDireccion);
             this.panelNavegacion.Controls.Add(this.home);
             this.panelNavegacion.Controls.Add(this.reload);
@@ -144,23 +142,13 @@
             this.panelNavegacion.Size = new System.Drawing.Size(597, 31);
             this.panelNavegacion.TabIndex = 1;
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(542, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(43, 23);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "js";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // barraDireccion
             // 
             this.barraDireccion.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.barraDireccion.Location = new System.Drawing.Point(211, 5);
             this.barraDireccion.Name = "barraDireccion";
-            this.barraDireccion.Size = new System.Drawing.Size(325, 20);
+            this.barraDireccion.Size = new System.Drawing.Size(383, 20);
             this.barraDireccion.TabIndex = 4;
             this.barraDireccion.KeyDown += new System.Windows.Forms.KeyEventHandler(this.barraDireccion_KeyDown);
             // 
@@ -172,6 +160,7 @@
             this.home.TabIndex = 3;
             this.home.Text = "home";
             this.home.UseVisualStyleBackColor = true;
+            this.home.Click += new System.EventHandler(this.home_Click);
             // 
             // reload
             // 
@@ -181,6 +170,7 @@
             this.reload.TabIndex = 2;
             this.reload.Text = "Reload";
             this.reload.UseVisualStyleBackColor = true;
+            this.reload.Click += new System.EventHandler(this.reload_Click);
             // 
             // fordward
             // 
@@ -190,6 +180,7 @@
             this.fordward.TabIndex = 1;
             this.fordward.Text = "->";
             this.fordward.UseVisualStyleBackColor = true;
+            this.fordward.Click += new System.EventHandler(this.fordward_Click);
             // 
             // back
             // 
@@ -199,6 +190,7 @@
             this.back.TabIndex = 0;
             this.back.Text = "<-";
             this.back.UseVisualStyleBackColor = true;
+            this.back.Click += new System.EventHandler(this.back_Click);
             // 
             // panelMenuBar
             // 
@@ -516,7 +508,6 @@
         private System.Windows.Forms.ToolStripMenuItem buscarToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem acercadeToolStripMenuItem;
-        private System.Windows.Forms.Button button1;
     }
 }
 

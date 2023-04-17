@@ -352,7 +352,11 @@ window.autobusHora=function(pos){
     $("#busH").css("left", pos+"%")
 }
 window.leerTarjetaBancaria = function(){
-    window.chrome.webview.postMessage("leerTarjetaBancaria");
+    try {
+        window.chrome.webview.postMessage('{Metodo:"leerTarjetaBancaria"}');
+    } catch (error) {
+        
+    }
 }
 window.llenarTarjeta = function(datos) {
     document.getElementById('tarjeta').value = datos.tarjeta;
@@ -364,7 +368,11 @@ window.consultarBoletos=function(IDventa){
         url: route('venta.interna.boletos', { 'venta': IDventa, 'formato': 'B64'}),
         success: function(response) {
             $("#embededTicket").attr("src", "data:application/pdf;base64," + response);
-            window.chrome.webview.postMessage("{metodo:'leerTarjetaBancaria'}");
+            try {
+                window.chrome.webview.postMessage('{Metodo:"descargarBoletos", Datos:"'+response+'"}');
+            } catch (error) {
+                
+            }
         }
     });
 }

@@ -12,7 +12,10 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
-
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using System.Drawing.Printing;
 
 namespace ventaParhikuniWin
 {
@@ -43,7 +46,7 @@ namespace ventaParhikuniWin
         public async void InitBrowser()
         {
             await Initizated();
-            Cambiarpagina("/");
+            Cambiarpagina("/ventaInterna/14/boletos/preview/PDF");
         }
         // Mis funciones c:
         private void Cambiarpagina(string pagina)
@@ -128,21 +131,19 @@ namespace ventaParhikuniWin
         void MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
             String content = args.TryGetWebMessageAsString();
-            // Console.WriteLine(args.WebMessageAsJson);
-            //JavaScriptSerializer js = new JavaScriptSerializer();
-            //string jsonData = js.Serialize(args.WebMessageAsJson);
-            //Console.WriteLine(jsonData);
-            
-
-            if (content.StartsWith("leerTarjetaBancaria"))
+            Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(content);
+            Console.WriteLine("metodo = "+myDeserializedClass.Metodo);
+            switch (myDeserializedClass.Metodo)
             {
-                LeerDatosTarjeta();
-            }
-
-            switch (content)
-            {
+                case "leerTarjetaBancaria":
+                    LeerDatosTarjeta();
+                    break;
                 case "imprimir":
-                    imprimirDocumento();
+                    ImprimirDocumento("boleto.pdf");
+                    break;
+                case "descargarBoletos":
+                    File.WriteAllBytes("boleto.pdf", Convert.FromBase64String(myDeserializedClass.Datos));
+                    // ImprimirDocumento("boleto.pdf");
                     break;
             }
         }
@@ -150,20 +151,65 @@ namespace ventaParhikuniWin
         {
             try
             {
-                Console.WriteLine("Aquí debe comunicarse con JS");
                 string[] lines = File.ReadAllLines("C:\\Lector\\tarjeta.txt");
-                // Console.WriteLine(lines[0]);
                 webView21.ExecuteScriptAsync("llenarTarjeta({tarjeta:'" + lines[0] + "', expiracion:'" + lines[1] + "', ccv:'" + lines[2] + "'})");
             }
             catch (IOException e)
             {
-                //#
+                Console.WriteLine(e);
             }
         }
-
-        private void imprimirDocumento()
+        /*
+        private void ImprimirDocumento(String archivo)
         {
-            //recibir archivo
+            // Esta funcion imprime un documento PERO lo abre primero en el programa por DEFAULT
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo()
+            {
+                CreateNoWindow = false,
+                Verb = "print",
+                FileName = archivo //put the correct path here
+            };
+            Console.WriteLine("ImprimirDocumento()");
+            p.Start();
+        }
+        */
+        private void ImprimirDocumento(String archivo)
+        {
+            foreach (string s in PrinterSettings.InstalledPrinters)
+            {
+                // Console.WriteLine(s);
+            }
+            PrintDocument pd = new PrintDocument();
+            pd.PrinterSettings.PrinterName = "Microsoft Print to PDF";
+            pd.Print();
+        }
+
+        private void back_Click(object sender, EventArgs e)
+        {
+            webView21.GoBack();
+        }
+
+        private void fordward_Click(object sender, EventArgs e)
+        {
+            webView21.GoForward();
+        }
+
+        private void reload_Click(object sender, EventArgs e)
+        {
+            webView21.Refresh();
+        }
+
+        private void home_Click(object sender, EventArgs e)
+        {
+            Cambiarpagina("/");
         }
     }
+    // Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(myJsonResponse);
+    public class Message
+    {
+        public string Metodo { get; set; }
+        public string Datos { get; set; }
+    }
 }
+
