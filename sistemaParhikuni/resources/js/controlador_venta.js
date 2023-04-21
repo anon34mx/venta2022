@@ -365,13 +365,14 @@ window.llenarTarjeta = function(datos) {
 }
 window.consultarBoletos=function(IDventa){
     $.ajax({
-        url: route('venta.interna.boletos', { 'venta': IDventa, 'formato': 'B64'}),
+        url: route('venta.interna.boletos', { 'venta': IDventa, 'formato': 'TAQ'}),
         success: function(response) {
             $("#embededTicket").attr("src", "data:application/pdf;base64," + response);
+            console.log(response);
             try {
-                window.chrome.webview.postMessage('{Metodo:"descargarBoletos", Datos:"'+response+'"}');
+                window.chrome.webview.postMessage('{Metodo:"descargarBoletos", Datos:"' + response +'"}');
             } catch (error) {
-                
+                console.error(error);
             }
         }
     });

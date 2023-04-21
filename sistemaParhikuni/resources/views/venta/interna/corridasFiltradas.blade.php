@@ -120,12 +120,12 @@ oneTab("/ventaInterna");
 
         <div class="col-12 px-0 mx-0 row linea-inf-bnco gpo-btns">
             <div class="col-12">Fecha</div>
-            <div class="col-6 col-lg-6 row mx-0 my-1 gpo-btns pr-sm-0">
-                <input class="form-control px-2 fechaSalida mirrorInput" type="date" target="#fechaSalida"
+            <div class="col-6 col-sm-12 col-lg-6 row mx-0 my-1 gpo-btns pl-3 pr-3 pl-lg-3 pr-lg-0">
+                <input class="form-control px-1 fechaSalida mirrorInput" type="date" target="#fechaSalida"
                     min="{{date('Y-m-d')}}" name="fechaDeSalida" value="{{$fechaDeSalida}}" >
             </div>
-            <div class="col-6 col-lg-6 row mx-0 my-1 gpo-btns pl-sm-0 selectReg {{@Request::get('tipoDeViaje')=='redondo' ? '' : 'hidden'}}">
-                <input class="form-control px-2 fechaRegreso mirrorInput" type="date" target="#fechaRegreso"
+            <div class="col-6 col-sm-12 col-lg-6 row mx-0 my-1 gpo-btns pl-3 pr-3 pl-lg-0 pr-lg-3 selectReg {{@Request::get('tipoDeViaje')=='redondo' ? '' : 'hidden'}}">
+                <input class="form-control px-1 fechaRegreso mirrorInput" type="date" target="#fechaRegreso"
                     min="{{date('Y-m-d')}}" name="fechaRegreso" value="{{ Request::get('fechaRegreso')}}">
             </div>
         </div>
@@ -144,13 +144,13 @@ oneTab("/ventaInterna");
                     <button id="adultos+" class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                 </div>
                 <div class="col-8 mx-0 px-0">
-                    <input readonly id="inpt-adultos" name="adultos" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$adultos}}" step="1" min="0" max="10">
+                    <input readonly id="inpt-adultos" name="adultos" class="form-control contadorPasajeros col-11 px-1 px-md-1 mx-auto" type="text" value="{{$adultos}}" step="1" min="0" max="10">
                     <label for="inpt-adultos" style="
                         pointer-events:none;
                         color:black;
                         position: absolute;
                         top: 7px;
-                        left: 36px;
+                        left: 32px;
                     ">Adultos</label>
                 </div>
                 <div class="col-2 mx-0 px-0">
@@ -162,13 +162,13 @@ oneTab("/ventaInterna");
                     <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                 </div>
                 <div class="col-8 mx-0 px-0">
-                    <input readonly id="inpt-niños" name="niños" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$niños}}" step="1" min="0" max="10">
+                    <input readonly id="inpt-niños" name="niños" class="form-control contadorPasajeros col-11 px-1 px-md-1 mx-auto" type="text" value="{{$niños}}" step="1" min="0" max="10">
                     <label for="inpt-adultos" style="
                         pointer-events:none;
                         color:black;
                         position: absolute;
                         top: 7px;
-                        left: 36px;
+                        left: 32px;
                     ">Menores</label>
                 </div>
                 <div class="col-2 mx-0 px-0">
@@ -180,13 +180,13 @@ oneTab("/ventaInterna");
                     <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                 </div>
                 <div class="col-8 mx-0 px-0">
-                    <input readonly id="inpt-insen" name="insen" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$insen}}" step="1" min="0" max="10">
+                    <input readonly id="inpt-insen" name="insen" class="form-control contadorPasajeros col-11 px-1 px-md-1 mx-auto" type="text" value="{{$insen}}" step="1" min="0" max="10">
                     <label for="inpt-adultos" style="
                         pointer-events:none;
                         color:black;
                         position: absolute;
                         top: 7px;
-                        left: 36px;
+                        left: 32px;
                     ">Insen</label>
                 </div>
                 <div class="col-2 mx-0 px-0">
@@ -199,13 +199,13 @@ oneTab("/ventaInterna");
                         <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                     </div>
                     <div class="col-8 mx-0 px-0">
-                        <input readonly id="inpt-estudiantes" name="estudiantes" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$estudiantes}}" step="1" min="0" max="10">
+                        <input readonly id="inpt-estudiantes" name="estudiantes" class="form-control contadorPasajeros col-11 px-1 px-md-1 mx-auto" type="text" value="{{$estudiantes}}" step="1" min="0" max="10">
                         <label for="inpt-adultos" style="
                             pointer-events:none;
                             color:black;
                             position: absolute;
                             top: 7px;
-                            left: 36px;
+                            left: 32px;
                         ">Estudiantes</label>
                     </div>
                     <div class="col-2 mx-0 px-0">
@@ -217,13 +217,13 @@ oneTab("/ventaInterna");
                         <button class="cantidadPasajeros btn btn-sm btn-warning" value="+">+</button>
                     </div>
                     <div class="col-8 mx-0 px-0">
-                        <input readonly id="inpt-profesores" name="profesores" class="form-control contadorPasajeros col-12 px-1 px-md-1" type="text" value="{{$profesores}}" step="1" min="0" max="10">
+                        <input readonly id="inpt-profesores" name="profesores" class="form-control contadorPasajeros col-11 px-1 px-md-1 mx-auto" type="text" value="{{$profesores}}" step="1" min="0" max="10">
                         <label for="inpt-adultos" style="
                             pointer-events:none;
                             color:black;
                             position: absolute;
                             top: 7px;
-                            left: 36px;
+                            left: 32px;
                         ">Profesores</label>
                     </div>
                     <div class="col-2 mx-0 px-0">
@@ -257,7 +257,7 @@ oneTab("/ventaInterna");
         </div>
         <div class="col-12 col-sm-12 row mx-0 my-1">
             <div class="col-6 col-sm-12 row px-0 mx-auto selectH">
-                <img id="busH" src="{{ Vite::asset('resources/images/bus_selec.png') }}" alt=""
+                <!-- <img id="busH" src="{{ Vite::asset('resources/images/bus_selec.png') }}" alt=""
                     style="width: 60px;
                         position: absolute;
                         bottom: 6px;
@@ -265,20 +265,28 @@ oneTab("/ventaInterna");
                         display: block;
                         z-index: 5;
                         pointer-events: none;
-                        transition:0.5s;">
+                        transition:0.5s;"> -->
                 <input id="inptbusH" name="inptbusH" value="{{@Request::get('inptbusH')}}" hidden>
 
                 <input id="horarioMadr" class="" value="Madr" type="radio" name="horario"{{@Request::get('horario')=='Madr' ? 'checked':''}} hidden >
-                <label for="horarioMadr" class="col-3" onclick="cambiarHorario('Madr', new Event(''), 'lbl-horario');autobusHora(0)"> </label>
+                <label for="horarioMadr" class="col-3 madr" onclick="cambiarHorario('Madr', new Event(''), 'lbl-horario');autobusHora(0)" title="Madrugada">
+                    <img src="{{ Vite::asset('resources/images/venta/Madrugada.png') }}" alt="">
+                </label>
 
                 <input id="horarioMaña" class="" value="Maña" type="radio" name="horario"{{@Request::get('horario')=='Maña' ? 'checked':''}} hidden>
-                <label for="horarioMaña" class="col-3" onclick="cambiarHorario('Maña', new Event(''), 'lbl-horario');autobusHora(25)"> </label>
+                <label for="horarioMaña" class="col-3 maña" onclick="cambiarHorario('Maña', new Event(''), 'lbl-horario');autobusHora(25)" title="Mañana">
+                    <img src="{{ Vite::asset('resources/images/venta/Día.png') }}" alt="">
+                </label>
 
                 <input id="horarioTard" class="" value="Tard" type="radio" name="horario"{{@Request::get('horario')=='Tard' ? 'checked':''}} hidden>
-                <label for="horarioTard" class="col-3" onclick="cambiarHorario('Tard', new Event(''), 'lbl-horario');autobusHora(50)"> </label>
+                <label for="horarioTard" class="col-3 tard" onclick="cambiarHorario('Tard', new Event(''), 'lbl-horario');autobusHora(50)" title="Tarde">
+                    <img src="{{ Vite::asset('resources/images/venta/Tarde.png') }}" alt="">
+                </label>
 
                 <input id="horarioNoch" class="" value="Noch" type="radio" name="horario"{{@Request::get('horario')=='Noch' ? 'checked':''}} hidden>
-                <label for="horarioNoch" class="col-3" onclick="cambiarHorario('Noch', new Event(''), 'lbl-horario');autobusHora(75)"> </label>
+                <label for="horarioNoch" class="col-3 noch" onclick="cambiarHorario('Noch', new Event(''), 'lbl-horario');autobusHora(75)" title="Noche">
+                    <img src="{{ Vite::asset('resources/images/venta/Noche.png') }}" alt="">
+                </label>
 
             </div>
             <input id="horarioCompleto" class="" value="Completo" type="radio"
@@ -319,11 +327,21 @@ oneTab("/ventaInterna");
                 </div>
             </div>
             <div class="row col-12 mx-0 px-0 bg-gris">
-                <div class="col-2 mx-auto linea-inf-EX">Express</div>
-                <div class="col-2 mx-auto linea-inf-PC">Premium</div>
-                <div class="col-2 mx-auto linea-inf-UL">Ultra</div>
-                <div class="col-2 mx-auto linea-inf-PL">Platinum</div>
-                <div class="col-2 mx-auto linea-inf-BC">Business Class</div>
+                <div class="col-2 mx-auto linea-inf-EX">
+                    <img src="{{ Vite::asset('resources/images/servicios/EX.png') }}" alt="">
+                </div>
+                <div class="col-2 mx-auto linea-inf-PC">
+                    <img src="{{ Vite::asset('resources/images/servicios/PC.png') }}" alt="">
+                </div>
+                <div class="col-2 mx-auto linea-inf-UL">
+                    <img src="{{ Vite::asset('resources/images/servicios/UL.png') }}" alt="">
+                </div>
+                <div class="col-2 mx-auto linea-inf-PL">
+                    <img src="{{ Vite::asset('resources/images/servicios/PL.png') }}" alt="">
+                </div>
+                <div class="col-2 mx-auto linea-inf-BC">
+                    <img src="{{ Vite::asset('resources/images/servicios/BC.png') }}" alt="">
+                </div>
             </div>
         </div>
             <form id="tbl-corridas" action="{{route('venta.interna.guardarFiltros')}}" class="px-0" onsubmit="return validarFiltros()" method="post" target="_self">
@@ -395,7 +413,6 @@ oneTab("/ventaInterna");
                                         $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
                                     @endphp
                                     <td class="fecha">
-                                        <!-- {{$fechoraHoraSalida->format("d/m/Y")}} -->
                                         {{$corrida->origen}}
                                         <br>
                                         <b>
@@ -403,7 +420,6 @@ oneTab("/ventaInterna");
                                         </b>
                                     </td>
                                     <td class="hora">
-                                        <!-- {{$fechaHoraLlegada->format("d/m/Y")}} -->
                                         {{$corrida->destino}}
                                         <br>
                                         {{$fechaHoraLlegada->format("H:i:s")}}
@@ -414,9 +430,17 @@ oneTab("/ventaInterna");
                                             Itinerario
                                         </button>
                                     </td>
-                                    <!-- <td>{{$corrida->origen}}<br>{{$corrida->destino}}</td> -->
-                                    <td>
-                                        <span class="ocupados">{{($corrida->boletosVendidos)}}</span>
+                                    <td
+                                        @php 
+                                            if($corrida->totalAsientos - $corrida->ocupados <= 5){
+                                                echo 'class="text-danger"';
+                                            }elseif($corrida->totalAsientos - $corrida->ocupados <= 10){
+                                                echo 'class="text-warning"';
+                                            }else{
+                                                echo 'class="text-success"';
+                                            }
+                                        @endphp
+                                        >
                                         <span class="ocupados">{{($corrida->ocupados)}}</span>
                                         /
                                         <span class="totalAsientos">{{$corrida->totalAsientos}}</span>

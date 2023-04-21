@@ -85,7 +85,7 @@ $contAuxPasajeros=0;
                     <tr>
                         <td>
                             <img alt="" style="" width="34"
-                                class="logo-color mx-auto my-0" src="{{ Vite::asset('resources/images/asientos/Conductor.png') }}">
+                                class="logo-color mx-auto my-0" src="{{ Vite::asset('resources/images/diagramaAutobus/Conductor.png') }}">
                         </td>
                         <td></td>
                         <td></td>
@@ -157,7 +157,9 @@ $contAuxPasajeros=0;
                         @endphp
                     @endforeach
                     <tr>
-                        <td colspan="5">clase</td>
+                        <td colspan="5">
+                            <img src="{{ Vite::asset('resources/images/servicios/'.$cordis->servicio->aClave.'.png') }}" alt="">
+                        </td>
                     </tr>
                     <tr>
                         <td colspan="5">serbisios</td>
@@ -179,7 +181,7 @@ $contAuxPasajeros=0;
                 </div>
                 <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post" class="">
                     @csrf
-                    <table id="tbl-datosPasajeros" class="tbl-datosPasajeros rounded-top">
+                    <table id="tbl-datosPasajeros" class="tbl-datosPasajeros rounded-top table-striped">
                         <thead>
                             <tr>
                                 <th class="col-3">Tipo</th>

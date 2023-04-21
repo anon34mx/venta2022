@@ -33,24 +33,60 @@
         </div>
         <div class="naranja">
             <div class="qrCont">
-                <img class="bg" src="{{ Vite::asset('resources/images/logo_parhikuni.png') }}" alt="">
-                <img class="qr" src="{{ Vite::asset('resources/images/logo_parhikuni.png') }}" alt="">
+                <img class="bg" src="{{ Vite::asset('resources/images/Banners/Fondo.png') }}">
+                <!-- <img class="qr" src="{{ Vite::asset('resources/images/logo_parhikuni.png') }}" alt=""> -->
+                <div class="qr">
+                    {!! QrCode::generate($venta->nNumero) !!}
+                </div>
                 <div class="resumen">
-                    SERVICIO PLATINUM X ADULTOS X MENORES X INSEN 
-                    <BR>
-                    XX/XX/ 00:00 XX/XX/ 00:00
-                    ORIGEN - DESTINO | ORIGEN - DESTINO
+                    Folio {{$venta->nNumero}}
+                    <br>
+                    <img src="{{ Vite::asset('resources/images/venta/Autobusito.png') }}" width="18" style="filter: invert(1);">
+                        {{sizeof($boletos)}} Boletos - {{$corridaIda->servicio->aDescripcion}}
+                    <br>
+                    <b><img src="{{ Vite::asset('resources/images/Calendario.png') }}" width="18"> Ida</b>
+                    
+                    @php
+                        $ida=\Carbon\Carbon::parse($corridaIda->fSalida." ".$corridaIda->hSalida);
+                        $regreso=null;
+                        if($corridaReg != null){
+                            $regreso=\Carbon\Carbon::parse(@$corridaReg->fSalida." ".$corridaReg->hSalida);
+
+                        }
+                        $format1 = 'l, j \\de F \\de Y';
+                        echo $ida->translatedFormat($format1);
+                    @endphp
+
+                    @if($corridaReg != null)
+                        <br>
+                        <b><img src="{{ Vite::asset('resources/images/Calendario.png') }}" width="18"> Regreso</b>
+                        {{$regreso->translatedFormat($format1)}}
+                    @endif
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-12 text-center">
+        <button id="reimprimir" class="btn btn-primary ">Reimprimir</button>
+    </div>
     <embed id="embededTicket"
     src="data:application/pdf;base64,"
-    type="application/pdf" width="80%" height="600px" hidden/>
+    type="application/pdf" width="80%" height="600px" />
 </div>
 <script>
     document.addEventListener("DOMContentLoaded",function(){
-        consultarBoletos({!!$venta->nNumero!!});
+        @php
+        if( session("imprimirBoletos")!=null ){
+            @endphp
+            consultarBoletos({!!$venta->nNumero!!});
+            @php
+            }
+            session()->forget("imprimirBoletos");
+        @endphp
+
+        $("#reimprimir").click(()=>{
+            consultarBoletos({!!$venta->nNumero!!});
+        });
     });
 </script>
 @endsection

@@ -16,10 +16,15 @@ class Venta extends Model
     protected $primaryKey = 'nNumero';
     protected $fillable = [
         "nSesion",
+        "nCorridaIda",
+        "nCorridaRegreso"
     ];
     protected $hidden = [
         "fCreacion"
     ];
+    protected $appends = array(
+        'codbar'
+    );
 
     public function calcularAdeudo(){
         $sql="SELECT
@@ -67,5 +72,12 @@ class Venta extends Model
         //     "venta" => $this->nNumero
         // ]));
         // return $rs;
+    }
+        // SET GET
+    public function getCodbarAttribute(){
+        return $this->codbar;
+    }
+    public function setCodbarAttribute($newValue){
+        return $this->codbar=$newValue;  
     }
 }

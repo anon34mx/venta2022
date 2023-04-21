@@ -16,6 +16,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using System.Drawing.Printing;
+using RawPrint;
 
 namespace ventaParhikuniWin
 {
@@ -46,7 +47,7 @@ namespace ventaParhikuniWin
         public async void InitBrowser()
         {
             await Initizated();
-            Cambiarpagina("/ventaInterna/14/boletos/preview/PDF");
+            Cambiarpagina("/ventaInterna/9/boletos/preview/TAQ");
         }
         // Mis funciones c:
         private void Cambiarpagina(string pagina)
@@ -65,7 +66,7 @@ namespace ventaParhikuniWin
             barraDireccion.Text = urlActual.Replace("http://localhost:8000", "");
             if (webView21.Source.ToString() == "http://localhost:8000/login")
             {
-                webView21.ExecuteScriptAsync(@"var x=document.getElementsByTagName('form');
+                await webView21.ExecuteScriptAsync(@"var x=document.getElementsByTagName('form');
                     for (let i = 0; i < x.length; i++) {
                         var newInput=null;
                         x[i].onsubmit = function () {
@@ -131,19 +132,41 @@ namespace ventaParhikuniWin
         void MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
             String content = args.TryGetWebMessageAsString();
-            Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(content);
-            Console.WriteLine("metodo = "+myDeserializedClass.Metodo);
+            Message myDeserializedClass = null;
+
+
+            try
+            {
+                myDeserializedClass = JsonConvert.DeserializeObject<Message>(content);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine(content);
+                throw;
+            }
+
             switch (myDeserializedClass.Metodo)
             {
                 case "leerTarjetaBancaria":
                     LeerDatosTarjeta();
                     break;
                 case "imprimir":
-                    ImprimirDocumento("boleto.pdf");
+                    // ImprimirBoletos("boleto.pdf");
                     break;
                 case "descargarBoletos":
+                    /*
+                        //byte[] pdfBytes = Convert.FromBase64String(myDeserializedClass.Datos);
+                        //string pdfString = System.Text.Encoding.UTF8.GetString(pdfBytes).Replace("\n", "\r\n");
+                        //File.WriteAllBytes("boleto.pdf", System.Text.Encoding.UTF8.GetBytes(pdfString));
+                        //ImprimirBoletos("boleto.pdf");
+                    */
+                    /*
+                     * SIRVE
+                        //File.WriteAllBytes("boleto.pdf", Convert.FromBase64String(myDeserializedClass.Datos)); //Convert.FromBase64String(myDeserializedClass.Datos)
+                        //ImprimirBoletos("boleto.pdf");
+                     */
                     File.WriteAllBytes("boleto.pdf", Convert.FromBase64String(myDeserializedClass.Datos));
-                    // ImprimirDocumento("boleto.pdf");
+                    ImprimirBoletos("boleto.pdf");
                     break;
             }
         }
@@ -160,30 +183,47 @@ namespace ventaParhikuniWin
             }
         }
         /*
-        private void ImprimirDocumento(String archivo)
-        {
-            // Esta funcion imprime un documento PERO lo abre primero en el programa por DEFAULT
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo()
+            private void ImprimirDocumento(String archivo)
             {
-                CreateNoWindow = false,
-                Verb = "print",
-                FileName = archivo //put the correct path here
-            };
-            Console.WriteLine("ImprimirDocumento()");
-            p.Start();
-        }
-        */
-        private void ImprimirDocumento(String archivo)
-        {
-            foreach (string s in PrinterSettings.InstalledPrinters)
-            {
-                // Console.WriteLine(s);
+                // Esta funcion imprime un documento PERO lo abre primero en el programa por DEFAULT
+                Process p = new Process();
+                p.StartInfo = new ProcessStartInfo()
+                {
+                    CreateNoWindow = false,
+                    Verb = "print",
+                    FileName = archivo //put the correct path here
+                };
+                Console.WriteLine("ImprimirDocumento()");
+                p.Start();
             }
-            PrintDocument pd = new PrintDocument();
-            pd.PrinterSettings.PrinterName = "Microsoft Print to PDF";
-            pd.Print();
+        
+            private void ImprimirBoletos(string archivo){
+                // FALLÓ
+                PrintDocument pd = new PrintDocument();
+                pd.PrinterSettings.PrinterName = Properties.Settings.Default["ImpresoraBoletos"].ToString();
+                pd.Print();
+            }
+        */
+        private void ImprimirBoletos(string archivo)
+        {
+            string Filepath = @"C:\xampp\htdocs\venta2022\ventaParhikuniWin\bin\Debug\boleto.pdf";
+            // The name of the PDF that will be printed (just to be shown in the print queue)
+            string Filename = Filepath;
+            // The name of the printer that you want to use
+            // Note: Check step 1 from the B alternative to see how to list
+            // the names of all the available printers with C#
+            string PrinterName = Properties.Settings.Default["ImpresoraBoletos"].ToString();
+
+            // Create an instance of the Printer
+            IPrinter printer = new Printer();
+
+            // Print the file
+            printer.PrintRawFile(PrinterName, Filepath, Filename);
+            Console.WriteLine(PrinterName);
+            Console.WriteLine(Filepath);
+            Console.WriteLine(Filename);
         }
+
 
         private void back_Click(object sender, EventArgs e)
         {
@@ -203,6 +243,24 @@ namespace ventaParhikuniWin
         private void home_Click(object sender, EventArgs e)
         {
             Cambiarpagina("/");
+        }
+
+        private void opcionesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // abrir configuracion
+            Configuracion ConfigForm = new Configuracion();
+            ConfigForm.Visible = true;
+        }
+        public byte[] StringToCharArray(string sentence)
+        {
+            char[] charArr = sentence.ToCharArray();
+            byte[] byteArr = new byte[charArr.Length];
+            for (int i = 0; i < charArr.Length; i++)
+            {
+                byteArr[i] = Convert.ToByte(charArr[i]);
+            }
+
+            return byteArr;
         }
     }
     // Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(myJsonResponse);

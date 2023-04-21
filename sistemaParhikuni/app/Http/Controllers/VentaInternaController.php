@@ -19,7 +19,7 @@ use App\Models\PeriodosVacacionales;
 use Auth;
 use Carbon\Carbon;
 use Exception;
-use DB,PDF,DNS1D,DNS2D;
+use DB,PDF,DNS1D,DNS2D, QrCode;
 /**
  * Pasos para la venta
  * 
@@ -407,7 +407,7 @@ class VentaInternaController extends Controller
     }
     // paso 3.1 (Guardar confirmacion y mandar a vista de pago)
     public function confirmacionGuardar(Request $request){
-        // return redirect(route("venta.interna.confirmacion"))->withErrors('Usuario creado');
+        // dd(session("ida_corrida"), session("reg_corrida"));
         $cordis=CorridasDisponibles::find(session("ida_corrida"));
         $disp=Disponibilidad::find(session("ida_disponibilidad"));
         $pasajeros=json_decode(session("ida_pasajeros"));
@@ -436,6 +436,8 @@ class VentaInternaController extends Controller
         if(!session()->has("cmpra_IDventa")){
             $ventaID=Venta::create([
                 "nSesion" => session("sesionVenta"),
+                "nCorridaIda" => session("ida_corrida"),
+                "nCorridaRegreso" => session("reg_corrida"),
             ]);
             session([
 				"cmpra_IDventa" => $ventaID->nNumero,
@@ -537,8 +539,6 @@ class VentaInternaController extends Controller
 
         if($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado <= 0){
             // Ya está pagado
-            // Se borran los datos temporales
-            //PASAR COMO PARAMETROS ?
             session()->forget("ida");
             session()->forget("cmpra_pasoVenta");
             session()->forget("cmpra_viajeRedondo");
@@ -558,9 +558,15 @@ class VentaInternaController extends Controller
             session()->forget("ida_asientosID");
             session()->forget("cmpra_IDventa");
 
+            session([
+                "imprimirBoletos" => true
+            ]);
+            session()->save();
+
 
             return redirect(route('venta.interna.boletosPreview',[
-                "venta" => $venta
+                "venta" => $venta,
+                "formato" => "PDF"
             ]));
         }else{
             return view("venta.interna.pago",[
@@ -601,18 +607,28 @@ class VentaInternaController extends Controller
         $boletos = new BoletosVendidos();
         $boletos=$boletos->where("nVenta","=",$venta->nNumero)->get();
 
-        // generar codigo de barras para cada boleto
+        // $venta->setCodbarAttribute(DNS1D::getBarcodePNG("34", 'C128'));
+        // dd(QrCode::generate($venta->nNumero));
+        $venta->setCodbarAttribute( base64_encode( QrCode::generate($venta->nNumero)  ));
+        // generar codigo de barras para cada boleto (dentro del PDF)
         for($i=0; $i<sizeof($boletos); $i++){
             $boletos[$i]->setCodbarAttribute(DNS1D::getBarcodePNG($boletos[$i]->nNumero."", 'C128'));
         }
-        if(false){ // vista previa html
-            return view('PDF.boleto.2020_porNadia',[
+        if(0){ // vista previa html
+            // return view('PDF.boleto.2020_porNadia',[
+            //     "venta" => $venta,
+            //     "boletos" => $boletos,
+            //     "tipoPuntoVenta" => "taquilla",
+            //     "color" => 'rgb(170,40,37)'
+            // ]);
+            return view('PDF.boleto.2023_taquilla',[
                 "venta" => $venta,
                 "boletos" => $boletos,
                 "tipoPuntoVenta" => "taquilla",
-                "color" => 'rgb(170,40,37)'
+                "color" => '#aa2825'
             ]);
-        }else{
+        }
+        if($formato == "B64"){//    base64 PARA IMPRIMIR DIRECTO
             $pdf = \PDF::loadView('PDF.boleto.2020_porNadia',[
                 "venta" => $venta,
                 "boletos" => $boletos,
@@ -620,23 +636,55 @@ class VentaInternaController extends Controller
                 "color" => '#aa2825'
             ])
             ->setPaper('letter', 'portrait');
+            return base64_encode($pdf->output());exit;
+        }elseif($formato == "PDF"){//   PDF PARA VER EN LINEA
+            $pdf = \PDF::loadView('PDF.boleto.2020_porNadia',[
+                "venta" => $venta,
+                "boletos" => $boletos,
+                "tipoPuntoVenta" => "taquilla",
+                "color" => '#aa2825'
+            ])
+            ->setPaper('letter', 'portrait');
+            return $pdf->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+        }elseif($formato == "TAQ"){ // PARA IMPRIMIR DIRECTO EN TAQUILLA
+            /*
+                https://stackoverflow.com/questions/40843050/how-to-make-pdf-exact-10cm-width-with-dompdf-and-laravel
+                1 inch = 72 point
+                1 inch = 2.54 cm
+                10 cm = 10/2.54*72 = 283.464566929
+            */
 
-            if($formato == "B64"){//base64
-                return base64_encode($pdf->output());exit;
-            }elseif($formato == "PDF"){//PDF
-                return $pdf //->setPaper('letter', 'portrait')
-                    ->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf');
-            }elseif($formato == "DWN"){//DESCARGAR SIN VER
-                return $pdf->download('boletos_'.$venta->nNumero.'_parhikuni.pdf');
-                // ->setPaper('letter', 'portrait')
-            }
+            $tamanoPapel=array(0,0,286.2992126, 340.1574803);
+            $pdf = \PDF::loadView('PDF.boleto.2023_taquilla',[
+                "venta" => $venta,
+                "boletos" => $boletos,
+                "tipoPuntoVenta" => "taquilla",
+                "color" => '#aa2825'
+            ])
+            ->setPaper($tamanoPapel, 'portrait'); // tamaño de papel personalizado
+            return base64_encode($pdf->stream('boletos_'.$venta->nNumero.'_parhikuni.pdf'));
+        }elseif($formato == "DWN"){//DESCARGAR SIN VER
+            $pdf = \PDF::loadView('PDF.boleto.2020_porNadia',[
+                "venta" => $venta,
+                "boletos" => $boletos,
+                "tipoPuntoVenta" => "taquilla",
+                "color" => '#aa2825'
+            ])
+            ->setPaper('letter', 'portrait');
+            return $pdf->download('boletos_'.$venta->nNumero.'_parhikuni.pdf');
+            // ->setPaper('letter', 'portrait')
         }
     }
 
     function boletosPreview(Venta $venta, $formato){
+        $boletos = new BoletosVendidos();
+        $boletos=$boletos->where("nVenta","=",$venta->nNumero)->get();
         return view("PDF.boleto.preview",[
             "venta" => $venta,
-            "formato" => $formato
+            "formato" => $formato,
+            "boletos" => $boletos,
+            "corridaIda" => CorridasDisponibles::find($venta->nCorridaIda),
+            "corridaReg" => CorridasDisponibles::find($venta->nCorridaRegreso),
         ]);
     }
     function enviarBoletos(){
@@ -670,6 +718,9 @@ class VentaInternaController extends Controller
 		session()->forget("ida_destino");
 		session()->forget("ida_pasajeros");
 		session()->forget("ida_asientosID");
+		session()->forget("ida_origenNombre");
+		session()->forget("ida_destinoNombre");
+		session()->forget("ida_fecha");
 
 		session()->forget("reg_corrida");
 		session()->forget("reg_disponibilidad");
@@ -678,6 +729,8 @@ class VentaInternaController extends Controller
 		session()->forget("reg_pasajeros");
 		session()->forget("reg_asientosID");
 		session()->forget("reg_fecha");
+		session()->forget("reg_origenNombre");
+		session()->forget("reg_destinoNombre");
 		
         session([
 			"cmpra_pasoVenta"=>0,

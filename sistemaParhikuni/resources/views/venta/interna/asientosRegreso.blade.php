@@ -84,7 +84,7 @@ $contAuxPasajeros=0;
                     <tr>
                         <td>
                             <img alt="" style="" width="34"
-                                class="logo-color mx-auto my-0" src="{{ Vite::asset('resources/images/asientos/Conductor.png') }}">
+                                class="logo-color mx-auto my-0" src="{{ Vite::asset('resources/images/diagramaAutobus/Conductor.png') }}">
                         </td>
                         <td></td>
                         <td></td>
@@ -178,7 +178,7 @@ $contAuxPasajeros=0;
                 </div>
                 <form id="pasajerosAsientos" action="{{route('venta.interna.asientosRegreso.apartar')}}" method="post">
                     @csrf
-                    <table id="tbl-datosPasajeros" class="tbl-datosPasajeros">
+                    <table id="tbl-datosPasajeros" class="tbl-datosPasajeros rounded-top table-striped">
                         <thead>
                             <tr>
                                 <th class="col-1">Tipo</th>

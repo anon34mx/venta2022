@@ -78,25 +78,25 @@
                         <div class="col-3 px-0 mx-0">
                             <input class="" hidden id="pagoEnEfectivo" type="radio" name="formaDePago" value="EF" target=".view-1" onclick="$('.views').fadeOut();$(this.target+'').fadeIn()">
                             <label for="pagoEnEfectivo">
-                                <img src="{{ Vite::asset('resources/images/favicon.ico') }}" alt=""><br>Efectivo
+                                <img src="{{ Vite::asset('resources/images/venta/Efectivo.png') }}" alt=""><br>Efectivo
                             </label>
                         </div>
                         <div class="col-3 px-0 mx-0">
                             <input class="" hidden id="pagoConTarjeta" type="radio" name="formaDePago" value="TB" target=".view-2" onclick="">
                             <label for="pagoConTarjeta">
-                                <img src="{{ Vite::asset('resources/images/favicon.ico') }}" alt=""><br>Tarjeta
+                                <img src="{{ Vite::asset('resources/images/venta/Credito.png') }}" alt=""><br>Tarjeta
                             </label>
                         </div>
                         <div class="col-3 px-0 mx-0">
                             <input class="" hidden id="pagoConVales" type="radio" name="formaDePago" value="VL" target=".view-3" onclick="">
                             <label for="pagoConVales">
-                                <img src="{{ Vite::asset('resources/images/favicon.ico') }}" alt=""><br>Vales
+                                <img src="{{ Vite::asset('resources/images/venta/Vale.png') }}" alt=""><br>Vales
                             </label>
                         </div>
                         <div class="col-3 px-0 mx-0">
                             <input class="" hidden id="pagoConDocumento" type="radio" name="formaDePago" value="DOC" target=".view-3" onclick="">
                             <label for="pagoConDocumento">
-                                <img src="{{ Vite::asset('resources/images/favicon.ico') }}" alt=""><br>Convenio
+                                <img src="{{ Vite::asset('resources/images/venta/Convenio.png') }}" alt=""><br>Convenio
                             </label>
                         </div>
                     </div>
