@@ -64,6 +64,7 @@
             this.herramientasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.personalizarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.opcionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.devToolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ayudaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contenidoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.índiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -86,7 +87,7 @@
             this.panelPrincipal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelPrincipal.Location = new System.Drawing.Point(0, 0);
             this.panelPrincipal.Name = "panelPrincipal";
-            this.panelPrincipal.Size = new System.Drawing.Size(597, 385);
+            this.panelPrincipal.Size = new System.Drawing.Size(734, 511);
             this.panelPrincipal.TabIndex = 0;
             // 
             // panelNavegador
@@ -97,7 +98,7 @@
             this.panelNavegador.Controls.Add(this.webView21);
             this.panelNavegador.Location = new System.Drawing.Point(0, 55);
             this.panelNavegador.Name = "panelNavegador";
-            this.panelNavegador.Size = new System.Drawing.Size(597, 330);
+            this.panelNavegador.Size = new System.Drawing.Size(734, 456);
             this.panelNavegador.TabIndex = 1;
             // 
             // webView21
@@ -110,7 +111,7 @@
             this.webView21.DefaultBackgroundColor = System.Drawing.Color.White;
             this.webView21.Location = new System.Drawing.Point(0, 0);
             this.webView21.Name = "webView21";
-            this.webView21.Size = new System.Drawing.Size(597, 329);
+            this.webView21.Size = new System.Drawing.Size(734, 455);
             this.webView21.TabIndex = 0;
             this.webView21.ZoomFactor = 1D;
             this.webView21.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.webView21_NavigationCompleted);
@@ -124,7 +125,7 @@
             this.panelHerramientas.Controls.Add(this.panelMenuBar);
             this.panelHerramientas.Location = new System.Drawing.Point(0, 0);
             this.panelHerramientas.Name = "panelHerramientas";
-            this.panelHerramientas.Size = new System.Drawing.Size(597, 58);
+            this.panelHerramientas.Size = new System.Drawing.Size(734, 58);
             this.panelHerramientas.TabIndex = 0;
             // 
             // panelNavegacion
@@ -139,7 +140,7 @@
             this.panelNavegacion.Controls.Add(this.back);
             this.panelNavegacion.Location = new System.Drawing.Point(0, 24);
             this.panelNavegacion.Name = "panelNavegacion";
-            this.panelNavegacion.Size = new System.Drawing.Size(597, 31);
+            this.panelNavegacion.Size = new System.Drawing.Size(734, 31);
             this.panelNavegacion.TabIndex = 1;
             // 
             // barraDireccion
@@ -148,7 +149,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.barraDireccion.Location = new System.Drawing.Point(211, 5);
             this.barraDireccion.Name = "barraDireccion";
-            this.barraDireccion.Size = new System.Drawing.Size(383, 20);
+            this.barraDireccion.Size = new System.Drawing.Size(511, 20);
             this.barraDireccion.TabIndex = 4;
             this.barraDireccion.KeyDown += new System.Windows.Forms.KeyEventHandler(this.barraDireccion_KeyDown);
             // 
@@ -200,7 +201,7 @@
             this.panelMenuBar.Controls.Add(this.menuStrip1);
             this.panelMenuBar.Location = new System.Drawing.Point(0, 0);
             this.panelMenuBar.Name = "panelMenuBar";
-            this.panelMenuBar.Size = new System.Drawing.Size(597, 27);
+            this.panelMenuBar.Size = new System.Drawing.Size(734, 27);
             this.panelMenuBar.TabIndex = 0;
             // 
             // menuStrip1
@@ -212,7 +213,7 @@
             this.ayudaToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(597, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(734, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -381,7 +382,8 @@
             // 
             this.herramientasToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.personalizarToolStripMenuItem,
-            this.opcionesToolStripMenuItem});
+            this.opcionesToolStripMenuItem,
+            this.devToolsToolStripMenuItem});
             this.herramientasToolStripMenuItem.Name = "herramientasToolStripMenuItem";
             this.herramientasToolStripMenuItem.Size = new System.Drawing.Size(90, 20);
             this.herramientasToolStripMenuItem.Text = "&Herramientas";
@@ -398,6 +400,13 @@
             this.opcionesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.opcionesToolStripMenuItem.Text = "&Opciones";
             this.opcionesToolStripMenuItem.Click += new System.EventHandler(this.opcionesToolStripMenuItem_Click);
+            // 
+            // devToolsToolStripMenuItem
+            // 
+            this.devToolsToolStripMenuItem.Name = "devToolsToolStripMenuItem";
+            this.devToolsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.devToolsToolStripMenuItem.Text = "Dev Tools";
+            this.devToolsToolStripMenuItem.Click += new System.EventHandler(this.devToolsToolStripMenuItem_Click);
             // 
             // ayudaToolStripMenuItem
             // 
@@ -445,11 +454,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(597, 385);
+            this.ClientSize = new System.Drawing.Size(734, 511);
             this.Controls.Add(this.panelPrincipal);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "VentanaPrincipal";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "Parhíkuni";
             this.Load += new System.EventHandler(this.VentanaPrincipal_Load_1);
             this.panelPrincipal.ResumeLayout(false);
@@ -509,6 +519,7 @@
         private System.Windows.Forms.ToolStripMenuItem buscarToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem acercadeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem devToolsToolStripMenuItem;
     }
 }
 

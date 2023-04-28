@@ -317,3 +317,17 @@ ALTER TABLE venta
 ADD FOREIGN KEY (nCorridaRegreso)
 REFERENCES corridasdisponibles(nNumero)
 ON UPDATE CASCADE ON DELETE RESTRICT;
+----------------
+----------------
+----------------
+CREATE TABLE cliente_windows(
+  id int unsigned not null auto_increment,
+  version decimal(5,2) unsigned,
+  liberado datetime,
+
+  created_at datetime DEFAULT current_timestamp,
+
+  PRIMARY KEY (id)
+);
+
+ALTER TABLE `terminales` ADD `hwid` TEXT NOT NULL AFTER `aDescripcion`;

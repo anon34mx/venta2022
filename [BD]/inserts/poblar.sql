@@ -271,7 +271,8 @@ INSERT INTO tipopasajero VALUES
 
 INSERT INTO terminales (nNumero, aTerminal, nOficina, aDescripcion) VALUES
 (3, "DTI", 12, "para pruebas"),
-(2, "Venta sitio web", 13, "parhikuni.com");
+(2, "Venta sitio web", 13, "parhikuni.com"),
+(1, "desconocida", 13, "El usuario ingresó desde un dispositivo no registrado");
 
 /*
 INSERT INTO sesiones (nNumero,nNumeroPersona, nOficina, fContable) VALUES (1,1,8,"2022-08-31");

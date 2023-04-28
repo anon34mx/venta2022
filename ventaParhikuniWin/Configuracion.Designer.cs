@@ -30,11 +30,13 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.BtnSaveConfig = new System.Windows.Forms.Button();
+            this.comboImpresoras = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.comboImpresoras = new System.Windows.Forms.ComboBox();
-            this.BtnSaveConfig = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.hwidbox = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -55,6 +57,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.hwidbox);
+            this.tabPage1.Controls.Add(this.button1);
             this.tabPage1.Controls.Add(this.BtnSaveConfig);
             this.tabPage1.Controls.Add(this.comboImpresoras);
             this.tabPage1.Controls.Add(this.label1);
@@ -66,12 +70,40 @@
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // BtnSaveConfig
+            // 
+            this.BtnSaveConfig.Location = new System.Drawing.Point(520, 298);
+            this.BtnSaveConfig.Name = "BtnSaveConfig";
+            this.BtnSaveConfig.Size = new System.Drawing.Size(75, 23);
+            this.BtnSaveConfig.TabIndex = 2;
+            this.BtnSaveConfig.Text = "Guardar";
+            this.BtnSaveConfig.UseVisualStyleBackColor = true;
+            this.BtnSaveConfig.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // comboImpresoras
+            // 
+            this.comboImpresoras.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboImpresoras.FormattingEnabled = true;
+            this.comboImpresoras.Location = new System.Drawing.Point(264, 3);
+            this.comboImpresoras.Name = "comboImpresoras";
+            this.comboImpresoras.Size = new System.Drawing.Size(331, 21);
+            this.comboImpresoras.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(8, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(105, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Impresora de boletos";
+            // 
             // tabPage2
             // 
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(792, 424);
+            this.tabPage2.Size = new System.Drawing.Size(603, 329);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -86,33 +118,22 @@
             this.panel1.Size = new System.Drawing.Size(611, 355);
             this.panel1.TabIndex = 1;
             // 
-            // label1
+            // button1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 12);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(105, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Impresora de boletos";
+            this.button1.Location = new System.Drawing.Point(8, 38);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(175, 23);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "Generar ID de hardware";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
-            // comboImpresoras
+            // hwidbox
             // 
-            this.comboImpresoras.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboImpresoras.FormattingEnabled = true;
-            this.comboImpresoras.Location = new System.Drawing.Point(225, 9);
-            this.comboImpresoras.Name = "comboImpresoras";
-            this.comboImpresoras.Size = new System.Drawing.Size(205, 21);
-            this.comboImpresoras.TabIndex = 1;
-            // 
-            // BtnSaveConfig
-            // 
-            this.BtnSaveConfig.Location = new System.Drawing.Point(520, 298);
-            this.BtnSaveConfig.Name = "BtnSaveConfig";
-            this.BtnSaveConfig.Size = new System.Drawing.Size(75, 23);
-            this.BtnSaveConfig.TabIndex = 2;
-            this.BtnSaveConfig.Text = "Guardar";
-            this.BtnSaveConfig.UseVisualStyleBackColor = true;
-            this.BtnSaveConfig.Click += new System.EventHandler(this.button1_Click);
+            this.hwidbox.Location = new System.Drawing.Point(264, 41);
+            this.hwidbox.Name = "hwidbox";
+            this.hwidbox.Size = new System.Drawing.Size(331, 20);
+            this.hwidbox.TabIndex = 4;
             // 
             // Configuracion
             // 
@@ -139,5 +160,7 @@
         private System.Windows.Forms.Button BtnSaveConfig;
         private System.Windows.Forms.ComboBox comboImpresoras;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox hwidbox;
+        private System.Windows.Forms.Button button1;
     }
 }

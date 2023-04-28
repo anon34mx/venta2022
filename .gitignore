@@ -1,5 +1,8 @@
 .vs/
+ventaParhikuniWin/bin/*
 ventaParhikuniWin/bin/Debug/
+
+ventaParhikuniWin/obj/*
 ventaParhikuniWin/obj/Debug/*
 *.cache
 *.old

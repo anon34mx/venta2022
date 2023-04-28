@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Printing;
 using ventaParhikuniWin.Properties;
+using libc.hwid;
+using static ventaParhikuniWin.Tools;
 
 namespace ventaParhikuniWin
 {
@@ -32,6 +34,14 @@ namespace ventaParhikuniWin
             Properties.Settings.Default.Save(); // Saves settings in application configuration file
             this.Close();
             MessageBox.Show("Guardado");
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            var hardwareId = CreateMD5(libc.hwid.HwId.Generate());
+
+            Console.WriteLine(hardwareId);
+            hwidbox.Text=hardwareId;
         }
     }
 }

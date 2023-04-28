@@ -34,5 +34,14 @@ namespace ventaParhikuniWin.Properties {
                 this["ImpresoraBoletos"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public float version {
+            get {
+                return ((float)(this["version"]));
+            }
+        }
     }
 }

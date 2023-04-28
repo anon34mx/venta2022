@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth,Session;
 use App\Models\Oficinas;
 use App\Models\Sesiones;
+use App\Models\Terminales;
 use Illuminate\Http\Request;
 
 class LoginController extends Controller
@@ -45,16 +46,34 @@ class LoginController extends Controller
 
     public function authenticated(Request $request){
         $tipoPersona = Auth::user()->personas->aTipo;
+
+        // dd($request->hwidValidator);
+        $term=Terminales::where("hwid", "=", $request->hwidValidator)->first();
+        if((isset($term->hwid) && !Auth::user()->hasRole('Admin')) || (isset($term->hwid) && Auth::user()->hasRole('Admin'))){
+            Session::put('terminal', $term->nNumero);
+        }elseif(!isset($term->hwid) && Auth::user()->hasRole('Admin')){
+            $terminal="admin";
+            Session::put('terminal', 1);
+        }
+        else{
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return back()->withErrors("Ingresa desde un equipo autorizado");
+        }
+
         if(!Auth::user()->hasRole('Admin') && !$request->has("browserValidator")){
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             return back()->withErrors("Ingresa con un software autorizado");
-        }elseif($request->has("browserValidator")){
+        }
+        if($request->has("browserValidator")){
             Session::put('validBrowser', true);
         }else{
             Session::put('validBrowser', false);
         }
+        
         if($tipoPersona=="EI" || $tipoPersona=="PA"){
             $oficina=Auth::user()->personas->nOficina;
             $oficina=Oficinas::find($oficina);

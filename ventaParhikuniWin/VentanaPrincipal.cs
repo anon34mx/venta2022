@@ -17,17 +17,47 @@ using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using System.Drawing.Printing;
 using RawPrint;
+using MySql.Data.MySqlClient;
+using libc.hwid;
+using static ventaParhikuniWin.Tools;
 
 namespace ventaParhikuniWin
 {
     public partial class VentanaPrincipal : Form
     {
+        string servidorweb = "172.17.1.138";
+        string puertoWeb = ":8000";
+
+        string db_server = "172.17.1.138";
+        string db_user = "ventaWindows";
+        string db_pass = "gONqkb9KCP4Y*QND";
+        string db_name = "laravel";
+
+        enableDevTools devToolsForm;
         public VentanaPrincipal()
         {
             InitializeComponent();
+            //Process.Start(AppDomain.CurrentDomain.BaseDirectory+@"\assets");
         }
         private async Task Initizated()
         {
+            // validar navegador
+            var hardwareId = libc.hwid.HwId.Generate();
+
+            string cs = @"server="+ db_server + @";userid="+ db_user + @";password='"+ db_pass + @"';database="+ db_name;
+            // string cs = @"server=localhost;userid=root;password='';database=laravel";
+            MySqlConnection con = new MySqlConnection(cs);
+            con.Open();
+            var stm = @"SELECT version FROM `cliente_windows` WHERE liberado<=CURRENT_TIMESTAMP ORDER BY liberado DESC LIMIT 1";
+            var cmd = new MySqlCommand(stm, con);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            // Console.WriteLine($"MySQL version: {version}");
+            Console.Write("resultado");
+            while (rdr.Read())
+            {
+                Console.WriteLine(rdr.GetInt32("version"));
+            }
+
             await webView21.EnsureCoreWebView2Async(null);
             // Quitamos el funcionamiento de arrastrar y soltar
             await webView21.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
@@ -40,19 +70,28 @@ namespace ventaParhikuniWin
                 "window.addEventListener('contextmenu', window => {window.preventDefault();});"
             );
             webView21.CoreWebView2.WebMessageReceived += MessageReceived;
-            // webView21.CoreWebView2.Settings.IsBuiltInErrorPageEnabled = false;
+            //webView21.CoreWebView2.Settings.AreDevToolsEnabled = false; // desabilitar herramientas de desarrollador
+
+            webView21.CoreWebView2.Settings.IsBuiltInErrorPageEnabled = false;
             //Quitamos el menu contextual (click derecho)
             // await webView21.CoreWebView2.ExecuteScriptAsync("");
         }
         public async void InitBrowser()
         {
             await Initizated();
-            Cambiarpagina("/ventaInterna/9/boletos/preview/TAQ");
+            Cambiarpagina("/ventaInterna");
         }
         // Mis funciones c:
         private void Cambiarpagina(string pagina)
         {
-            webView21.CoreWebView2.Navigate("http://localhost:8000" + pagina);
+            try
+            {
+                webView21.CoreWebView2.Navigate("http://"+servidorweb + puertoWeb + pagina);
+            }
+            catch (Exception)
+            {
+                //throw;
+            }
         }
         // Mis funciones [FIN]
         private void VentanaPrincipal_Load_1(object sender, EventArgs e)
@@ -62,44 +101,52 @@ namespace ventaParhikuniWin
 
         private async void webView21_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
+            //para que np se vea la dirección del servidor
             string urlActual = webView21.Source.ToString();
-            barraDireccion.Text = urlActual.Replace("http://localhost:8000", "");
-            if (webView21.Source.ToString() == "http://localhost:8000/login")
-            {
-                await webView21.ExecuteScriptAsync(@"var x=document.getElementsByTagName('form');
-                    for (let i = 0; i < x.length; i++) {
-                        var newInput=null;
-                        x[i].onsubmit = function () {
-                            if (x[i].querySelector('#browserValidator') == null){
-                                newInput=document.createElement('input');
-                                newInput.id = 'browserValidator';
-                                newInput.name = 'browserValidator';
-                                newInput.value = 'browserValidator';
-                                newInput.style.display = 'none';
-                                x[i].append(newInput);
-                            }
-                        }
-                    }");
-            }
+            barraDireccion.Text = urlActual.Replace("http://" + servidorweb + puertoWeb, "");
 
+
+            Console.WriteLine("+++++++++++++++++++++++++");
+            Console.WriteLine(e.IsSuccess);
+            Console.WriteLine(e.HttpStatusCode);
+            Console.WriteLine(e.WebErrorStatus);
+            Console.WriteLine(e.NavigationId);
             if (!e.IsSuccess)
             {
-                Console.WriteLine(e.WebErrorStatus);
-                //webView21.CoreWebView2.Navigate("<Hubo un error :c>");
-                if (e.WebErrorStatus.ToString() == "HostNameNotResolved")
-                {
-                    var html = @"
-                        <html>
-                            <head><title>ERROR</title></head>
-                            <body>
-                                Hubo un error :c
-                            </body>
-                        </html>";
 
-                    await webView21.EnsureCoreWebView2Async();
-                    webView21.NavigateToString(html);
-                }
+                string html=File.ReadAllText("./assets/404.html");
+                //if (e.WebErrorStatus.ToString() == "HostNameNotResolved") {
+                html=html.Replace("#ERRORCODE#", e.HttpStatusCode.ToString() );
+                webView21.CoreWebView2.NavigateToString(html);
+            }else if (webView21.Source.ToString() == "http://" + servidorweb + puertoWeb + "/login")
+            {
+                await webView21.ExecuteScriptAsync(@"var x=document.getElementsByTagName('form');
+                        for (let i = 0; i < x.length; i++) {
+                            var browserValidator=null;
+                            var hwidValidator=null;
+                            x[i].onsubmit = function () {
+                                if (x[i].querySelector('#browserValidator') == null){
+                                    browserValidator=document.createElement('input');
+                                    browserValidator.id = 'browserValidator';
+                                    browserValidator.name = 'browserValidator';
+                                    browserValidator.value = 'browserValidator';
+                                    browserValidator.style.display = 'none';
+                                    x[i].append(browserValidator);
+
+                                    hwidValidator=document.createElement('input');
+                                    hwidValidator.id = 'hwidValidator';
+                                    hwidValidator.name = 'hwidValidator';
+                                    hwidValidator.value = '" + CreateMD5(libc.hwid.HwId.Generate()) + @"';
+                                    hwidValidator.style.display = 'none';
+                                    x[i].append(hwidValidator);
+                                }
+                            }
+                        }");
             }
+            //else if (webView21.Source.ToString() != "http://" + servidorweb + puertoWeb + "/login" && webView21.Source.ToString() != "http://" + servidorweb + puertoWeb + "/register")
+            //{
+            //    Console.WriteLine("validar navegador aqui");
+            //}
         }
 
         private void barraDireccion_KeyDown(object sender, KeyEventArgs e)
@@ -154,17 +201,6 @@ namespace ventaParhikuniWin
                     // ImprimirBoletos("boleto.pdf");
                     break;
                 case "descargarBoletos":
-                    /*
-                        //byte[] pdfBytes = Convert.FromBase64String(myDeserializedClass.Datos);
-                        //string pdfString = System.Text.Encoding.UTF8.GetString(pdfBytes).Replace("\n", "\r\n");
-                        //File.WriteAllBytes("boleto.pdf", System.Text.Encoding.UTF8.GetBytes(pdfString));
-                        //ImprimirBoletos("boleto.pdf");
-                    */
-                    /*
-                     * SIRVE
-                        //File.WriteAllBytes("boleto.pdf", Convert.FromBase64String(myDeserializedClass.Datos)); //Convert.FromBase64String(myDeserializedClass.Datos)
-                        //ImprimirBoletos("boleto.pdf");
-                     */
                     File.WriteAllBytes("boleto.pdf", Convert.FromBase64String(myDeserializedClass.Datos));
                     ImprimirBoletos("boleto.pdf");
                     break;
@@ -227,17 +263,17 @@ namespace ventaParhikuniWin
 
         private void back_Click(object sender, EventArgs e)
         {
-            webView21.GoBack();
+            webView21.CoreWebView2.GoBack();
         }
 
         private void fordward_Click(object sender, EventArgs e)
         {
-            webView21.GoForward();
+            webView21.CoreWebView2.GoForward();
         }
 
         private void reload_Click(object sender, EventArgs e)
         {
-            webView21.Refresh();
+            webView21.CoreWebView2.Reload();
         }
 
         private void home_Click(object sender, EventArgs e)
@@ -251,16 +287,19 @@ namespace ventaParhikuniWin
             Configuracion ConfigForm = new Configuracion();
             ConfigForm.Visible = true;
         }
-        public byte[] StringToCharArray(string sentence)
-        {
-            char[] charArr = sentence.ToCharArray();
-            byte[] byteArr = new byte[charArr.Length];
-            for (int i = 0; i < charArr.Length; i++)
-            {
-                byteArr[i] = Convert.ToByte(charArr[i]);
-            }
 
-            return byteArr;
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            Console.WriteLine("Habilitar consola");
+            webView21.CoreWebView2.Settings.AreDevToolsEnabled = true;
+            webView21.CoreWebView2.Reload();
+        }
+
+        private void devToolsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            devToolsForm = new enableDevTools(webView21);
+            devToolsForm.Visible = true;
         }
     }
     // Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(myJsonResponse);
