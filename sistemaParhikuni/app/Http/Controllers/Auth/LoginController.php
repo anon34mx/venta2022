@@ -93,4 +93,20 @@ class LoginController extends Controller
             // session("oficinaid") // recuperar dato
         }
     }
+
+    protected function sendLoginResponse(Request $request){
+        $request->session()->regenerate();
+        $previous_session = Auth::User()->session_id;
+        $closed=false;
+        if ($previous_session) {// se abre sesión y se cierran las otras sesiones
+            Session::getHandler()->destroy($previous_session);
+        }
+
+        Auth::user()->session_id = Session::getId();
+        Auth::user()->save();
+        $this->clearLoginAttempts($request);
+
+        return $this->authenticated($request, $this->guard()->user())
+            ?: redirect()->intended($this->redirectPath());
+    }
 }

@@ -12,9 +12,15 @@ namespace ventaParhikuniWin
 {
     public partial class AcercaDe : Form
     {
-        public AcercaDe()
+        public AcercaDe(float versionMasReciente)
         {
             InitializeComponent();
+            lblVersion.Text = "Version:" + Properties.Settings.Default["version"].ToString();
+            Console.WriteLine(versionMasReciente);
+            if (versionMasReciente > float.Parse(Properties.Settings.Default["version"].ToString()))
+            {
+                linkUpdate.Visible = true;
+            }
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
@@ -23,6 +29,11 @@ namespace ventaParhikuniWin
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }

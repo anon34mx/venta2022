@@ -247,7 +247,7 @@
             </nav>
 
 			<!-- <main class="py-1 py-md-2 py-lg-3 px-1 px-md-4"> -->
-			<main class="px-0 mx-0">
+			<main class="px-4 mx-0">
                 @yield('content')
 
 	        </main>

@@ -12,6 +12,7 @@
                     class="logo-bnco mx-auto my-3" src="{{ Vite::asset('resources/images/logo_SI_bnco.png') }}">
                 <center><b>Sistema Integral</b></center>
                 <div class="card-body">
+
                     @if($errors->any())
                         <div class="card-body mt-2 mb-2 ">
                             <div class="alert-danger px-3 py-3">
@@ -21,6 +22,8 @@
                             </div>
                         </div>
                     @endif
+
+
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
@@ -30,7 +33,7 @@
                             <div class="col-11 col-sm-8 col-lg-7 mx-auto">
                                 <!-- email -->
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                                    name="email" value="{{ old('email') }}" required autocomplete="new-password" autofocus
+                                    name="email" value="dti_parhikuni@parhikuni.com.mx{{ old('email') }}" required autocomplete="new-password" autofocus
                                     placeholder="{{ __('Email Address') }}">
 
                                 @error('email')

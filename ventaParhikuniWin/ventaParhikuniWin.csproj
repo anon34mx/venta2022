@@ -154,6 +154,7 @@
     <Compile Include="enableDevTools.Designer.cs">
       <DependentUpon>enableDevTools.cs</DependentUpon>
     </Compile>
+    <Compile Include="Message.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="VentanaPrincipal.cs">

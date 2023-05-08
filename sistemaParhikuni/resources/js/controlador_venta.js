@@ -364,15 +364,21 @@ window.llenarTarjeta = function(datos) {
     document.getElementById('ccv').value = datos.ccv;
 }
 window.consultarBoletos=function(IDventa){
+    $("#reimprimir").prop("disabled", true).html("Cargando...");
+
+
+    $("#embededTicket").attr("src", "");
     $.ajax({
         url: route('venta.interna.boletos', { 'venta': IDventa, 'formato': 'TAQ'}),
         success: function(response) {
             $("#embededTicket").attr("src", "data:application/pdf;base64," + response);
-            console.log(response);
+            setTimeout(() => {
+                $("#reimprimir").prop("disabled", false).html("Reimprimir");
+            }, 999);
             try {
                 window.chrome.webview.postMessage('{Metodo:"descargarBoletos", Datos:"' + response +'"}');
             } catch (error) {
-                console.error(error);
+                console.error("No se pudo imprimir\n"+error);
             }
         }
     });

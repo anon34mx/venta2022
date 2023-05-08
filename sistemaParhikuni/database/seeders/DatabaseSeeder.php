@@ -53,6 +53,7 @@ class DatabaseSeeder extends Seeder
         
         //      Boletos
         Permission::create(['name' => 'boletos.limbo.show']);
+        Permission::create(['name' => 'boletos.limbo.reasignar']);
         
         //      Personal
         Permission::create(['name' => 'personal.conductores.index']);

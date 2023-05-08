@@ -218,8 +218,7 @@ class VentaInternaController extends Controller
                     session("ida_corrida"),
                     $disponibilidad->nOrigen,
                     $disponibilidad->nDestino,
-                    $request->asiento[$i],
-                    Auth::user()->id
+                    $request->asiento[$i]
                 );
                 $dispAsiento.=$disponibilidades.",";
                 $pasajeros[$i]["disponibilidad"]=$disponibilidades;
@@ -331,8 +330,7 @@ class VentaInternaController extends Controller
                     session("reg_corrida"),
                     $disponibilidad->nOrigen,
                     $disponibilidad->nDestino,
-                    $request->asiento[$i],
-                    Auth::user()->id
+                    $request->asiento[$i]
                 );
                 $dispAsiento.=$disponibilidades.",";
                 $pasajeros[$i]["disponibilidad"]=$disponibilidades;

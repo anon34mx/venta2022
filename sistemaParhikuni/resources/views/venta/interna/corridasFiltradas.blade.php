@@ -366,7 +366,7 @@ oneTab("/ventaInterna");
                                     <td>
                                         <div class="circ-serv bg-clase-PL"></div>
                                     </td>
-                                    <td>
+                                    <td class="origen">
                                         MORELIA
                                         <br>
                                         14:00h
@@ -412,14 +412,14 @@ oneTab("/ventaInterna");
                                         $fechoraHoraSalida=\Carbon\Carbon::parse($corrida->fSalida." ".$corrida->hSalida);
                                         $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
                                     @endphp
-                                    <td class="fecha">
+                                    <td class="origen">
                                         {{$corrida->origen}}
                                         <br>
                                         <b>
                                             {{$fechoraHoraSalida->format("H:i:s")}}
                                         </b>
                                     </td>
-                                    <td class="hora">
+                                    <td class="destino">
                                         {{$corrida->destino}}
                                         <br>
                                         {{$fechaHoraLlegada->format("H:i:s")}}

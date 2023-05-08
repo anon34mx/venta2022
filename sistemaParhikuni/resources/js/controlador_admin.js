@@ -101,6 +101,11 @@ window.toggleCheckboxesByClass = function(target, clase){
         $("."+clase).prop("checked", false);
     }
 }
+window.seleccionarAsignarLimbo = function(){
+    var boletos=$(".boleto:checked");
+    var inpSel=$("#inpSel");
+    $(inpSel).val(boletos.length);
+}
 //  proms
 $(document).ready(function(){
     $("#fechaDeFin, #fechaDeInicio").on("change", function(event){

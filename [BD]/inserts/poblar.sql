@@ -306,6 +306,8 @@ INSERT INTO `tarifastramos`
 (`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
 VALUES
 ('1', '8', '10', '150', '130', '2021-01-01'),
+('1', '8', '5', '190', '140', '2021-01-01'),
+('1', '5', '7', '190', '140', '2021-01-01'),
 ('2', '8', '10', '150', '130', '2021-01-01');
 
 

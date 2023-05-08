@@ -741,6 +741,12 @@ input[type="radio"]{
 	text-align: center;
 	width: 100%;
 }
+#tbl-corridas .origen{
+	text-align: right;
+}
+#tbl-corridas .destino{
+	text-align: left;
+}
 /*
 POR PANTALLA [FIN]
 */

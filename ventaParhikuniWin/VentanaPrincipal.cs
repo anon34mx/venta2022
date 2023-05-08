@@ -20,6 +20,7 @@ using RawPrint;
 using MySql.Data.MySqlClient;
 using libc.hwid;
 using static ventaParhikuniWin.Tools;
+using static ventaParhikuniWin.Message;
 
 namespace ventaParhikuniWin
 {
@@ -33,32 +34,45 @@ namespace ventaParhikuniWin
         string db_pass = "gONqkb9KCP4Y*QND";
         string db_name = "laravel";
 
+        float versionMasReciente;
+
         enableDevTools devToolsForm;
+        AcercaDe AboutForm;
         public VentanaPrincipal()
         {
             InitializeComponent();
-            //Process.Start(AppDomain.CurrentDomain.BaseDirectory+@"\assets");
+            //Process.Start(AppDomain.CurrentDomain.BaseDirectory+@"\assets"); // Para abrir una carpeta
         }
         private async Task Initizated()
         {
-            // validar navegador
-            var hardwareId = libc.hwid.HwId.Generate();
-
-            string cs = @"server="+ db_server + @";userid="+ db_user + @";password='"+ db_pass + @"';database="+ db_name;
-            // string cs = @"server=localhost;userid=root;password='';database=laravel";
-            MySqlConnection con = new MySqlConnection(cs);
-            con.Open();
-            var stm = @"SELECT version FROM `cliente_windows` WHERE liberado<=CURRENT_TIMESTAMP ORDER BY liberado DESC LIMIT 1";
-            var cmd = new MySqlCommand(stm, con);
-            MySqlDataReader rdr = cmd.ExecuteReader();
-            // Console.WriteLine($"MySQL version: {version}");
-            Console.Write("resultado");
-            while (rdr.Read())
+            try
             {
-                Console.WriteLine(rdr.GetInt32("version"));
+                // validar navegador
+                //var hardwareId = libc.hwid.HwId.Generate();
+
+                // Validar versión de este cliente(navegador)
+                string cs = @"server="+ db_server + @";userid="+ db_user + @";password='"+ db_pass + @"';database="+ db_name;
+                MySqlConnection con = new MySqlConnection(cs);
+                con.Open();
+                var stm = @"SELECT version FROM `cliente_windows` WHERE liberado<=CURRENT_TIMESTAMP ORDER BY liberado DESC LIMIT 1";
+                var cmd = new MySqlCommand(stm, con);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                // Console.WriteLine($"MySQL version: {version}");
+                Console.Write("Version más actual");
+                while (rdr.Read())
+                {
+                    versionMasReciente = rdr.GetFloat("version");
+                    Console.WriteLine(versionMasReciente);
+                }
+
+            }catch (Exception ex)
+            {
+
             }
 
+
             await webView21.EnsureCoreWebView2Async(null);
+
             // Quitamos el funcionamiento de arrastrar y soltar
             await webView21.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.addEventListener('dragover',function(e){e.preventDefault();},false);" +
@@ -69,12 +83,19 @@ namespace ventaParhikuniWin
                 "}, false);" +
                 "window.addEventListener('contextmenu', window => {window.preventDefault();});"
             );
-            webView21.CoreWebView2.WebMessageReceived += MessageReceived;
+            webView21.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested; // hacer que no se abran ventanas nuevas, si no en la misma
+            webView21.CoreWebView2.WebMessageReceived += MessageReceived; // se establece la comunicación con Javscript
             //webView21.CoreWebView2.Settings.AreDevToolsEnabled = false; // desabilitar herramientas de desarrollador
-
-            webView21.CoreWebView2.Settings.IsBuiltInErrorPageEnabled = false;
-            //Quitamos el menu contextual (click derecho)
-            // await webView21.CoreWebView2.ExecuteScriptAsync("");
+            webView21.CoreWebView2.Settings.IsBuiltInErrorPageEnabled = false; // se deshabilita la página de error por default
+            /*
+                pantalla completa 
+                descargas
+                borrar cache
+                titulo
+             */
+            webView21.CoreWebView2.Settings.IsPasswordAutosaveEnabled= false; // deshabilita el guardado de contraseñas
+            webView21.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            webView21.CoreWebView2.Settings.HiddenPdfToolbarItems = CoreWebView2PdfToolbarItems.Save | CoreWebView2PdfToolbarItems.SaveAs | CoreWebView2PdfToolbarItems.Search | CoreWebView2PdfToolbarItems.Print | CoreWebView2PdfToolbarItems.Rotate | CoreWebView2PdfToolbarItems.MoreSettings; // | CoreWebView2PdfToolbarItems.Print
         }
         public async void InitBrowser()
         {
@@ -82,6 +103,11 @@ namespace ventaParhikuniWin
             Cambiarpagina("/ventaInterna");
         }
         // Mis funciones c:
+        private void CoreWebView2_NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
+        {
+            e.NewWindow = (CoreWebView2)sender;
+            e.Handled = false;
+        }
         private void Cambiarpagina(string pagina)
         {
             try
@@ -105,48 +131,55 @@ namespace ventaParhikuniWin
             string urlActual = webView21.Source.ToString();
             barraDireccion.Text = urlActual.Replace("http://" + servidorweb + puertoWeb, "");
 
-
-            Console.WriteLine("+++++++++++++++++++++++++");
-            Console.WriteLine(e.IsSuccess);
-            Console.WriteLine(e.HttpStatusCode);
-            Console.WriteLine(e.WebErrorStatus);
-            Console.WriteLine(e.NavigationId);
-            if (!e.IsSuccess)
+            if (webView21.Source.ToString() == "about:blank")
             {
-
-                string html=File.ReadAllText("./assets/404.html");
-                //if (e.WebErrorStatus.ToString() == "HostNameNotResolved") {
-                html=html.Replace("#ERRORCODE#", e.HttpStatusCode.ToString() );
-                webView21.CoreWebView2.NavigateToString(html);
-            }else if (webView21.Source.ToString() == "http://" + servidorweb + puertoWeb + "/login")
-            {
-                await webView21.ExecuteScriptAsync(@"var x=document.getElementsByTagName('form');
-                        for (let i = 0; i < x.length; i++) {
-                            var browserValidator=null;
-                            var hwidValidator=null;
-                            x[i].onsubmit = function () {
-                                if (x[i].querySelector('#browserValidator') == null){
-                                    browserValidator=document.createElement('input');
-                                    browserValidator.id = 'browserValidator';
-                                    browserValidator.name = 'browserValidator';
-                                    browserValidator.value = 'browserValidator';
-                                    browserValidator.style.display = 'none';
-                                    x[i].append(browserValidator);
-
-                                    hwidValidator=document.createElement('input');
-                                    hwidValidator.id = 'hwidValidator';
-                                    hwidValidator.name = 'hwidValidator';
-                                    hwidValidator.value = '" + CreateMD5(libc.hwid.HwId.Generate()) + @"';
-                                    hwidValidator.style.display = 'none';
-                                    x[i].append(hwidValidator);
-                                }
-                            }
-                        }");
+                // evitamos que se quede repitiendo el ciclo
+                webView21.CoreWebView2.Stop();
             }
-            //else if (webView21.Source.ToString() != "http://" + servidorweb + puertoWeb + "/login" && webView21.Source.ToString() != "http://" + servidorweb + puertoWeb + "/register")
-            //{
-            //    Console.WriteLine("validar navegador aqui");
-            //}
+            else
+            {
+                if (!e.IsSuccess)
+                {
+                    //Console.WriteLine("+++++++++++++++++++++++++");
+                    //Console.WriteLine(e.IsSuccess);
+                    //Console.WriteLine(e.HttpStatusCode);
+                    //Console.WriteLine(e.WebErrorStatus); // este da el detalle del error chido
+                    //Console.WriteLine(e.NavigationId);
+
+                    string html=File.ReadAllText("./assets/404.html");
+                    html=html.Replace("#ERRORCODE#", e.WebErrorStatus.ToString() );
+                    webView21.CoreWebView2.NavigateToString(html);
+                }else if (webView21.Source.ToString() == "http://" + servidorweb + puertoWeb + "/login")
+                {
+                    await webView21.ExecuteScriptAsync(@"var x=document.getElementsByTagName('form');
+                            for (let i = 0; i < x.length; i++) {
+                                var browserValidator=null;
+                                var hwidValidator=null;
+                                x[i].onsubmit = function () {
+                                    if (x[i].querySelector('#browserValidator') == null){
+                                        browserValidator=document.createElement('input');
+                                        browserValidator.id = 'browserValidator';
+                                        browserValidator.name = 'browserValidator';
+                                        browserValidator.value = 'browserValidator';
+                                        browserValidator.style.display = 'none';
+                                        x[i].append(browserValidator);
+
+                                        hwidValidator=document.createElement('input');
+                                        hwidValidator.id = 'hwidValidator';
+                                        hwidValidator.name = 'hwidValidator';
+                                        hwidValidator.value = '" + CreateMD5(libc.hwid.HwId.Generate()) + @"';
+                                        hwidValidator.style.display = 'none';
+                                        x[i].append(hwidValidator);
+                                    }
+                                }
+                            }");
+                }
+                else if (webView21.Source.ToString() != "http://" + servidorweb + puertoWeb + "/login" && webView21.Source.ToString() != "http://" + servidorweb + puertoWeb + "/register")
+                {
+                    Console.WriteLine("validar navegador aqui");
+                }
+            }
+
         }
 
         private void barraDireccion_KeyDown(object sender, KeyEventArgs e)
@@ -164,8 +197,15 @@ namespace ventaParhikuniWin
 
         private void acercadeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AcercaDe AboutForm = new AcercaDe();
-            AboutForm.Visible = true;
+            if (AboutForm == null || AboutForm.Text=="")
+            {
+                AboutForm = new AcercaDe(versionMasReciente);
+                AboutForm.Visible = true;
+            }
+            else
+            {
+                AboutForm.Focus();
+            }
         }
 
 
@@ -242,6 +282,7 @@ namespace ventaParhikuniWin
         */
         private void ImprimirBoletos(string archivo)
         {
+            Console.WriteLine("Se manda a imprimir");
             string Filepath = @"C:\xampp\htdocs\venta2022\ventaParhikuniWin\bin\Debug\boleto.pdf";
             // The name of the PDF that will be printed (just to be shown in the print queue)
             string Filename = Filepath;
@@ -298,15 +339,38 @@ namespace ventaParhikuniWin
 
         private void devToolsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            devToolsForm = new enableDevTools(webView21);
-            devToolsForm.Visible = true;
+            if (devToolsForm == null || devToolsForm.Text == "")
+            {
+                devToolsForm = new enableDevTools(webView21);
+                devToolsForm.Visible = true;
+            }
+            else
+            {
+                devToolsForm.Focus();
+            }
+        }
+
+        private void salirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private async void capturaDePantallaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Using ms As New IO.MemoryStream();
+            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)+@"\venta parhikuni\" );
+
+            MemoryStream ms = new MemoryStream();
+            FileStream file =new FileStream(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\venta parhikuni\"+ DateTime.Now.ToString("yyyy -MM-dd HH.mm.ss") + ".png", FileMode.Create);
+            await webView21.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, ms);
+
+            ms.Seek(0, SeekOrigin.Begin);
+            ms.CopyTo(file);
+            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss")); ;
+            // Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)+@"\ventaParhikuni\captura de pantalla.png");
         }
     }
     // Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(myJsonResponse);
-    public class Message
-    {
-        public string Metodo { get; set; }
-        public string Datos { get; set; }
-    }
+
 }
 

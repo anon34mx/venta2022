@@ -194,11 +194,14 @@ Route::post('/promociones/{promocion}/update', [App\Http\Controllers\Promociones
     ->name('promociones.update');//->middleware('permission:corridas.vacaciones');
 
 // BOLETOS VENDIDOS
-ROUTE::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
+Route::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
     ->name("boletos.limbo.show")
     ->middleware("permission:boletos.limbo.show");
+Route::post('/boletos/limbo/{corridaDisponible}/reasignar', [App\Http\Controllers\BoletosVendidosController::class, 'reasignarLimbo'])
+    ->name("boletos.limbo.reasignar")
+    ->middleware("permission:boletos.limbo.reasignar");
 
-    Route::get('/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
+Route::get('/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
     ->name("corridas.disponibles.filtros");//->middleware('permission:corridas.disponibles.index');//pendiente
     
 //  VENTA INTERNA

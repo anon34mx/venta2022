@@ -16,6 +16,7 @@ use App\Models\DisponibilidadAsientos;
 use App\Models\TarifasTramo;
 use App\Models\CorridasConductores;
 use App\Models\Promociones;
+use App\Models\BoletosVendidos;
 
 use App\Http\Controllers\SmsController;
 
@@ -125,6 +126,10 @@ class CorridasDisponiblesController extends Controller
             $oficina=Auth::user()->personas->nOficina;
         }
 
+        if(@$request->estado=="C"){
+            return $this->cancelarCorrida($corridaDisponible ,$oficina);
+            exit;
+        }
         if($corridaDisponible->aEstado=="T" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="L"){
             return back()->withErrors("No se puede editar");
         }
@@ -134,13 +139,11 @@ class CorridasDisponiblesController extends Controller
         }
         if($request->conductor!=null && $corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C"){ //
             $data["nNumeroConductor"]=$request->conductor;
-            // dd($corridaDisponible->nNumero);
             $historialConductor=CorridasConductores::create([
                 "nNumeroCorrida" => $corridaDisponible->nNumero,
                 "nNumeroConductor" => $request->conductor,
                 "nNumeroUsuario" => Auth::user()->id,
             ]);
-            // dd($historialConductor);
         }
         if($corridaDisponible->nNumeroConductor==null && $request->conductor!=null){
             $data["aEstado"]="A";
@@ -221,6 +224,22 @@ class CorridasDisponiblesController extends Controller
                 
             return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
         }
+    }
+    public function cancelarCorrida(CorridasDisponibles $corrida, $oficina){
+        $pasajeros=new BoletosVendidos();
+        $pasajeros->where("nCorrida", "=", $corrida->nNumero)->update([
+            "aEstado"=>"LM"
+        ]);
+        CorridasDisponiblesHistorial::create([
+            "corrida_disponible" => $corrida->nNumero,
+            "nNumeroOficina" => $oficina,
+            "aEstadoAnterior" => $corrida->aEstado,
+            "aEstadoNuevo" => "C",
+            "user" => Auth::user()->id,
+        ]);
+        // dd($pasajeros);
+        echo "owo";
+        return redirect(route("boletos.limbo.show",$corrida))->with('status', 'Usuario creado');
     }
     
     public function guiaPasajeros(CorridasDisponibles $corridaDisponible){

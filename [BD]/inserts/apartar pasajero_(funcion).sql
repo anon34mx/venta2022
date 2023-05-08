@@ -13,7 +13,9 @@ CREATE OR REPLACE FUNCTION apartar_asiento(
     IN_nOrigen INT,
     IN_nDestino INT,
     IN_nAsientos TEXT,
-    IN_user INT
+    IN_user INT,
+    IN_aEstado VARCHAR(2),
+    IN_nBoleto bigInt(20) unsigned
     )
 RETURNS TEXT
 BEGIN
@@ -96,7 +98,7 @@ BEGIN
                 SET @aux=SUBSTRING(@aux, LOCATE(',',@aux) + 1);
 
                 INSERT INTO `disponibilidadasientos` (nDisponibilidad, nAsiento, aEstadoAsiento, nBoleto, user_id)
-                    VALUES(var_disp, @var_asiento, 'A', null, IN_user);
+                    VALUES(var_disp, @var_asiento, IN_aEstado, IN_nBoleto, IN_user);
                 set retorno=CONCAT(retorno,LAST_INSERT_ID(),",");
             END WHILE;
             
