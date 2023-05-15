@@ -232,19 +232,27 @@ window.selecAsientoPasaReg=function(){
 
 }
 window.quitarPasajero=function(fila){
-    fila = fila.parentElement.parentElement;
     var tipoS = $(fila).find(".pasajeroTipo").first().val();
+    fila = fila.parentElement.parentElement;
+
     $("#asiento-" + fila.attributes.asiento.value).removeClass("apartado");
+    $("#asiento-" + fila.attributes.asiento.value+" input").prop("checked", false);
     $(fila).remove();
-    pasajeros[tipoS]["usados"]++;
-    if (pasajeros[tipoS]["usados"] > 0) {
-        console.log("volver a habilitar " + tipoS);
-        console.log(pasajeros);
-        $(".listaPasajeroTipo option[value='" + tipoS + "']").prop('disabled', false);
-    }
+    try {
+        pasajeros[tipoS]["usados"]++;
+        if (pasajeros[tipoS]["usados"] > 0) {
+            $(".listaPasajeroTipo option[value='" + tipoS + "']").prop('disabled', false);
+        }
+    } catch (error) {}
+    try {
+        var select = $(".selecPTransferencia:checked");
+        if (select.length == 0) {
+            $(".selecPTransferencia").prop("disabled", false);
+            $("#tbl-corridas tbody").empty();
+        }
+    } catch (error) {}
 }
 window.quitarPasajeroR=function(asiento){
-    console.log(asiento);
     var id = $(`#tbl-datosPasajeros tbody tr[pasajero=${asiento}] .id`).val();
     var newId = $(`#tbl-datosPasajeros tbody tr[pasajero=${asiento}] .id`).val();
     var nombre = $(`#tbl-datosPasajeros tbody tr[pasajero=${asiento}] .pasajero`).val();
@@ -365,7 +373,7 @@ window.llenarTarjeta = function(datos) {
 }
 window.consultarBoletos=function(IDventa){
     $("#reimprimir").prop("disabled", true).html("Cargando...");
-
+quitarPasajero
 
     $("#embededTicket").attr("src", "");
     $.ajax({

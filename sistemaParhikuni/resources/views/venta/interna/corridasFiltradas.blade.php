@@ -40,6 +40,12 @@ async function oneTab(pagina){
 oneTab("/ventaInterna");
 </script>
 
+
+
+@php
+$fechaMayor=false;
+$fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
+@endphp
 <div class="col-12 row px-0 mx-0">
     <form id="filtros" action="#" class="col-sm-3 px-0 py-0 mx-0 my-0 pt-4" target="_self">
         <div class="linea-inf-bnco px-3">
@@ -360,6 +366,7 @@ oneTab("/ventaInterna");
                             </tr>
                         </thead>
                         <tbody>
+
                             @for($i=0; $i<0; $i++)
                                 <tr>
                                     <td>00988</td>
@@ -394,6 +401,19 @@ oneTab("/ventaInterna");
                                 </tr>
                             @endif
                             @foreach($corridas as $corrida)
+
+
+                            @php
+                                $fechoraHoraSalida=\Carbon\Carbon::parse($corrida->fSalida." ".$corrida->hSalida);
+                                $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
+                                if($fechoraHoraSalida->gt(\Carbon\Carbon::now()) && $fechaMayor==false && !$fechaBuscada->gte(\Carbon\Carbon::now()) && $page<=1){ //&& !$fechaBuscada->gte(\Carbon\Carbon::now())
+                                    @endphp
+                                    <tr><td colspan="7"><div class="py-2 bg-info rounded">== Más corridas ==</div></td></tr>
+                                    @php
+                                    $fechaMayor=true;
+                                }
+                            @endphp
+
                             @if($corrida->estadoCorrida=='B' || $corrida->estadoCorrida=='C' || $corrida->estadoCorrida=='T' || $corrida->estadoCorrida=='L')
                                 <tr class="bg-danger text-danger">
                             @elseif($corrida->estadoCorrida=="S" || $corrida->estadoCorrida=="R")
@@ -404,25 +424,32 @@ oneTab("/ventaInterna");
                                     <td>{{$corrida->corrida}}-{{($corrida->disp)}}
                                         <br>
                                         {{$corrida->estadoCorrida}}
+                                        <br>
+                                        {{$fechaBuscada->gte(\Carbon\Carbon::now())}}
                                     </td>
                                     <td>
                                         <div class="circ-serv bg-clase-{{($corrida->claveServicio)}}" title="{{($corrida->claseServicio)}}"></div>
                                     </td>
-                                    @php
-                                        $fechoraHoraSalida=\Carbon\Carbon::parse($corrida->fSalida." ".$corrida->hSalida);
-                                        $fechaHoraLlegada=\Carbon\Carbon::parse($corrida->fLlegada." ".$corrida->hLlegada);
-                                    @endphp
+
                                     <td class="origen">
-                                        {{$corrida->origen}}
-                                        <br>
                                         <b>
+                                            {{$corrida->origen}}
+                                            <br>
                                             {{$fechoraHoraSalida->format("H:i:s")}}
                                         </b>
+                                        <br>
+                                        <sub>
+                                            {{$fechoraHoraSalida->format("d/m/Y")}}
+                                        </sub>
                                     </td>
                                     <td class="destino">
                                         {{$corrida->destino}}
                                         <br>
                                         {{$fechaHoraLlegada->format("H:i:s")}}
+                                        <br>
+                                        <sub>
+                                            {{$fechoraHoraSalida->format("d/m/Y")}}
+                                        </sub>
                                     </td>
                                     <td>
                                         <button class="btn btn-success btn-samall" onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >

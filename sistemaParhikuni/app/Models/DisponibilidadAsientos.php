@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use DB;
+use DB, Auth;
 
 class DisponibilidadAsientos extends Model
 {
@@ -30,17 +30,14 @@ class DisponibilidadAsientos extends Model
     }
 
     public static function apartarAsiento($corrida, $origen, $destino, $asientos){
-        // DB::beginTransaction();
         try{
             $rs=collect(
-                DB::SELECT("SELECT apartar_asiento(?,?,?,?,?,?) as asientos",[
+                DB::SELECT("SELECT apartar_asiento(?,?,?,?,?,?,?) as asientos",[
                     $corrida, $origen, $destino, $asientos, Auth::user()->id, 'A', null
                 ])
             )->first()->asientos;
-            // DB::commit();
             return $rs;
         }catch(\Exception $e){
-            // DB::rollback();
             throw $e;
         }
     }

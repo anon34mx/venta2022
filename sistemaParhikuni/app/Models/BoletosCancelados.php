@@ -13,4 +13,5 @@ class BoletosCancelados extends Model
         'nBoletoVendido',
         'nBoletoNuevo',
     ];
+    public $timestamps = false;
 }

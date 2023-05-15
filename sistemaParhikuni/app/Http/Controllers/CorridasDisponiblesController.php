@@ -332,4 +332,9 @@ class CorridasDisponiblesController extends Controller
             <div class=\"col-12\">$hora</div>
         </div><br>";
     }
+
+    public function getProxCorridas(CorridasDisponibles $corrida, $nOrigen, $nDestino){
+        // dd($corrida);
+        CorridasDisponibles::getProxCorridas($corrida->fSalida, $corrida->hSalida, $corrida->nTipoServicio, $nOrigen, $nDestino);
+    }
 }

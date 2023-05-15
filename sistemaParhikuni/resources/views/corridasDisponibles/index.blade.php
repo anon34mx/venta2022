@@ -166,7 +166,11 @@
                                     {{ $cd->aEstado=="C" ? "text-danger" : ""}}
                                     {{ $cd->aEstado=="B" ? "text-secondary" : ""}}
                                 '>
-                                <td>{{$cd->nNumero}}</td>
+                                <td>
+                                    <div>
+                                        <div>{{$cd->nNumero}}</div>
+                                    </div>
+                                </td>
                                 <td>
                                     @php
                                     $itinerario = $cd->getItinerario();
@@ -216,7 +220,10 @@
                                     @else
                                         @if(Auth::user()->hasRole('Admin'))
                                             <ul class="list-desp btn btn-primary">
-                                                <div class="title">Editar</div>
+                                                <div class="title">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                    Editar
+                                                </div>
                                                 <span>🔽</span>
                                                 <div class="list-cont">
                                                     @foreach($cd->getItinerario() as $itinerario)
@@ -247,7 +254,10 @@
                                 <td>
                                     @if(Auth::user()->hasRole('Admin'))
                                     <ul class="list-desp btn btn-primary">
-                                        <div class="title">Despachar</div>
+                                        <div class="title">
+                                            <i class="fa-solid fa-play"></i>
+                                            Despachar
+                                        </div>
                                         <span>🔽</span>
                                         <div class="list-cont">
                                             @foreach($cd->getItinerario() as $itinerario)
@@ -319,6 +329,34 @@
                                             class="btn" onclick="">
                                         </span>
                                     </a>
+                                </td>
+                                <td>
+                                    <form action="{{route('boletos.reasignarAutomatico', $cd->nNumero)}}" method="post">
+                                        @csrf
+                                        <span class="btn-collap" title="Reasignar pasajeros">
+                                            <label class="btn btn-sm btn-primary"
+                                                for="reasignar-{{$cd->nNumero}}">
+                                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                                <span>Transferir pasajeros automático</span>
+                                            </label>
+                                            <input id="reasignar-{{$cd->nNumero}}" type="submit"
+                                            class="btn" onclick="">
+                                        </span>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('boletos.limbo.show', $cd->nNumero)}}" method="get">
+                                        @csrf
+                                        <span class="btn-collap" title="Reasignar pasajeros">
+                                            <label class="btn btn-sm btn-primary"
+                                                for="reasignarManual-{{$cd->nNumero}}">
+                                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                                <span>Transferir pasajeros manual</span>
+                                            </label>
+                                            <input id="reasignarManual-{{$cd->nNumero}}" type="submit"
+                                            class="btn" onclick="">
+                                        </span>
+                                    </form>
                                 </td>
                                 <td>
                                     @if($cd->aEstado=="C")

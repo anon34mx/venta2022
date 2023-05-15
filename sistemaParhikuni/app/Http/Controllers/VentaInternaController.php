@@ -61,7 +61,8 @@ class VentaInternaController extends Controller
                 "estudiantes"=> $request->estudiantes ?: 0,
                 "profesores"=> $request->profesores ?: 0,
             ],
-            $request->hInicio, $request->hFin, $request->usarPromocion
+            $request->hInicio, $request->hFin, $request->usarPromocion,
+            null, "exacta"
         );
         // dd(Oficinas::destinos(0,true)[0]["destinos"], Oficinas::destinos(8,true), Oficinas::destinos("todos",true));
         return view('venta.interna.corridasFiltradas',[
@@ -80,6 +81,7 @@ class VentaInternaController extends Controller
             "horario" => $request->horario,
             "viajeRedondo" => $request->has("tipoDeViaje"),
             "vacaciones" => PeriodosVacacionales::aplicable($fechaSalida, $request->fechaRegreso),
+            "page"=> @intval($request->page) ?: 0,
         ]);
     }
     // Paso 0.1 // guardar la corrida seleccionada
@@ -330,7 +332,8 @@ class VentaInternaController extends Controller
                     session("reg_corrida"),
                     $disponibilidad->nOrigen,
                     $disponibilidad->nDestino,
-                    $request->asiento[$i]
+                    $request->asiento[$i],
+                    Auth::user()->id
                 );
                 $dispAsiento.=$disponibilidades.",";
                 $pasajeros[$i]["disponibilidad"]=$disponibilidades;

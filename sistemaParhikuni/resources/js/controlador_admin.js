@@ -3,6 +3,7 @@ window.asientoAnt = 0;
 window.tiempoRestante = 0;
 window.tiempoTerminado = false;
 window.IntTiempoRestante = null;
+// window.nCorrida = null;
 
 //  PARA LA VISTA CREAR TRAMO [INICIO]
 // window.cambiarTramoNuevo = function (origen) {
@@ -101,11 +102,113 @@ window.toggleCheckboxesByClass = function(target, clase){
         $("."+clase).prop("checked", false);
     }
 }
+
+// LIMBO
+window.getProxCorridas = function(corridaOG,origen,destino){
+    // console.log(corridaOG, origen, destino);
+    $.ajax({
+        url: route('corrida.getProxCorridas', [corridaOG, origen, destino]),
+        success:function(response){
+            $("#tbl-corridas tbody").empty();
+            response=JSON.parse(response),
+            console.log(response);
+            response.forEach(corrida => {
+                var inpt=$(`<input id="sel-${corrida.nNumero}" type="radio" class="nvaCorrida" name="nvaCorrida"
+                                value="${corrida.nNumero}" required>`).on("click",()=>{
+                                    cargarDiagrama(corrida.nNumero, corrida.nOrigen, corrida.nDestino);
+                                });
+
+                $("#tbl-corridas tbody").append(`
+                    <tr id="corr-${corrida.nNumero}">
+                        <td class="inpt">
+                            <label for="sel-${corrida.nNumero}">${corrida.nNumero}</label>
+                        </td>
+                        <td>${corrida.fSalida}</td>
+                        <td>${corrida.hSalida}</td>
+                        <td>autobus</td>
+                        <td>${corrida.servicio}</td>
+                        <td>${corrida.libres} de ${corrida.asientos}</td>
+                    </tr>
+                `);
+                $("#tbl-corridas tbody #corr-"+corrida.nNumero+" .inpt").append(inpt);
+            });
+        }
+    });
+}
 window.seleccionarAsignarLimbo = function(){
     var boletos=$(".boleto:checked");
     var inpSel=$("#inpSel");
     $(inpSel).val(boletos.length);
 }
+
+window.cargarDiagrama = function (origen,destino,corrida){
+
+}
+window.cargarDiagrama = function (corrida,origen,destino){
+    $.ajax({
+        url: route('corrida.diagramaOcupacion', corrida),
+        data:{
+            "origen":   origen,
+            "destino":  destino,
+            "corrida":  corrida,
+        },
+        success:function(response){
+            $("#tbl-diagrama").empty();
+            setTimeout(() => {
+                $("#tbl-diagrama").html(response);
+            }, 1);
+        }
+    });
+}
+window.selecPTransferencia = function(){
+    if (this.checked){
+        agregarTransferencia(this.value);
+        
+        $(".selecPTransferencia").prop("disabled", true);
+        $("input[nOrigen='" + $(this).attr("nOrigen") + "'][nDestino='" + $(this).attr("nDestino") +"']").prop("disabled", false);
+        console.log($(this).attr("nOrigen"), $(this).attr("nDestino"));
+        getProxCorridas(nCorrida, $(this).attr("nOrigen"), $(this).attr("nDestino"));
+    }else{
+        try {
+            var select = $(".selecPTransferencia:checked");
+            if (select.length == 0) {
+                $(".selecPTransferencia").prop("disabled", false);
+                $("#tbl-corridas tbody").empty();
+            }
+        } catch (error) { }
+    }
+}
+window.agregarTransferencia = function(boleto){
+    var tipo = $("#asiento-" + boleto +" .tipoPasajero").html().trim();
+    var nombre = $("#asiento-" + boleto +" .pasajero").html().trim();
+    
+    var row = $.parseHTML(`
+            <tr id="pasajero-${boleto}" class="pt-1 pb-1 pasajeroContainer" asiento="${boleto}" pasajero="${boleto}">
+                <td class="tipo px-2">
+                    <input class="pasajeroTipo" name="pasajeroTipo[]" value="${tipo}" hidden readonly required tabindex="-1">
+                    `+ tipo + `
+                </td>
+                <td class="px-2">
+                    <input type="number" name="asiento[]" id="asiento[{{$contAuxPasajeros}}]"
+                        class="px-2 form-control form-control-sm pasajeroAsiento" value="" readonly>
+                </td>
+                <td class="px-2">
+                    <input class="form-control form-control-sm pasajeroNombre" type="text" name="pasajero[]" id="pasajero[{{$contAuxPasajeros}}]"
+                        value="${nombre}" autocomplete="off" readonly>
+                </td>
+                <td class="px-2">
+                    <button id="cancelar-${boleto}" onclick="event.preventDefault();quitarPasajero(this);"
+                        class="hidden"></button>
+                    <label class="btn btn-sm btn-danger float-right" for="cancelar-${boleto}">
+                        <i class="fa-solid fa-xmark"></i>
+                    </label>
+                </td>
+            </tr>`);
+    $("#tbl-datosPasajeros tbody").append(row);
+}
+window.removerTransferencia = function(boleto){
+}
+
 //  proms
 $(document).ready(function(){
     $("#fechaDeFin, #fechaDeInicio").on("change", function(event){
@@ -118,5 +221,11 @@ $(document).ready(function(){
         $(`.${this.value}`).fadeIn(1);
         $(`.${this.value} input, .${this.value} select`).attr("required","required");
     });
+
+    $(".selecPTransferencia").click(selecPTransferencia);
+
+    // $(".nvaCorrida").click(function(){
+    //     console.log(this);
+    // });
 });
 
