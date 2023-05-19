@@ -1,9 +1,9 @@
 .vs/
-ventaParhikuniWin/bin/*
+ventaParhikuniWin/bin/
 ventaParhikuniWin/bin/Debug/
 
-ventaParhikuniWin/obj/*
-ventaParhikuniWin/obj/Debug/*
+ventaParhikuniWin/obj/
+ventaParhikuniWin/obj/Debug/
 *.cache
 *.old
 *.log
