@@ -42,7 +42,7 @@ class DistribucionAsientosController extends Controller
     }
     public function showPorCorrida($corridaDisponible)
     {
-        $sql_diagrama="SELECT
+        $sql_diagrama='SELECT
             dist.*
             FROM `corridasdisponibles` cordis
             INNER JOIN tiposervicio tser
@@ -50,10 +50,10 @@ class DistribucionAsientosController extends Controller
             INNER JOIN distribucionasientos dist
             ON dist.nNumero=tser.nDistribucionAsientos
 
-            WHERE cordis.nNumero=:cordis";
+            WHERE cordis.nNumero=:cordis';
         return collect(
             DB::select($sql_diagrama,[
-                "cordis" => $corridaDisponible
+                'cordis' => $corridaDisponible
             ])
         )->first();
     }
@@ -82,15 +82,15 @@ class DistribucionAsientosController extends Controller
     }
 
     public function getDiagramaOcupacion(Request $request){
-        $ocupados="SELECT DISTINCT(nAsiento), aEstadoAsiento
+        $ocupados='SELECT DISTINCT(nAsiento), aEstadoAsiento
             FROM disponibilidad as disp
             INNER JOIN disponibilidadasientos as disa
             ON disa.nDisponibilidad=disp.nNumero
             where disp.nOrigen=:origen
             AND disp.nDestino=:destino
             AND disp.nCorridaDIsponible=:corrida
-            AND (disa.aEstadoAsiento='LM' OR disa.aEstadoAsiento='VE')
-            ORDER BY nAsiento ASC";
+            AND (disa.aEstadoAsiento="LM" OR disa.aEstadoAsiento="VE")
+            ORDER BY nAsiento ASC';
         $rs_ocupados=DB::select($ocupados, [
                 'origen' => $request->origen,
                 'destino' => $request->destino,
@@ -104,10 +104,10 @@ class DistribucionAsientosController extends Controller
         }
 
         $dist=$this->showPorCorrida($request->corrida);
-        
-        //Vite::asset(\"resources/images/diagramaAutobus/Conductor.png\")
+        $diag="";
+        //Vite::asset(\'resources/images/diagramaAutobus/Conductor.png\')
         // dd(Vite::asset('resources/images/diagramaAutobus/Conductor.png'));
-        echo '<table border="1" id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
+        $diag.='<table border="1" id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
                 max-width: 300px;
                 margin: auto;">
                 <tr>
@@ -120,61 +120,46 @@ class DistribucionAsientosController extends Controller
                     <td></td>
                     <td></td>
                 </tr>';
-        foreach(explode("|",$dist->aDistribucion) as $fila){
-            echo "<tr>";
-            foreach (explode(",",$fila) as $espacio) {
-                echo "<td>";
-                if($espacio=="00"){
-                    echo '<div class="pasillo">__</div>';
+        foreach(explode('|',$dist->aDistribucion) as $fila){
+            $diag.='<tr>';
+            foreach (explode(',',$fila) as $espacio) {
+                $diag.='<td>';
+                if($espacio=='00'){
+                    $diag.='<div class="pasillo">__</div>';
                 }
-                elseif($espacio=="PU"){
-                    echo '<div class="asiento_nmr">[PU]</div>';
+                elseif($espacio=='PU'){
+                    $diag.='<div class="asiento_nmr">[PU]</div>';
                 }
-                elseif($espacio=="BH"){
-                    echo '<div class="asiento_nmr">'.$espacio.'</div>';
+                elseif($espacio=='BH'){
+                    $diag.='<div class="asiento_nmr">'.$espacio.'</div>';
                 }
-                elseif($espacio=="BM"){
-                    echo '<div class="asiento_nmr">'.$espacio.'</div>';
+                elseif($espacio=='BM'){
+                    $diag.='<div class="asiento_nmr">'.$espacio.'</div>';
                 }
-                elseif($espacio=="CA"){
-                    echo '<div class="asiento_nmr">'.$espacio.'</div>';
+                elseif($espacio=='CA'){
+                    $diag.='<div class="asiento_nmr">'.$espacio.'</div>';
                 }
                 else{
                     $numAsiento=substr($espacio,0,2);
-                    if(isset($asientosOcupados[intval($numAsiento)])){
-                        if(strpos($espacio,"T")>0){
-                            echo '<div id="asiento-'.$numAsiento.'" class="asiento tv ocupado" numero="'.$numAsiento.'">
+                    $tv=strpos($espacio,'T')>0 ? "tv": "";
+                    $ocupado=isset($asientosOcupados[intval($numAsiento)]) ? "ocupado" : "";
+
+                    $diag.='<div id="asiento-'.$numAsiento.'" class="asiento '.$tv.' '.$ocupado.'" numero="'.$numAsiento.'">
                                 <span>'.$numAsiento.'</span>
                                 <br>
                                 <sub>tv</sub>
                             </div>';
-                        }else{
-                            echo '<div id="asiento-'.$numAsiento.'" class="asiento tv" numero="'.$numAsiento.'">
-                                <span>'.$numAsiento.'</span>
-                                <br>
-                                <sub>tv</sub>
-                            </div>';
-                        }
-                    }else{
-                        if(strpos($espacio,"T")>0){
-                            echo '<div id="asiento-'.$numAsiento.'" class="asiento tv" numero="'.$numAsiento.'">
-                                <span>'.$numAsiento.'</span>
-                                <br>
-                                <sub>tv</sub>
-                            </div>';
-                        }else{
-                            echo '<div id="asiento-'.$numAsiento.'" class="asiento" numero="'.$numAsiento.'">
-                                <span>'.$numAsiento.'</span>
-                                <br>
-                                <sub>tv</sub>
-                            </div>';
-                        }
-                    }
                 }
-                echo "</td>";
+                $diag.='</td>';
             }
-            echo "</tr>";
+            $diag.='</tr>';
         }
-        echo '</table >';
+        $diag.='</table >';
+
+        echo $retorno=json_encode([
+            "diagrama"=> $diag,
+            "ocupados" => $asientosOcupados,
+            "asientos" => $dist->nAsientos,
+        ]);
     }
 }

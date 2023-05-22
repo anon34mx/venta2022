@@ -108,7 +108,7 @@ class RolesController extends Controller
      */
     public function destroy(Role $role)
     {
-        if($role->name == "Admin"){
+        if($role->name === "Admin"){
             return back()->withErrors([
                 'No se puede borrar el permiso de administrador.'
             ]);

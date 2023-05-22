@@ -22,7 +22,7 @@ class PromocionesController extends Controller
         
         // dd($promociones);
         return view('promociones.index',[
-            "promociones" => $promociones,
+            'promociones' => $promociones,
             
         ]);
     }
@@ -34,11 +34,11 @@ class PromocionesController extends Controller
      */
     public function create()
     {
-        // "tiposPasajeros" => TipoPasajero::selectRaw("*, CAST(aClave as CHAR) as casted")->get(),
+        // 'tiposPasajeros' => TipoPasajero::selectRaw('*, CAST(aClave as CHAR) as casted')->get(),
         return view('promociones.create',[
-            "tiposPasajeros" => TipoPasajero::all(),
-            "oficinas" => Oficinas::all(),
-            "tiposServicios" => TiposServicios::all(),
+            'tiposPasajeros' => TipoPasajero::all(),
+            'oficinas' => Oficinas::all(),
+            'tiposServicios' => TiposServicios::all(),
         ]);
     }
 
@@ -53,22 +53,22 @@ class PromocionesController extends Controller
         // dd($request->all());
         try {
             $nvaPromo=Promociones::create([
-                "aTipo" => @$request->tipoPasajero ?: null,
-                "aDescripcion" => @$request->descripcion,
-                "nDescuento" => @$request->descuento,
-                "nCorridaProgramada" => @$request->corridaProgramada,
-                "nOficina" => @$request->areaDeVenta,
-                "nOrigen" => @$request->origen,
-                "nDestino" => @$request->destino,
-                "viajeRedondo" => $request->aplicarPromoA=="viajeRedondo" ? true : false,
-                "fInicio" => @$request->fechaDeInicio,
-                "fFin" => @$request->fechaDeFin,
-                "nTipoServicio" => @$request->tipoDeServicio,
+                'aTipo' => @$request->tipoPasajero ?: null,
+                'aDescripcion' => @$request->descripcion,
+                'nDescuento' => @$request->descuento,
+                'nCorridaProgramada' => @$request->corridaProgramada,
+                'nOficina' => @$request->areaDeVenta,
+                'nOrigen' => @$request->origen,
+                'nDestino' => @$request->destino,
+                'viajeRedondo' => $request->aplicarPromoA=='viajeRedondo' ? true : false,
+                'fInicio' => @$request->fechaDeInicio,
+                'fFin' => @$request->fechaDeFin,
+                'nTipoServicio' => @$request->tipoDeServicio,
             ]);
-            return redirect(route("corridas.promociones.index"))->with("status", "Guardado");
+            return redirect(route('corridas.promociones.index'))->with('status', 'Guardado');
         } catch (\Throwable $th) {
             throw $th;
-            return back()->withErrors("Error al guardar");
+            return back()->withErrors('Error al guardar');
         }
     }
 
@@ -91,8 +91,8 @@ class PromocionesController extends Controller
      */
     public function edit(Promociones $promocion)
     {
-        return view("promociones.edit",[
-            "promocion" => $promocion
+        return view('promociones.edit',[
+            'promocion' => $promocion
         ]);
     }
 
@@ -114,15 +114,15 @@ class PromocionesController extends Controller
                 'fechaDeFin' => 'required',
             ]);
             $promocion->update([
-                "aDescripcion" => $request->descripcion,
-                "nDescuento" => $request->descuento,
-                "fInicio" => $request->fechaDeInicio,
-                "fFin" => $request->fechaDeFin,
+                'aDescripcion' => $request->descripcion,
+                'nDescuento' => $request->descuento,
+                'fInicio' => $request->fechaDeInicio,
+                'fFin' => $request->fechaDeFin,
             ]);
-            return redirect(route("promociones.edit", $promocion))->with("status", "Guardado");
+            return redirect(route('promociones.edit', $promocion))->with('status', 'Guardado');
         } catch (\Throwable $th) {
             // throw $th;
-            return back()->withErrors("Error al guardar");
+            return back()->withErrors('Error al guardar');
         }
     }
 

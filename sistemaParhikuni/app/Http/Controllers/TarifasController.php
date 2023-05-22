@@ -17,9 +17,9 @@ class TarifasController extends Controller
      */
     public function index()
     {
-        $tarifas=TarifasTramo::all()->sortBy("nTipoServicio, nOrigen, nDestino");
+        $tarifas=TarifasTramo::all()->sortBy('nTipoServicio, nOrigen, nDestino');
         return view('tarifas.index',[
-            "tarifas" => $tarifas,
+            'tarifas' => $tarifas,
         ]);
     }
 
@@ -31,9 +31,9 @@ class TarifasController extends Controller
     public function create()
     {
         return view('tarifas.create',[
-            "oficinas" => Oficinas::where("lDestino", "=", true)->get(),
-            "TiposServicios" => TiposServicios::all(),
-            // "tarifas" => $tarifas,
+            'oficinas' => Oficinas::where('lDestino', '=', true)->get(),
+            'TiposServicios' => TiposServicios::all(),
+            // 'tarifas' => $tarifas,
         ]);
     }
 
@@ -47,17 +47,17 @@ class TarifasController extends Controller
     {
         try {
             $tarifasNvas=TarifasTramo::create([
-                "nTipoServicio" => $request->claseDeServicio,
-                "nOrigen" => $request->origen,
-                "nDestino" => $request->destino,
-                "nMontoBaseRuta" => $request->tarifaBaseRuta,
-                "nMontoBasePaqueteria" => $request->tarifaBasePaqueteria,
-                "fAplicacion" => $request->fechaAplicacion,
+                'nTipoServicio' => $request->claseDeServicio,
+                'nOrigen' => $request->origen,
+                'nDestino' => $request->destino,
+                'nMontoBaseRuta' => $request->tarifaBaseRuta,
+                'nMontoBasePaqueteria' => $request->tarifaBasePaqueteria,
+                'fAplicacion' => $request->fechaAplicacion,
             ]);
-            return redirect(route('tarifas.index'))->with("status", "Guardado");
+            return redirect(route('tarifas.index'))->with('status', 'Guardado');
         } catch (\Throwable $th) {
             throw $th;
-            return back()->withErrors("Error al guardar");
+            return back()->withErrors('Error al guardar');
         }
     }
 
@@ -69,7 +69,7 @@ class TarifasController extends Controller
      */
     public function show($id)
     {
-        dd("show");
+        dd('show');
     }
 
     /**
@@ -80,9 +80,9 @@ class TarifasController extends Controller
      */
     public function edit(TarifasTramo $idTarifa){
         return view('tarifas.edit',[
-            "oficinas" => Oficinas::where("lDestino", "=", true)->get(),
-            "TiposServicios" => TiposServicios::all(),
-            "tarifa" => $idTarifa,
+            'oficinas' => Oficinas::where('lDestino', '=', true)->get(),
+            'TiposServicios' => TiposServicios::all(),
+            'tarifa' => $idTarifa,
         ]);
     }
 
@@ -97,16 +97,16 @@ class TarifasController extends Controller
     {
         try {
             $idTarifa->update([
-                "nTipoServicio" => $request->claseDeServicio,
-                "nOrigen" => $request->origen,
-                "nDestino" => $request->destino,
-                "nMontoBaseRuta" => $request->tarifaBaseRuta,
-                "nMontoBasePaqueteria" => $request->tarifaBasePaqueteria,
-                "fAplicacion" => $request->fechaAplicacion,
+                'nTipoServicio' => $request->claseDeServicio,
+                'nOrigen' => $request->origen,
+                'nDestino' => $request->destino,
+                'nMontoBaseRuta' => $request->tarifaBaseRuta,
+                'nMontoBasePaqueteria' => $request->tarifaBasePaqueteria,
+                'fAplicacion' => $request->fechaAplicacion,
             ]);
-            return redirect(route('tarifas.index'))->with("status", "Guardado");
+            return redirect(route('tarifas.index'))->with('status', 'Guardado');
         } catch (\Throwable $th) {
-            return back()->withErrors("Error al guardar");
+            return back()->withErrors('Error al guardar');
         }
     }
 

@@ -88,12 +88,12 @@ class ItinerariosController extends Controller
         $tramos=$id->detalle($id->nItinerario);
         $size=sizeof($tramos);
 
-        $posiblesTramos=Tramos::where("nOrigen", "=", $tramos[$size-1]->nDestino)
+        $posiblesTramos=Tramos::where('nOrigen', '=', $tramos[$size-1]->nDestino)
             ->get();
         // dd($posiblesTramos[0]);
         return view('itinerarios.edit',[
-            "tramos" => $tramos,
-            "posiblesTramos" => $posiblesTramos,
+            'tramos' => $tramos,
+            'posiblesTramos' => $posiblesTramos,
         ]);
     }
 
@@ -106,18 +106,18 @@ class ItinerariosController extends Controller
      */
     public function update(Request $request, Itinerario $id)
     {
-        if($request->action=="añadir"){
+        if($request->action==='añadir'){
             $new=Itinerario::añadirTramo($id->nItinerario, $request->tramo);
             if($new){
-                return back()->with("status", "Guardado");
+                return back()->with('status', 'Guardado');
             }else{
-                return back()->withErrors("Error al guardar");
+                return back()->withErrors('Error al guardar');
             }
-        }elseif($request->action=="quitar"){
-            Itinerario::where("nItinerario","=", $id->nItinerario)
-                ->where("nConsecutivo","=", $request->consecutivo)
+        }elseif($request->action==='quitar'){
+            Itinerario::where('nItinerario','=', $id->nItinerario)
+                ->where('nConsecutivo','=', $request->consecutivo)
                 ->delete();
-            return back()->with("status", "Eliminado");
+            return back()->with('status', 'Eliminado');
         }else{
             return back();
         }

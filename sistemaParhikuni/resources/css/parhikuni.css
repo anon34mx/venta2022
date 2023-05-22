@@ -472,7 +472,7 @@ footer div{
 POR PANTALLA [INICIO]
 */
 input[type="radio"]{
-	height: 23px;
+	/* height: 23px; */
 	vertical-align: middle
 }
 #filtros {
@@ -615,25 +615,25 @@ input[type="radio"]{
 
 .tbl-diagrama-bus tr:nth-child(2)>td{
 	/* #asientos-ida tr:nth-last-child(3)>td { */
-	border-top: 2px solid gray !important;
+	/* border-top: 3px solid black !important; */
 }
 .tbl-diagrama-bus tr:nth-child(2)>td:nth-child(3){
-	border-top: 2px solid transparent !important;
+	border-top: 3px solid transparent !important;
 }
 .tbl-diagrama-bus tr td:nth-child(1),
 .tbl-diagrama-bus tr td:nth-child(4){
-	border-left: 2px solid black;
+	/* border-left: 2px solid black; */
 }
 .tbl-diagrama-bus tr td:nth-child(5),
 .tbl-diagrama-bus tr td:nth-child(2){
-	border-right: 2px solid black;
+	/* border-right: 2px solid black; */
 }
 
 .tbl-diagrama-bus tr:nth-last-child(3)>td {
-	border-bottom: 2px solid green;
+	/* border-bottom: 2px solid black; */
 }
 .tbl-diagrama-bus tr:nth-last-child(3)>td:nth-child(3){
-	border-bottom: 2px solid transparent;
+	/* border-bottom: 2px solid transparent; */
 }
 .tbl-diagrama-bus tr:first-child > td,
 .tbl-diagrama-bus tr:nth-last-child(1) > td,

@@ -179,7 +179,7 @@ window.selecTipoPasajero=function(lista){
         var key=$(lista).parent().find("input").val();
         console.log(key);
         pasajeros[key]["usados"]--;
-        if(pasajeros[key]["usados"]<pasajeros[key]["max"]){
+        if(pasajeros[key]["usados"] < pasajeros[key]["max"]){
             $(`.listaPasajeroTipo option[value='${key}']`).prop("disabled", false);
         }
         $(lista).parent().find("input").val("");
@@ -352,8 +352,15 @@ window.calcularDescuento= async function(row){
 }
 
 window.mirrorInput=function(inp){
-    console.log(inp);
-    $($(inp).attr("target")).val($(inp).val());
+    
+    var value;
+    if (inp.localName === "input"){
+        value = $(inp).val();
+    }else{
+        value = $(inp).find("option:selected").val();
+    }
+    $($(inp).attr("target")).val(value);
+    // console.log($(inp).attr("target"), value, inp.localName);
 }
 
 window.autobusHora=function(pos){

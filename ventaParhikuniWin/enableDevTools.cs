@@ -52,5 +52,13 @@ namespace ventaParhikuniWin
         {
 
         }
+
+        private void password_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)13)
+            {
+                this.button1_Click(null, null);
+            }
+        }
     }
 }

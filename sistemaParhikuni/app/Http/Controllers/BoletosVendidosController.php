@@ -51,7 +51,7 @@ class BoletosVendidosController extends Controller
             ->whereRaw("(aEstado = 'LM' OR aEstado = 'VE')")
             ->get();
             
-        if(sizeof($boletosEnLimbo)==0){
+        if(sizeof($boletosEnLimbo) === 0){
             $corridaDisponible->cambiarEstado("C");
             return view("pasajeros.limbo.porCorrida",[
                 "corridaDisponible" => $corridaDisponible,
@@ -125,8 +125,23 @@ class BoletosVendidosController extends Controller
             }
         }
     }
-    public function reasignarManual(Request $request){
-        dd($request->all());
+    public function reasignarManual(CorridasDisponibles $corridaOriginal, Request $request){
+        // dd($request->all());
+        # 1 Cambiar estado de corrida
+        $corridaOriginal->cambiarEstado('B');
+
+        for ($i=0; $i < sizeof($request->boletoAnterior); $i++) { 
+            # 2 Recuperar boleto anterior
+            $boletoAnterior=BoletosVendidos::find($request->boletoAnterior[$i]);
+            dd($boletoAnterior);
+            # 3 Insertar boleto nuevo
+            
+            # 4 Apartar asientos
+    
+            # 5 Registrar intercambio
+    
+            # 6 Dar de baja boleto anterior
+        }
     }
 
     public function reasignarAutomatico(CorridasDisponibles $corridaOriginal){
@@ -134,40 +149,40 @@ class BoletosVendidosController extends Controller
         $ventas=$corridaOriginal->boletosEnGrupo();
         
         // #1 Cambiar estado de corrida
-        $corridaOriginal->cambiarEstado("B");
+        $corridaOriginal->cambiarEstado('B');
         
         // #2 Analizar cada venta para esa corrida
         foreach ($ventas as $venta) {
             // # 3 Obtener boletos
-            $boletos=BoletosVendidos::where("nCorrida","=", $corridaOriginal->nNumero)
-            ->where("nVenta","=",$venta->nVenta)
-            ->whereRaw("(aEstado = 'LM' OR aEstado = 'VE')")
-            // ->where("aEstado","=", "VE")
+            $boletos=BoletosVendidos::where('nCorrida','=', $corridaOriginal->nNumero)
+            ->where('nVenta','=',$venta->nVenta)
+            ->whereRaw('(aEstado = "LM" OR aEstado = "VE")')
+            // ->where('aEstado','=', 'VE')
             ->get();
             // dd($boletos);
-            if(sizeof($boletos)==0){
-                return redirect(route("boletos.limbo.show", ["corridaDisponible"=>$corridaOriginal]));
+            if(sizeof($boletos) === 0){
+                return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]));
             }
 
-            $fechaHoraMinBuscar=\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", @$corridaOriginal->fSalida." ".$corridaOriginal->hSalida)->addSeconds(1);//->format("Y-m-d H:i");
-            $fechaHoraMaxBuscar=\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", @$corridaOriginal->fSalida." ".$corridaOriginal->hSalida)->addHour(2);//->format("Y-m-d H:i");
+            $fechaHoraMinBuscar=\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', @$corridaOriginal->fSalida.' '.$corridaOriginal->hSalida)->addSeconds(1);//->format('Y-m-d H:i');
+            $fechaHoraMaxBuscar=\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', @$corridaOriginal->fSalida.' '.$corridaOriginal->hSalida)->addHour(2);//->format('Y-m-d H:i');
             
             // #4 Encontrar siguiente corrida disponible
             $siguienteCorrida=collect($CorridasDisponibles->filtrar(null, // corrida
                 $boletos[0]->nOrigen, $boletos[0]->nDestino, // origen,destino
-                $fechaHoraMinBuscar->format("Y-m-d"), $fechaHoraMaxBuscar->format("Y-m-d"), //fechaInicio, fechaFin
+                $fechaHoraMinBuscar->format('Y-m-d'), $fechaHoraMaxBuscar->format('Y-m-d'), //fechaInicio, fechaFin
                 [$venta->viajanJuntos], // pasajeros
-                $fechaHoraMinBuscar->format("H:i:s"), $fechaHoraMaxBuscar->format("H:i:s"), //horaMin, horaMax
-                null,1,"siguiente"))
+                $fechaHoraMinBuscar->format('H:i:s'), $fechaHoraMaxBuscar->format('H:i:s'), //horaMin, horaMax
+                null,1,'siguiente'))
                 ->first(); //usarPromo, limite, tipoDeBusqueda
             
-            if($siguienteCorrida==null){
-                return redirect(route("boletos.limbo.show", ["corridaDisponible"=>$corridaOriginal]))
-                    ->withErrors("No se encontró una corrida próxima. Asigna a los pasajeros manualmente.");
+            if($siguienteCorrida === null){
+                return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]))
+                    ->withErrors('No se encontró una corrida próxima. Asigna a los pasajeros manualmente.');
             }
             // #5 Encontrar los asientos que está disponibles
             $asientosOcupados=DB::select(
-                DB::raw("SELECT
+                DB::raw('SELECT
                 disa.nAsiento
                 FROM `disponibilidadasientos` disa
                 INNER JOIN disponibilidad disp
@@ -175,10 +190,10 @@ class BoletosVendidosController extends Controller
                 WHERE disp.nCorridaDisponible=:nCorrida
                 AND disp.nOrigen=:nOrigen and disp.nDestino=:nDestino
                 GROUP BY disa.nAsiento
-                ORDER BY disa.nAsiento"),[
-                    "nCorrida" => $siguienteCorrida->corrida,
-                    "nOrigen" => $boletos[0]->nOrigen,
-                    "nDestino" => $boletos[0]->nDestino,
+                ORDER BY disa.nAsiento'),[
+                    'nCorrida' => $siguienteCorrida->corrida,
+                    'nOrigen' => $boletos[0]->nOrigen,
+                    'nDestino' => $boletos[0]->nDestino,
                 ]
             );
 
@@ -189,7 +204,7 @@ class BoletosVendidosController extends Controller
                 // dd($asientosOcupados[0]->nAsiento);
                 for($c=0;$c<sizeof($asientosOcupados);$c++){
                     // echo $i." ".$asientosOcupados[$c]->nAsiento."<br>";
-                    if($asientosOcupados[$c]->nAsiento == $i){
+                    if($asientosOcupados[$c]->nAsiento === $i){
                         // echo "found ".$i." ".$asientosOcupados[$c]->nAsiento."<br>";
                         $found=true;
                         break;
@@ -220,13 +235,13 @@ class BoletosVendidosController extends Controller
                     'nMontoBase' => 0,
                     'nMontoDescuento' => 0,
                     'nIva' => 0,
-                    'aEstado' => "VE",
-                    'nTerminal' => @session("terminal"),
+                    'aEstado' => 'VE',
+                    'nTerminal' => @session('terminal'),
                 ]);
                 //Apartar
                 try{
                     $rs=collect(
-                        DB::SELECT("SELECT apartar_asiento(?,?,?,?,?,?,?) as asientos",[
+                        DB::SELECT('SELECT apartar_asiento(?,?,?,?,?,?,?) as asientos',[
                             $siguienteCorrida->corrida, $boleto->nOrigen, $boleto->nDestino,
                             array_values($asientosDisp)[0], Auth::user()->id, 'VE', $nvoBoleto->nNumero
                         ])
@@ -239,12 +254,12 @@ class BoletosVendidosController extends Controller
                 $asientosDisp=array_splice( $asientosDisp,1,sizeof($asientosDisp));
                 //registrar intercambio
                 BoletosCancelados::create([
-                    "nBoletoVendido" => $boleto->nNumero,
-                    "nBoletoNuevo" => $nvoBoleto->nNumero,
+                    'nBoletoVendido' => $boleto->nNumero,
+                    'nBoletoNuevo' => $nvoBoleto->nNumero,
                 ]);
                 //dar de baja boleto anterior
                 $boleto->update([
-                    "aEstado" => "CA"
+                    'aEstado' => 'CA'
                 ]);
             }
         }

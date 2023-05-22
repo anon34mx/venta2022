@@ -17,9 +17,9 @@ class corridasProgramadasController extends Controller
         $corridasProgramadas=Corridasprogramadas::paginate(20);
 
         return view('corridasProgramadas.index',[
-            "corridasProgramadas" => $corridasProgramadas,
-            "itinerarios" => Itinerario::unicosDetallado(),
-            "servicios" => TiposServicios::all(),
+            'corridasProgramadas' => $corridasProgramadas,
+            'itinerarios' => Itinerario::unicosDetallado(),
+            'servicios' => TiposServicios::all(),
         ]);
     }
 
@@ -37,25 +37,25 @@ class corridasProgramadasController extends Controller
         ]);
 
         $nuevaCorrida = Corridasprogramadas::create([
-            "nItinerario" => $request->itinerario,
-            "nTipoServicio" => $request->tipoDeServicio,
-            "hSalida" => $request->horaDeSalida,
-            "lLunes" => (isset($request->dias["lLunes"])) ? 1:0,
-            "lMartes" => (isset($request->dias["lMartes"])) ? 1:0,
-            "lMiercoles" => (isset($request->dias["lMiercoles"])) ? 1:0,
-            "lJueves" => (isset($request->dias["lJueves"])) ? 1:0,
-            "lViernes" => (isset($request->dias["lViernes"])) ? 1:0,
-            "lSabado" => (isset($request->dias["lSabado"])) ? 1:0,
-            "lDomingo" => (isset($request->dias["lDomingo"])) ? 1:0,
-            "fInicio" => $request->fechaDeInicio,
-            "fFin" => $request->fechaDeFin,
+            'nItinerario' => $request->itinerario,
+            'nTipoServicio' => $request->tipoDeServicio,
+            'hSalida' => $request->horaDeSalida,
+            'lLunes' => (isset($request->dias['lLunes'])) ? 1:0,
+            'lMartes' => (isset($request->dias['lMartes'])) ? 1:0,
+            'lMiercoles' => (isset($request->dias['lMiercoles'])) ? 1:0,
+            'lJueves' => (isset($request->dias['lJueves'])) ? 1:0,
+            'lViernes' => (isset($request->dias['lViernes'])) ? 1:0,
+            'lSabado' => (isset($request->dias['lSabado'])) ? 1:0,
+            'lDomingo' => (isset($request->dias['lDomingo'])) ? 1:0,
+            'fInicio' => $request->fechaDeInicio,
+            'fFin' => $request->fechaDeFin,
         ]);
-        DB::select("SELECT corridasPorDia(CURRENT_DATE, 30)");
+        DB::select('SELECT corridasPorDia(CURRENT_DATE, 30)');
         
         // return back()->with('status', 'La corrida y su información relacionada se registró con éxito.');
          return redirect()
             ->route('corridas.programadas.show', $nuevaCorrida)
-            ->with("status","La corrida y su información relacionada se registró con éxito.");
+            ->with('status','La corrida y su información relacionada se registró con éxito.');
     }
 
     public function show($corridaProgramada){
@@ -65,18 +65,18 @@ class corridasProgramadasController extends Controller
         // dd(Itinerario::unicosDetallado());
         
         return view('corridasProgramadas.show',[
-            "corridaProgramada" => Corridasprogramadas::find($corridaProgramada),
-            "itinerarios" => Itinerario::unicosDetallado(),
-            "servicios" => TiposServicios::all(),
+            'corridaProgramada' => Corridasprogramadas::find($corridaProgramada),
+            'itinerarios' => Itinerario::unicosDetallado(),
+            'servicios' => TiposServicios::all(),
         ]);
     }
 
     public function edit(Corridasprogramadas $corridaProgramada){
         //Vista para transferir
         return view('corridasProgramadas.transfer',[
-            "corridaProgramada" => $corridaProgramada,
-            "itinerarios" => Itinerario::unicosDetallado(),
-            "servicios" => TiposServicios::all(),
+            'corridaProgramada' => $corridaProgramada,
+            'itinerarios' => Itinerario::unicosDetallado(),
+            'servicios' => TiposServicios::all(),
         ]);
     }
 
@@ -118,13 +118,13 @@ class corridasProgramadasController extends Controller
             'nItinerario' => $request->itinerario,
             'nTipoServicio' => $request->tipoDeServicio,
             'hSalida' => $request->horaDeSalida,
-            'lLunes' => (isset($request->dias["lLunes"])) ? true : false,
-            'lMartes' => (isset($request->dias["lMartes"])) ? true : false,
-            'lMiercoles' => (isset($request->dias["lMiercoles"])) ? true : false,
-            'lJueves' => (isset($request->dias["lJueves"])) ? true : false,
-            'lViernes' => (isset($request->dias["lViernes"])) ? true : false,
-            'lSabado' => (isset($request->dias["lSabado"])) ? true : false,
-            'lDomingo' => (isset($request->dias["lDomingo"])) ? true : false,
+            'lLunes' => (isset($request->dias['lLunes'])) ? true : false,
+            'lMartes' => (isset($request->dias['lMartes'])) ? true : false,
+            'lMiercoles' => (isset($request->dias['lMiercoles'])) ? true : false,
+            'lJueves' => (isset($request->dias['lJueves'])) ? true : false,
+            'lViernes' => (isset($request->dias['lViernes'])) ? true : false,
+            'lSabado' => (isset($request->dias['lSabado'])) ? true : false,
+            'lDomingo' => (isset($request->dias['lDomingo'])) ? true : false,
             'fInicio' => $request->fechaDeInicio,
             'fFin' => $request->fechaDeFin,
             'version' => $corridaProgramada->version+1,
@@ -135,6 +135,6 @@ class corridasProgramadasController extends Controller
         // MOSTAR PASAJEROS EN LIMBO (VENDIDOS QUE QUEDARON SIN CORRIDA)
         return redirect()
             ->route('corridas.programadas.show', $nuevaCorrida)
-            ->with("status","Corrida transferida con éxito");
+            ->with('status','Corrida transferida con éxito');
     }
 }

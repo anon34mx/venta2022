@@ -86,8 +86,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.password.Location = new System.Drawing.Point(12, 46);
             this.password.Name = "password";
+            this.password.PasswordChar = 'x';
             this.password.Size = new System.Drawing.Size(316, 20);
             this.password.TabIndex = 0;
+            this.password.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.password_KeyPress);
             // 
             // enableDevTools
             // 

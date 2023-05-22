@@ -16,8 +16,8 @@ class PerodiodosVacacionalesController extends Controller
     public function index()
     {
         // dd(PeriodosVacacionales::all());
-        return view("periodosvacacionales.index",[
-            "periodos" => PeriodosVacacionales::orderBy("inicio", "DESC")->get(),
+        return view('periodosvacacionales.index',[
+            'periodos' => PeriodosVacacionales::orderBy('inicio', 'DESC')->get(),
         ]);
     }
 
@@ -44,12 +44,12 @@ class PerodiodosVacacionalesController extends Controller
             //     'fechaFin' => 'required|date|after:fechaInicio',
             // ]);
             PeriodosVacacionales::create([
-                "inicio" => $request->fechaInicio,
-                "fin" => $request->fechaFin,
+                'inicio' => $request->fechaInicio,
+                'fin' => $request->fechaFin,
             ]);
-            return back()->with("status", "Guardado");
+            return back()->with('status', 'Guardado');
         }catch(Exception $e){
-            return back()->withErrors("Error al guardar");
+            return back()->withErrors('Error al guardar');
         }
     }
 
@@ -97,10 +97,10 @@ class PerodiodosVacacionalesController extends Controller
     {
         try {
             $id->delete();
-            return back()->with("status", "Eliminado");
+            return back()->with('status', 'Eliminado');
         } catch (\Throwable $th) {
             // throw $th;
-            return back()->withErrors("Error al eliminar");
+            return back()->withErrors('Error al eliminar');
         }
     }
 }

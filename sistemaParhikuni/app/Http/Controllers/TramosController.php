@@ -19,13 +19,13 @@ class TramosController extends Controller
         $tramos; //=Tramos::select("*")->orderBy("nOrigen", "ASC")->get();
         if(is_numeric($request->busqueda)){
             // dd($request->busqueda);
-            $tramos=Tramos::whereRaw("nOrigen=$request->busqueda or nDestino=$request->busqueda")->orderBy("nOrigen", "ASC")->get();
+            $tramos=Tramos::whereRaw("nOrigen=$request->busqueda or nDestino=$request->busqueda")->orderBy('nOrigen', 'ASC')->get();
         }else{
-            $tramos=Tramos::select("*")->orderBy("nOrigen", "ASC")->get();
+            $tramos=Tramos::select('*')->orderBy('nOrigen', 'ASC')->get();
         }
         return view('tramos.index',[
-            "oficinas" => Oficinas::where("lDestino","=", true)->get(),
-            "tramos" => $tramos,
+            'oficinas' => Oficinas::where('lDestino','=', true)->get(),
+            'tramos' => $tramos,
         ]);
     }
 
@@ -38,8 +38,8 @@ class TramosController extends Controller
     {
         $tramosNvos=Tramos::tramosNuevos();
         return view('tramos.create',[
-            "oficinas" => Oficinas::whereRaw("lDestino=true")->get(),
-            "origenesDestinos" => $tramosNvos,
+            'oficinas' => Oficinas::whereRaw('lDestino=true')->get(),
+            'origenesDestinos' => $tramosNvos,
         ]);
     }
 
@@ -55,19 +55,19 @@ class TramosController extends Controller
         // dd($origenDestino);
         try {
             for($i=0; $i<sizeof($request->kilometros); $i++){
-                $origenDestino=explode("_", $request->origenDestino[$i]);
+                $origenDestino=explode('_', $request->origenDestino[$i]);
                 Tramos::create([
-                    "nOrigen" => $origenDestino[0],
-                    "nDestino" => $origenDestino[1],
-                    "nKilometros" => $request->kilometros[$i],
-                    "nTiempo" => $request->tiempo[$i],
-                    "nEstancia" => $request->estancia[$i],
+                    'nOrigen' => $origenDestino[0],
+                    'nDestino' => $origenDestino[1],
+                    'nKilometros' => $request->kilometros[$i],
+                    'nTiempo' => $request->tiempo[$i],
+                    'nEstancia' => $request->estancia[$i],
                 ]);
             }
-            return redirect(route("tramos.index"))->with("status", "Guardado");
+            return redirect(route('tramos.index'))->with('status', 'Guardado');
         } catch (\Throwable $th) {
             throw $th;
-            return redirect(route("tramos.index"))->withErrors($th);
+            return redirect(route('tramos.index'))->withErrors($th);
         }
         
     }
@@ -92,7 +92,7 @@ class TramosController extends Controller
     public function edit(Tramos $id)
     {
         return view('tramos.edit',[
-            "tramo" => $id
+            'tramo' => $id
         ]);
     }
 
@@ -106,11 +106,11 @@ class TramosController extends Controller
     public function update(Request $request, Tramos $id)// 
     {
         $id->update([
-            "nKilometros" => $request->kilometros,
-            "nTiempo" => $request->tiempo,
-            "nEstancia" => $request->estancia,
+            'nKilometros' => $request->kilometros,
+            'nTiempo' => $request->tiempo,
+            'nEstancia' => $request->estancia,
         ]);
-        return back()->with("status", "Guardado");
+        return back()->with('status', 'Guardado');
     }
 
     /**

@@ -30,25 +30,25 @@ class CorridasDisponiblesController extends Controller
     public $elementsPerPage=15;
 
     public function index(Request $request){
-        if(@$request->send=="reset"){
+        if(@$request->send==='reset'){
             $request->only([]);
         }
         $today=date('Y-m-d');
         $yesterday=date('Y-m-d', strtotime($today. ' -1 days'));
         // $corridasDisponibles = CorridasDisponibles::
         //     whereRaw('timestamp(`fSalida`, hSalida) >=  DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR)')
-        //     ->orderBy("fSalida", "ASC")
-        //     ->orderBy("hSalida", "ASC")
+        //     ->orderBy('fSalida', 'ASC')
+        //     ->orderBy('hSalida', 'ASC')
         //     ->paginate($this->elementsPerPage);
 
         $corridasDisponibles = CorridasDisponibles::
             whereRaw('timestamp(`fSalida`, hSalida) >=  DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR)');
-        if (@$request->origen!="") {
-            $corridasDisponibles=$corridasDisponibles->whereRaw("corridasdisponibles.nItinerario IN (SELECT iti.nItinerario FROM itinerario iti
-                INNER JOIN tramos tr on tr.nNumero=iti.nTramo WHERE iti.nConsecutivo=1 and tr.nOrigen=$request->origen)");
+        if (@$request->origen!='') {
+            $corridasDisponibles=$corridasDisponibles->whereRaw('corridasdisponibles.nItinerario IN (SELECT iti.nItinerario FROM itinerario iti
+                INNER JOIN tramos tr on tr.nNumero=iti.nTramo WHERE iti.nConsecutivo=1 and tr.nOrigen=$request->origen)');
         }
-        if (@$request->destino!="") {
-            $corridasDisponibles=$corridasDisponibles->whereRaw("corridasdisponibles.nItinerario IN (SELECT
+        if (@$request->destino!='') {
+            $corridasDisponibles=$corridasDisponibles->whereRaw('corridasdisponibles.nItinerario IN (SELECT
                 iti.nItinerario
                 FROM itinerario iti
                 INNER JOIN tramos tr on tr.nNumero=iti.nTramo
@@ -58,116 +58,116 @@ class CorridasDisponiblesController extends Controller
                     FROM itinerario itiSub
                     WHERE itiSub.nItinerario=iti.nItinerario
                 )
-                and tr.nDestino=$request->destino)");
+                and tr.nDestino=$request->destino)');
         }
-        if (@$request->tipoDeServicio!="") {
+        if (@$request->tipoDeServicio!='') {
             $corridasDisponibles->where('nTipoServicio', '=', $request->tipoDeServicio);
         }
-        if (@$request->fecha!="") {
+        if (@$request->fecha!='') {
             $corridasDisponibles->where('fSalida', '=', $request->fecha);
         }
-        if (@$request->estado!="") {
+        if (@$request->estado!='') {
             $corridasDisponibles->where('aEstado', '=', $request->estado);
         }
-        if (@$request->autobus!="") {
+        if (@$request->autobus!='') {
             $corridasDisponibles->where('nNumeroAutobus', '=', $request->autobus);
         }
-        $corridasDisponibles=$corridasDisponibles->orderBy("fSalida", "ASC")
-        ->orderBy("hSalida", "ASC")
+        $corridasDisponibles=$corridasDisponibles->orderBy('fSalida', 'ASC')
+        ->orderBy('hSalida', 'ASC')
         ->paginate($this->elementsPerPage);
         // ->toSql();
         return view('corridasDisponibles.index',[
-            "corridasDisponibles" => $corridasDisponibles,
-            "tiposServicio" => TiposServicios::all(),
-            "oficinas" => Oficinas::all(),
-            "request" => $request->all(),
-            "estadosCorridas" => CorridasEstados::all(),
-            "today" => $today,
-            "yesterday" => $yesterday,
-            "autobuses" => Autobus::orderBy("nNumeroEconomico", "ASC")->get(),
-            "conductores" => conductores::orderBy("nNumeroPersona", "ASC")->get()
+            'corridasDisponibles' => $corridasDisponibles,
+            'tiposServicio' => TiposServicios::all(),
+            'oficinas' => Oficinas::all(),
+            'request' => $request->all(),
+            'estadosCorridas' => CorridasEstados::all(),
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'autobuses' => Autobus::orderBy('nNumeroEconomico', 'ASC')->get(),
+            'conductores' => conductores::orderBy('nNumeroPersona', 'ASC')->get()
         ]);
     }
 
     public function edit(CorridasDisponibles $corridaDisponible, Request $request){
         $oficina=null;
-        if(Auth::user()->hasRole("Admin")){
+        if(Auth::user()->hasRole('Admin')){
             $oficina=$request->oficinaOrigen;
         }else{
             $oficina=Auth::user()->personas->nOficina;
         }
         $conductores=conductores::
-            whereRaw("conductores.nNumeroConductor NOT IN (
-                SELECT IF(cordis.nNumeroConductor is NULL, 0 , cordis.nNumeroConductor) FROM corridasdisponibles cordis WHERE cordis.aEstado IN ('A','S', 'R') GROUP BY cordis.nNumeroConductor
-            ) AND conductores.aEstado!='BA'")
-            ->orderBy("conductores.nNumeroConductor", "ASC")
+            whereRaw('conductores.nNumeroConductor NOT IN (
+                SELECT IF(cordis.nNumeroConductor is NULL, 0 , cordis.nNumeroConductor) FROM corridasdisponibles cordis WHERE cordis.aEstado IN ("A","S", "R") GROUP BY cordis.nNumeroConductor
+            ) AND conductores.aEstado!="BA"')
+            ->orderBy('conductores.nNumeroConductor', 'ASC')
             ->get();
         $estadoActual=$corridaDisponible->estadoActual($oficina);
         // dd($estadoActual);
 
         return view('corridasDisponibles.edit',[
-            "corridaDisponible" => $corridaDisponible,
-            "itinerarios" => Itinerario::unicosDetallado(),
-            "servicios" => TiposServicios::all(),
-            "estados" => CorridasEstados::orderBy("orden", "ASC")->get(),
-            "autobuses" => Autobus::orderBy("nNumeroEconomico", "ASC")->get(),
-            "conductores" => $conductores,
-            "oficinaOrigen" => $oficina,
-            "estadoActual" => $estadoActual,
+            'corridaDisponible' => $corridaDisponible,
+            'itinerarios' => Itinerario::unicosDetallado(),
+            'servicios' => TiposServicios::all(),
+            'estados' => CorridasEstados::orderBy('orden', 'ASC')->get(),
+            'autobuses' => Autobus::orderBy('nNumeroEconomico', 'ASC')->get(),
+            'conductores' => $conductores,
+            'oficinaOrigen' => $oficina,
+            'estadoActual' => $estadoActual,
         ]);
     }
 
     public function update(CorridasDisponibles $corridaDisponible, Request $request){
         $data=array();
         $oficina=null;
-        if(Auth::user()->hasRole("Admin")){
+        if(Auth::user()->hasRole('Admin')){
             $oficina=$request->oficina;
         }else{
             $oficina=Auth::user()->personas->nOficina;
         }
 
-        if(@$request->estado=="C"){
+        if(@$request->estado === 'C'){
             return $this->cancelarCorrida($corridaDisponible ,$oficina);
             exit;
         }
-        if($corridaDisponible->aEstado=="T" || $corridaDisponible->aEstado=="C" || $corridaDisponible->aEstado=="L"){
-            return back()->withErrors("No se puede editar");
+        if($corridaDisponible->aEstado === 'T' || $corridaDisponible->aEstado === 'C' || $corridaDisponible->aEstado === 'L'){
+            return back()->withErrors('No se puede editar');
         }
-        if($request->estado=="DB"){
+        if($request->estado === 'DB'){
             $corridaDisponible->desbloquear();
             return back()->with('status', 'Corrida desbloqueada');
         }
-        if($request->conductor!=null && $corridaDisponible->aEstado!="T" && $corridaDisponible->aEstado!="L" && $corridaDisponible->aEstado!="C"){ //
-            $data["nNumeroConductor"]=$request->conductor;
+        if($request->conductor!=null && $corridaDisponible->aEstado!='T' && $corridaDisponible->aEstado!='L' && $corridaDisponible->aEstado!='C'){ //
+            $data['nNumeroConductor']=$request->conductor;
             $historialConductor=CorridasConductores::create([
-                "nNumeroCorrida" => $corridaDisponible->nNumero,
-                "nNumeroConductor" => $request->conductor,
-                "nNumeroUsuario" => Auth::user()->id,
+                'nNumeroCorrida' => $corridaDisponible->nNumero,
+                'nNumeroConductor' => $request->conductor,
+                'nNumeroUsuario' => Auth::user()->id,
             ]);
         }
         if($corridaDisponible->nNumeroConductor==null && $request->conductor!=null){
-            $data["aEstado"]="A";
+            $data['aEstado']='A';
         }
         if($request->autobus != $corridaDisponible->nNumeroAutobus){
-            $data["nNumeroAutobus"] = $request->autobus;
+            $data['nNumeroAutobus'] = $request->autobus;
         }
         if(@$request->estado!=null && @$request->estado != $corridaDisponible->aEstado){
-            $data["aEstado"]=$request->estado;
+            $data['aEstado']=$request->estado;
         }
         // dd($corridaDisponible->enVenta($oficina));
-        if(@$request->estado=="S" && $corridaDisponible->enVenta($oficina)>0){
-            return back()->withErrors("Se está realizando una venta en esta oficina.");
+        if(@$request->estado === 'S' && $corridaDisponible->enVenta($oficina)>0){
+            return back()->withErrors('Se está realizando una venta en esta oficina.');
         }
-        if(sizeof($data)==0){
-            return back()->withErrors("No se especificaron cambios");
+        if(sizeof($data)===0){
+            return back()->withErrors('No se especificaron cambios');
         }else{
-            if(isset($data["aEstado"])){
+            if(isset($data['aEstado'])){
                 CorridasDisponiblesHistorial::create([
-                    "corrida_disponible" => $corridaDisponible->nNumero,
-                    "nNumeroOficina" => $oficina,
-                    "aEstadoAnterior" => $corridaDisponible->aEstado,
-                    "aEstadoNuevo" => $data["aEstado"],
-                    "user" => Auth::user()->id,
+                    'corrida_disponible' => $corridaDisponible->nNumero,
+                    'nNumeroOficina' => $oficina,
+                    'aEstadoAnterior' => $corridaDisponible->aEstado,
+                    'aEstadoNuevo' => $data['aEstado'],
+                    'user' => Auth::user()->id,
                 ]);
             }
             $corridaDisponible->update($data);
@@ -181,27 +181,27 @@ class CorridasDisponiblesController extends Controller
         $historial=null;
         $consecutivo=null;
 
-        if(Auth::user()->hasRole("Admin")){
+        if(Auth::user()->hasRole('Admin')){
             $oficina=$request->oficina;
             $consecutivo=$request->consecutivo;
         }else{
             $oficina=Auth::user()->personas->nOficina;
-            $consecutivo=((array)$corridaDisponible->getTramoOficina($oficina))["consecutivo"];
+            $consecutivo=((array)$corridaDisponible->getTramoOficina($oficina))['consecutivo'];
         }
         // dd($consecutivo);
-        $historial=CorridasDisponiblesHistorial::where("corrida_disponible", "=", $corridaDisponible->nNumero)
-        ->where("nNumeroOficina", "=", $oficina)
+        $historial=CorridasDisponiblesHistorial::where('corrida_disponible', '=', $corridaDisponible->nNumero)
+        ->where('nNumeroOficina', '=', $oficina)
         ->first();
-        if($corridaDisponible->aEstado=="C"){
-            return back()->withErrors("La corrida ".$corridaDisponible->nNumero." está cancelada");
+        if($corridaDisponible->aEstado === 'C'){
+            return back()->withErrors('La corrida '.$corridaDisponible->nNumero.' está cancelada');
         }
-        if($corridaDisponible->nNumeroConductor==null || $corridaDisponible->nNumeroAutobus==null){
-            return redirect(route('corridas.disponibles.edit', $corridaDisponible))->withErrors("Para despachar, primero registra un conductor y autobus para esta corrida");
+        if($corridaDisponible->nNumeroConductor === null || $corridaDisponible->nNumeroAutobus === null){
+            return redirect(route('corridas.disponibles.edit', $corridaDisponible))->withErrors('Para despachar, primero registra un conductor y autobus para esta corrida');
         }
         $disa=new DisponibilidadAsientos();
         $enProcesoDeCompra=$disa->enProcesoCompra($corridaDisponible->nNumero, $oficina);
         if(sizeof($enProcesoDeCompra)>0){// revisar que no se esté realizando una venta para esta corrida
-            return back()->withErrors("Se está realizando una venta para esta corrida");
+            return back()->withErrors('Se está realizando una venta para esta corrida');
         }else{
             if(sizeof($corridaDisponible->boletos) < $corridaDisponible->servicio->ocupacioMinima){
                 if(false){ // verifica si hay que mandar SMS de que hubo baja ocupacion
@@ -210,40 +210,38 @@ class CorridasDisponiblesController extends Controller
             }
             //actualizar historial
             CorridasDisponiblesHistorial::create([
-                "corrida_disponible" => $corridaDisponible->nNumero,
-                "nNumeroOficina" => $oficina,
-                "aEstadoAnterior" => @$historial->aEstadoNuevo ?: "D",
-                "aEstadoNuevo" => "R",
-                "user" => Auth::user()->id,
+                'corrida_disponible' => $corridaDisponible->nNumero,
+                'nNumeroOficina' => $oficina,
+                'aEstadoAnterior' => @$historial->aEstadoNuevo ?: 'D',
+                'aEstadoNuevo' => 'R',
+                'user' => Auth::user()->id,
             ]);
-            // "nConductor" => @$historial->nConductor ?: null,
-            $corridaDisponible->update(["aEstado"=>"R"]); #-- ver donde pongo este cambio
+            // 'nConductor' => @$historial->nConductor ?: null,
+            $corridaDisponible->update(['aEstado'=>'R']); #-- ver donde pongo este cambio
             // dd($request->all());
             $corridaDisponible->despachar($consecutivo);
             // registrar salida de punto de control[!?]
                 
-            return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with("status", "Corrida despachada");
+            return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with('status', 'Corrida despachada');
         }
     }
     public function cancelarCorrida(CorridasDisponibles $corrida, $oficina){
         $pasajeros=new BoletosVendidos();
-        $pasajeros->where("nCorrida", "=", $corrida->nNumero)->update([
-            "aEstado"=>"LM"
+        $pasajeros->where('nCorrida', '=', $corrida->nNumero)->update([
+            'aEstado'=>'LM'
         ]);
         CorridasDisponiblesHistorial::create([
-            "corrida_disponible" => $corrida->nNumero,
-            "nNumeroOficina" => $oficina,
-            "aEstadoAnterior" => $corrida->aEstado,
-            "aEstadoNuevo" => "C",
-            "user" => Auth::user()->id,
+            'corrida_disponible' => $corrida->nNumero,
+            'nNumeroOficina' => $oficina,
+            'aEstadoAnterior' => $corrida->aEstado,
+            'aEstadoNuevo' => 'C',
+            'user' => Auth::user()->id,
         ]);
-        // dd($pasajeros);
-        echo "owo";
-        return redirect(route("boletos.limbo.show",$corrida))->with('status', 'Usuario creado');
+        return redirect(route('boletos.limbo.show',$corrida))->with('status', 'Usuario creado');
     }
     
     public function guiaPasajeros(CorridasDisponibles $corridaDisponible){
-        // if($request->mode=="Descargar"){
+        // if($request->mode=='Descargar'){
         //     $pdf = PDF::loadView('corridasDisponibles.guiaPasajeros', ["corridaDisponible" => $corridaDisponible]);
         //     return $pdf->download('articles.pdf');
         // }elseif($request->mode=="Ver pdf"){
@@ -255,31 +253,31 @@ class CorridasDisponiblesController extends Controller
         //         "corridaDisponible" => $corridaDisponible
         //     ]);
         // }
-        return view("corridasDisponibles.guiaPasajeros",[
-                "corridaDisponible" => $corridaDisponible
+        return view('corridasDisponibles.guiaPasajeros',[
+                'corridaDisponible' => $corridaDisponible
             ]);
     }
 
     public function puntosDeControl(CorridasDisponibles $corridaDisponible){
-        if($corridaDisponible->aEstado=="D" || $corridaDisponible->aEstado=="A" || $corridaDisponible->aEstado=="S"){
-            return redirect(route("corridas.disponibles.index",$corridaDisponible))->withErrors("La corrida no ha sido despachada");
-        }else{ //if($corridaDisponible->aEstado=="R"){
+        if($corridaDisponible->aEstado === 'D' || $corridaDisponible->aEstado === 'A' || $corridaDisponible->aEstado === 'S'){
+            return redirect(route('corridas.disponibles.index',$corridaDisponible))->withErrors('La corrida no ha sido despachada');
+        }else{ //if($corridaDisponible->aEstado === 'R'){
             return view('corridasDisponibles.puntosDeControl',[
-                "corridaDisponible" => $corridaDisponible
+                'corridaDisponible' => $corridaDisponible
             ]);
         }
     }
 
     public function registrarPuntoDeControl(CorridasDisponibles $corridaDisponible, Request $request){
         $conductor=conductores::find($corridaDisponible->nNumeroConductor);
-        if($conductor->nNumeroConductor==$request->contraseñaDeCondutor){
+        if($conductor->nNumeroConductor === $request->contraseñaDeCondutor){
             if($corridaDisponible->registrarPasoPunto()){
-                return back()->with("status", "Registrado");
+                return back()->with('status', 'Registrado');
             }else{
-                return back()->with("error", "No se registraron cambios");
+                return back()->with('error', 'No se registraron cambios');
             }
         }else{
-            return back()->withErrors("Registra la clave del conductor");
+            return back()->withErrors('Registra la clave del conductor');
         }
     }
 
@@ -289,7 +287,7 @@ class CorridasDisponiblesController extends Controller
 
     public function recorrido(CorridasDisponibles $corridaDisponible, $origen, $destino){
         // return json_encode($corridaDisponible->getRecorrido());
-        $html="";
+        $html='';
         $recorridos = $corridaDisponible->getRecorrido($origen,$destino);
         $lon=sizeof($recorridos)-1;
         $cont=0;
@@ -305,32 +303,32 @@ class CorridasDisponiblesController extends Controller
                 if($cont==0){
                     echo($tramo->origenNombre);
                     echo($tramo->hSalida);
-                    echo "<br>";
+                    echo '<br>';
                 }
                 elseif($cont==$lon){
                     echo($tramo->destinoNombre);
                     echo($tramo->hLlegada);
-                    echo "<br>";
+                    echo '<br>';
                 }else{
                     echo($tramo->origenNombre);
                     echo($tramo->hLlegada);
-                    echo "<br>";
+                    echo '<br>';
 
                     echo($tramo->destinoNombre);
                     echo($tramo->hLlegada);
-                    echo "<br>";
+                    echo '<br>';
                 }
             */
             $cont++;
         }
-        return "<div class=\"row col-12\">".$html."</div>";
+        return '<div class=\"row col-12\">'.$html.'</div>';
     }
 
     private function renderPuntoRecorrido($oficina, $hora){
-        return "<div class=\"row col-6\">
+        return '<div class=\"row col-6\">
             <div class=\"col-12\">$oficina</div>
             <div class=\"col-12\">$hora</div>
-        </div><br>";
+        </div><br>';
     }
 
     public function getProxCorridas(CorridasDisponibles $corrida, $nOrigen, $nDestino){

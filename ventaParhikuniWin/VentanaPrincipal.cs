@@ -80,22 +80,77 @@ namespace ventaParhikuniWin
                     "e.preventDefault();" +
                     "console.log(e.dataTransfer);" +
                     "console.log(e.dataTransfer.files[0])" +
-                "}, false);" +
-                "window.addEventListener('contextmenu', window => {window.preventDefault();});"
+                "}, false);"
+                
             );
-            webView21.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested; // hacer que no se abran ventanas nuevas, si no en la misma
-            webView21.CoreWebView2.WebMessageReceived += MessageReceived; // se establece la comunicación con Javscript
-            //webView21.CoreWebView2.Settings.AreDevToolsEnabled = false; // desabilitar herramientas de desarrollador
-            webView21.CoreWebView2.Settings.IsBuiltInErrorPageEnabled = false; // se deshabilita la página de error por default
+            // + "window.addEventListener('contextmenu', window => {window.preventDefault();});" // deshabilitar menú contextual
             /*
                 pantalla completa 
                 descargas
                 borrar cache
                 titulo
              */
+            webView21.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested; // hacer que no se abran ventanas nuevas, si no en la misma
+            webView21.CoreWebView2.WebMessageReceived += MessageReceived; // se establece la comunicación con Javscript
+            webView21.CoreWebView2.Settings.AreDevToolsEnabled = false; // desabilitar herramientas de desarrollador
+            webView21.CoreWebView2.Settings.IsBuiltInErrorPageEnabled = false; // se deshabilita la página de error por default
             webView21.CoreWebView2.Settings.IsPasswordAutosaveEnabled= false; // deshabilita el guardado de contraseñas
-            webView21.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            // webView21.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false; // se deshabilita el menú contextual
             webView21.CoreWebView2.Settings.HiddenPdfToolbarItems = CoreWebView2PdfToolbarItems.Save | CoreWebView2PdfToolbarItems.SaveAs | CoreWebView2PdfToolbarItems.Search | CoreWebView2PdfToolbarItems.Print | CoreWebView2PdfToolbarItems.Rotate | CoreWebView2PdfToolbarItems.MoreSettings; // | CoreWebView2PdfToolbarItems.Print
+
+            webView21.CoreWebView2.ContextMenuRequested += delegate (object sender, CoreWebView2ContextMenuRequestedEventArgs args)
+            {
+                IList<CoreWebView2ContextMenuItem> menuList = args.MenuItems;
+                CoreWebView2ContextMenuTargetKind context = args.ContextMenuTarget.Kind;
+                if (context == CoreWebView2ContextMenuTargetKind.Page)
+                {
+                    for (int index = 0; index < menuList.Count; index++)
+                    {
+                        if (menuList[index].Name == "inspectElement" | menuList[index].Name == "saveAs" | menuList[index].Name == "saveLinkAs" | menuList[index].Name == "share")
+                        {
+                            menuList.RemoveAt(index);
+                        }
+                    }
+                }
+                if (context == CoreWebView2ContextMenuTargetKind.Audio)
+                {
+                    for (int index = 0; index < menuList.Count; index++)
+                    {
+                        //Console.WriteLine(menuList[index].Name);
+                    }
+                }
+                if (context == CoreWebView2ContextMenuTargetKind.SelectedText)
+                {
+                    for (int index = 0; index < menuList.Count; index++)
+                    {
+                        if (menuList[index].Name == "copyLinkToHighlight")
+                        {
+                            menuList.RemoveAt(index);
+                        }
+                    }
+                }
+                if (context == CoreWebView2ContextMenuTargetKind.Image)
+                {
+                    for (int index = 0; index < menuList.Count; index++)
+                    {
+                        if (menuList[index].Name == "saveLinkAs" | menuList[index].Name == "copyLinkLocation" | menuList[index].Name == "saveImageAs" | menuList[index].Name == "copyImage"
+                            | menuList[index].Name == "copyImageLocation" | menuList[index].Name == "openLinkInNewWindow" | menuList[index].Name == "share")
+                        {
+                            menuList.RemoveAt(index);
+                        }
+                    }
+                }
+                if (context == CoreWebView2ContextMenuTargetKind.Video)
+                {
+                    for (int index = 0; index < menuList.Count; index++)
+                    {
+                        if (menuList[index].Name == "saveMediaAs" | menuList[index].Name == "copyLink" | menuList[index].Name == "copyLinkLocation")
+                        {
+                            menuList.RemoveAt(index);
+                        }
+                    }
+                }
+            };
         }
         public async void InitBrowser()
         {
@@ -370,7 +425,5 @@ namespace ventaParhikuniWin
             // Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)+@"\ventaParhikuni\captura de pantalla.png");
         }
     }
-    // Message myDeserializedClass = JsonConvert.DeserializeObject<Message>(myJsonResponse);
-
 }
 
