@@ -14,7 +14,6 @@ class ventaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
      * @return void
      */
 
@@ -42,7 +41,7 @@ class ventaSeeder extends Seeder
             REFERENCES users(id)
             ON UPDATE CASCADE ON DELETE RESTRICT
         ");
-    
+        //SELECT corridasPorDia(current_date,365);
 
     }
 }

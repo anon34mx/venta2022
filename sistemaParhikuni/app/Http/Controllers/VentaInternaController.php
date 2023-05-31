@@ -51,7 +51,7 @@ class VentaInternaController extends Controller
     // paso 0
     public function corridasFiltradas(Request $request){
         $cordis=new CorridasDisponibles();
-        $origen=$request->origen ?: session('oficinaid');
+        $origen=$request->origen ?: 'todos';
         $fechaSalida=$request->fechaDeSalida ?: date('Y-m-d');
         $cordis=$cordis->filtrar($request->corrida, $origen, $request->destino, $fechaSalida, null,//fecha maxima
             [
@@ -220,7 +220,8 @@ class VentaInternaController extends Controller
                     session('ida_corrida'),
                     $disponibilidad->nOrigen,
                     $disponibilidad->nDestino,
-                    $request->asiento[$i]
+                    $request->asiento[$i],
+                    "A"
                 );
                 $dispAsiento.=$disponibilidades.',';
                 $pasajeros[$i]['disponibilidad']=$disponibilidades;
@@ -232,7 +233,7 @@ class VentaInternaController extends Controller
             DB::rollback();
             return back()->withErrors('El asiento '.$request->asiento[$i].' ya está ocupado');
         }
-
+        // dd("debug", $disponibilidades);
         $sigPasoVenta=null;
         $siguienteUrl='';
         if(session('cmpra_viajeRedondo') === true){
@@ -242,12 +243,14 @@ class VentaInternaController extends Controller
             $sigPasoVenta=4;
             $siguienteUrl='venta.interna.confirmacion';
         }
+        // dd("debug_apartados", $dispAsiento);
         session([
 			'ida_pasajeros' => json_encode($pasajeros), //nombre,
 			'ida_asientosID' => $dispAsiento,
 			'cmpra_pasoVenta' => $sigPasoVenta,
         ]);
 		session()->save();
+        // dd("ver cookies");
         return redirect(route($siguienteUrl));
         // return redirect(route('venta.interna.confirmacion'));
     }
@@ -333,7 +336,7 @@ class VentaInternaController extends Controller
                     $disponibilidad->nOrigen,
                     $disponibilidad->nDestino,
                     $request->asiento[$i],
-                    Auth::user()->id
+                    "A"
                 );
                 $dispAsiento.=$disponibilidades.',';
                 $pasajeros[$i]['disponibilidad']=$disponibilidades;

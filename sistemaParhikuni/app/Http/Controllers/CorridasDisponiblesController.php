@@ -35,11 +35,6 @@ class CorridasDisponiblesController extends Controller
         }
         $today=date('Y-m-d');
         $yesterday=date('Y-m-d', strtotime($today. ' -1 days'));
-        // $corridasDisponibles = CorridasDisponibles::
-        //     whereRaw('timestamp(`fSalida`, hSalida) >=  DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR)')
-        //     ->orderBy('fSalida', 'ASC')
-        //     ->orderBy('hSalida', 'ASC')
-        //     ->paginate($this->elementsPerPage);
 
         $corridasDisponibles = CorridasDisponibles::
             whereRaw('timestamp(`fSalida`, hSalida) >=  DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR)');

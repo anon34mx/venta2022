@@ -17,15 +17,17 @@
 
 <div class="col-12 col-sm-11 col-md-11 col-lg-11 mx-auto px-0 row">
     <h4>Tarifas</h4>
-    <a href="{{route('tarifas.create')}}">
-        <span class="btn-collap" title="Añadir">
-            <label class="btn btn-sm btn-primary float-right" for="añadir">
-                <i class="fa-solid fa-circle-plus"></i>
-                <span>Añadir</span>
-            </label>
+    
+    <span class="btn-collap" title="Añadir">
+        <label class="btn btn-sm btn-primary float-right" for="añadir">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>Añadir</span>
+        </label>
+        <a href="{{route('tarifas.create')}}" >
             <input id="añadir" type="submit" class="btn">
-        </span>
-    </a>
+        </a>
+    </span>
+    
     <table class="table table-parhi">
         <thead>
             <tr>

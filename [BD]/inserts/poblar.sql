@@ -101,6 +101,8 @@ INSERT INTO `autobuses`(`nNumeroEconomico`, nTipoServicio, nDistribucionAsientos
 ('5437', 5, 3),
 ('5438', 5, 3),
 ('8014', 5, 1),
+--
+('0007', 4, 1),
 -- platinum
 ('9001', 2, 2),
 ('9002', 2, 2),
@@ -202,16 +204,16 @@ VALUES
 
 INSERT INTO `itinerario`(`nItinerario`, `nConsecutivo`, `nTramo`) VALUES
 (1,1,1), -- urua
+
 (2,1,1), -- ccam
 (2,2,2),
+
 (3,1,1), -- apat
 (3,2,2),
 (3,3,3),
 
 (4,1,1),
 (4,2,2),
-(4,3,9),
-(4,4,10),
 
 (5, 1, 11),
 (5, 2, 12),
@@ -269,10 +271,10 @@ INSERT INTO tipopasajero VALUES
 ("PQ", "Paquetería", 0.10),
 ("SE", "SEDENA", 0.10);
 
-INSERT INTO terminales (nNumero, aTerminal, nOficina, aDescripcion) VALUES
-(3, "DTI", 12, "para pruebas"),
-(2, "Venta sitio web", 13, "parhikuni.com"),
-(1, "desconocida", 13, "El usuario ingresó desde un dispositivo no registrado");
+INSERT INTO terminales (nNumero, aTerminal, nOficina, aDescripcion, hwid) VALUES
+(3, "DTI", 12, "para pruebas",34),
+(2, "Venta sitio web", 13, "parhikuni.com",null),
+(1, "desconocida", 13, "El usuario ingresó desde un dispositivo no registrado",null);
 
 /*
 INSERT INTO sesiones (nNumero,nNumeroPersona, nOficina, fContable) VALUES (1,1,8,"2022-08-31");
@@ -292,46 +294,5 @@ INSERT INTO formapagosubtipo (nNumero, aClave, aDescripcion, lPedirFolio) VALUES
 (4, "DO", "Vales ISSSTE", 0),
 (5, "DO", "Vales SEDENA", 0);
 
-
-INSERT INTO `tramos` (`nNumero`, `nOrigen`, `nDestino`, `nKilometros`, `nTiempo`, `nEstancia`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 8, 5, 1, 1, 1, '2023-03-10 05:25:57', '2023-03-10 05:25:57', '0000-00-00 00:00:00'),
-(2, 5, 7, 1, 1, 1, '2023-03-10 05:25:57', '2023-03-10 05:25:57', '0000-00-00 00:00:00');
-
-INSERT INTO `itinerario` (`nItinerario`, `nConsecutivo`, `nTramo`) VALUES
-(1, 1, 1),
-(1, 2, 2);
 INSERT INTO promociones (nNumero,aTipo, aDescripcion, nDescuento, fInicio, fFin) VALUES
 (1,"ES", "Desc INSEN", 12, "2022-09-01", "2022-12-31");
-INSERT INTO `tarifastramos`
-(`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
-VALUES
-('1', '8', '10', '150', '130', '2021-01-01'),
-('1', '8', '5', '190', '140', '2021-01-01'),
-('1', '5', '7', '190', '140', '2021-01-01'),
-('2', '8', '10', '150', '130', '2021-01-01');
-
-
-/*
-INSERT INTO `tarifastramos`
-(`nTipoServicio`, `nOrigen`, `nDestino`, `nMontoBaseRuta`, `nMontoBasePaqueteria`, `fAplicacion`)
-VALUES
-('3', '8', '10', '150', '130', '2021-01-01'),
-
-('1', '8', '10', '201', '190', '2022-11-20'),
-('2', '8', '10', '202', '190', '2022-11-20'),
-('3', '8', '10', '203', '140', '2022-11-20'),
-
-
-('1', '8', '5', '365.40', '140', '2022-11-20'), -- Platinum
-('2', '8', '5', '368.30', '140', '2022-11-20'), -- ultra
-('3', '8', '5', '321.30', '140', '2022-11-20'), -- express
--- ('4', '8', '5', '203', '140', '2022-11-20'), -- premium
-('5', '8', '5', '384.30', '140', '2022-11-20'), -- business
-
-('1', '8', '1', '405.00', '140', '2022-11-20'),
-('2', '8', '1', '396.00', '140', '2022-11-20'),
-('3', '8', '1', '369.00', '140', '2022-11-20'),
--- ('4', '8', '1', '369.00', '140', '2022-11-20'),
-('5', '8', '1', '369.00', '140', '2022-11-20')
-;
-*/

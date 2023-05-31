@@ -1,0 +1,1 @@
+C:\xampp\mysql\bin\mysqldump -u "root" -p laravel > ./pruebas_completa_2023-05-29.sql --routines

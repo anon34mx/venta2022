@@ -153,8 +153,34 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ventaSeeder::class,
         ]);
-        // OficinasSeeder::run();
-
-        // DB::unprepared('SELECT corridasPorDia("2023-03-08", 60);');
+        $this->call([
+            tramosSeeder::class,
+        ]);
+        $this->call([
+            itinerariosSeeder::class,
+        ]);
+        
+            $this->call([
+                CorridasProgramadasSeeder::class,
+            ]);
+            $this->call([
+                CorridasProgramadasSeeder::class,
+            ]);
+            $this->call([
+                CorridasProgramadasSeeder::class,
+            ]);
+            $this->call([
+                CorridasProgramadasSeeder::class,
+            ]);
+            $this->call([
+                CorridasProgramadasSeeder::class,
+            ]);
+            
+            // $this->call([
+            //     tarifasSeeder::class,
+            // ]);
+            // OficinasSeeder::run();
+                
+            DB::unprepared('SELECT corridasPorDia(CURRENT_DATE, 60)');
     }
 }

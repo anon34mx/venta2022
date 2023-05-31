@@ -29,11 +29,11 @@ class DisponibilidadAsientos extends Model
         return $retorno;
     }
 
-    public static function apartarAsiento($corrida, $origen, $destino, $asientos){
+    public static function apartarAsiento($corrida, $origen, $destino, $asientos, $estado = "A"){
         try{
             $rs=collect(
                 DB::SELECT("SELECT apartar_asiento(?,?,?,?,?,?,?) as asientos",[
-                    $corrida, $origen, $destino, $asientos, Auth::user()->id, 'A', null
+                    $corrida, $origen, $destino, $asientos, Auth::user()->id, $estado, null
                 ])
             )->first()->asientos;
             return $rs;

@@ -1,2 +1,3 @@
 cd C:\xampp\htdocs\venta2022\[BD]\respaldos
-C:\xampp\mysql\bin\mysql -u root -p laravel < venta_vacia_2022-03-14__16-26h.sql
+
+C:\xampp\mysql\bin\mysql -u root -p laravel < ./completa_vacia/2023-05-30__17-50h.sql

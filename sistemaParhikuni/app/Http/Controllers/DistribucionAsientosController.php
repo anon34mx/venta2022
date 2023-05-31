@@ -89,7 +89,7 @@ class DistribucionAsientosController extends Controller
             where disp.nOrigen=:origen
             AND disp.nDestino=:destino
             AND disp.nCorridaDIsponible=:corrida
-            AND (disa.aEstadoAsiento="LM" OR disa.aEstadoAsiento="VE")
+            AND (disa.aEstadoAsiento="L" OR disa.aEstadoAsiento="V")
             ORDER BY nAsiento ASC';
         $rs_ocupados=DB::select($ocupados, [
                 'origen' => $request->origen,

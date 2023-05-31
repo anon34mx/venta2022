@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\RolesController;
 use Carbon\Carbon;
+
+use Faker\Generator;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -367,6 +371,214 @@ Route::get('/oneTab', function(Request $request) {
 Route::get('/base', function(Request $request) {
     return view('base');
 })->name('base');
+
+Route::get('/t2', function(){
+    $tramos = DB::select(
+        DB::raw("SELECT tr.nNumero tramo, tr.nOrigen, tr.nDestino,
+        ts.nNumero tser
+        FROM tramos tr
+        JOIN tiposervicio ts")
+    );
+
+    foreach ($tramos as $tramo) {
+        var_dump($tramo);
+        echo "<br><br>";
+
+        $tarifa=rand(300,550);
+        $nva=App\Models\TarifasTramo::create([
+            'nTipoServicio' => $tramo->tser.'',
+            'nOrigen' => $tramo->nOrigen,
+            'nDestino' => $tramo->nDestino,
+            'nMontoBaseRuta' => $tarifa,
+            'nMontoBasePaqueteria' => $tarifa+30,
+            'fAplicacion' => date('Y-m-d h:i'),
+        ]);
+    }
+});
+Route::get('/test', function(){
+    // dd(App\Models\Oficinas::whereRaw('aClave="MORE"')->first()->nNumero);
+    // $tramoscls = new \App\Models\Tramos;
+    // $tramos = App\Models\Tramos::all();
+    /*
+        $tramos = DB::select(
+            DB::raw("SELECT tr.nNumero tramo, tr.nOrigen, tr.nDestino, ts.nNumero tser
+            FROM tramos tr
+            JOIN tiposervicio ts")
+        );
+
+        foreach ($tramos as $tramo) {
+            $tarifa=rand(300,550);
+            $nva=App\Models\TarifasTramo::create([
+                'nTipoServicio' => $tramo->tser.'',
+                'nOrigen' => $tramo->nOrigen,
+                'nDestino' => $tramo->nDestino,
+                'nMontoBaseRuta' => $tarifa,
+                'nMontoBasePaqueteria' => $tarifa+30,
+                'fAplicacion' => date('Y-m-d h:i'),
+            ]);
+        }
+    */
+
+    // /////////////////////////////////////////////////////////////////////////////////
+    /*
+        $corridas=DB::select(
+            DB::raw('SELECT
+                cordis.nNumero, cordis.nProgramada, cordis.nItinerario, cordis.nTipoServicio, cordis.fSalida, cordis.hSalida, cordis.nNumeroAutobus,
+                cordis.nItinerario, iti.nConsecutivo, min(iti.nConsecutivo), max(iti.nConsecutivo),
+                disp.nOrigen, disp.nDestino
+                FROM corridasDisponibles cordis
+                INNER JOIN disponibilidad as disp
+                    on disp.nCorridaDisponible=cordis.nNumero
+                INNER JOIN itinerario as iti	
+                    ON iti.nItinerario=cordis.nItinerario
+                INNER JOIN tramos tr 
+                    ON tr.nNumero=iti.nTramo
+                where cordis.deleted_at is null
+                GROUP BY cordis.nNumero
+                ORDER BY cordis.fSalida asc, cordis.hSalida ASC
+                LIMIT 99')
+        );
+    */
+
+    $faker = Faker\Factory::create();
+    $TiposPasajeros=[
+        0 => "AD",
+        1 => "ES",
+        2 => "IN",
+        3 => "MA",
+        4 => "NI",
+    ];
+    $asientosOcupados=[];
+    $asientosDisp=array();
+    $insertados=array();
+
+    $corridas=DB::select(
+        DB::raw('SELECT
+            disp.*, "___" as "___",
+            COUNT(disa.id) as asientosOcupados,
+            dist.nAsientos as asientosTotal,
+            dist.nAsientos - COUNT(disa.id) as asientosDisponibles
+
+            FROM disponibilidad disp
+            LEFT JOIN disponibilidadasientos disa
+                on disa.nDisponibilidad = disp.nNumero
+                and (disa.aEstadoAsiento="V" or disa.aEstadoAsiento="A")
+            INNER JOIN corridasdisponibles cordis
+                ON cordis.nNumero=disp.nCorridaDisponible
+            INNER JOIN autobuses aut
+                ON aut.nNumeroAutobus=cordis.nNumeroAutobus
+            INNER JOIN tiposervicio tser
+            	ON tser.nNumero=cordis.nTipoServicio
+            INNER JOIN distribucionasientos dist
+                ON dist.nNumero=aut.nDistribucionAsientos
+            WHERE cordis.fSalida>= "2053-05-29" -- CURRENT_DATE
+            AND cordis.fSalida<= "2053-05-29" -- CURRENT_DATE
+            
+            GROUP by disp.nCorridaDisponible, disp.nNumero
+            HAVING asientosDisponibles > 7
+            ORDER BY cordis.fSalida, cordis.hSalida
+            ')
+        );
+    // dd($corridas);
+    // SESION DE VENTA
+    #
+    $sesionVenta = App\Models\Sesiones::create([
+        'user_id' => 1,
+        'nOficina' => 12,
+        'fContable' => date("Y-m-d"),
+        'fCerrada' => date("Y-m-d"),
+        'nMontoRecibido' => 0,
+    ]);
+        
+    foreach ($corridas as $corrida) {
+        // dd($corrida);
+        $asientosOcupados=DB::select(
+            DB::raw('SELECT
+            disa.nAsiento
+            FROM `disponibilidadasientos` disa
+            INNER JOIN disponibilidad disp
+                ON disp.nNumero=disa.nDisponibilidad
+            WHERE disp.nCorridaDisponible=:nCorrida
+            AND disp.nOrigen=:nOrigen and disp.nDestino=:nDestino
+            GROUP BY disa.nAsiento
+            ORDER BY disa.nAsiento'),[
+                'nCorrida' => $corrida->nCorridaDisponible,
+                'nOrigen' => $corrida->nOrigen,
+                'nDestino' => $corrida->nDestino,
+            ]
+        );
+        // Encontrar asientos disponibles
+        
+        for ($i=1; $i <= $corrida->asientosTotal; $i++) { 
+            $found=false;
+            for($c=0;$c<sizeof($asientosOcupados);$c++){
+                if($asientosOcupados[$c]->nAsiento === $i){
+                    $found=true;
+                    break;
+                }
+            }
+            if(!$found){
+                //meter solo los que no se encuentran
+                $asientosDisp[$i]=$i;
+            }
+        }
+        if($corrida->asientosDisponibles > 5){
+            do {
+                // dd(sizeof($asientosDisp));
+                if(sizeof($asientosDisp) < 7){
+                    break;
+                }
+
+                $cantAsientos=rand(1,3);
+                // VENTA
+                $ventaID=App\Models\Venta::create([
+                    'nSesion' => $sesionVenta->nNumero,
+                    'nCorridaIda' => $corrida->nCorridaDisponible,
+                    'nCorridaRegreso' => null,
+                ]);
+                $ventaID->setCodbarAttribute($ventaID->nNumero);
+                
+
+                $asiento=array_values($asientosDisp)[0];
+                $asientosDisp=array_splice( $asientosDisp,1,sizeof($asientosDisp));
+                for ($i=0; $i < $cantAsientos; $i++) {
+                    //BOLETOS
+                    $boleto=App\Models\BoletosVendidos::create([
+                        'nVenta' => $ventaID->nNumero,
+                        'nCorrida' => $corrida->nCorridaDisponible,
+                        'lRegreso' => 0,
+                        'fSalida' => $corrida->fSalida,
+                        'hSalida' => $corrida->hSalida,
+                        'nOrigen' => $corrida->nOrigen,
+                        'nDestino' => $corrida->nDestino,
+                        'aTipoPasajero' => $TiposPasajeros[rand(0,4)],
+                        'aPasajero' => $faker->name,
+                        'nAsiento' => $asiento,
+                        'aTipoVenta' => 'CO',
+                        'nMontoBase' => 99.99,
+                        'nMontoDescuento' => 0.01,
+                        'nIva' => 10.01,
+                        'aEstado' => 'VE',
+                        'nTerminal' => 3,
+                    ]);
+                    //Apartar
+                    try{
+                        $apartados=collect(
+                            DB::SELECT('SELECT apartar_asiento(?,?,?,?,?,?,?) as asientos',[
+                                $corrida->nCorridaDisponible, $corrida->nOrigen, $corrida->nDestino,
+                                $asiento, 1, 'VE', $boleto->nNumero
+                                ])
+                                )->first()->asientos;
+                    }catch(\Exception $e){
+                        // DB::rollback();
+                        throw $e;
+                    }
+                }
+                $corrida->asientosOcupados = $corrida->asientosOcupados + $cantAsientos;
+            } while ($corrida->asientosOcupados < $corrida->asientosDisponibles - 8);
+        }
+    }
+});
 
 Route::get('/comm', function(Request $request){
     echo '<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>';

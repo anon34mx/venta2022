@@ -331,3 +331,36 @@ CREATE TABLE cliente_windows(
 );
 
 ALTER TABLE `terminales` ADD `hwid` TEXT NOT NULL AFTER `aDescripcion`;
+
+-- #########################################
+-- #########################################
+-- #########################################
+
+-- Mejoró la carga de 3s a 1s
+
+CREATE INDEX corridasdisponibles_index on corridasdisponibles
+(nNumero, fSalida, aEstado, nItinerario, nTipoServicio,nNumeroAutobus);
+
+CREATE INDEX autobuses_index on autobuses
+(nNumeroAutobus, nTipoServicio, nDistribucionAsientos);
+
+CREATE INDEX distribucionasientos_index on distribucionasientos
+(nNumero, nAsientos);
+
+CREATE INDEX tiposervicio_index on tiposervicio
+(nNumero, aClave);
+
+CREATE INDEX disponibilidadasientos_index on disponibilidadasientos
+(nDisponibilidad, nAsiento, aEstadoAsiento);
+
+CREATE INDEX disponibilidad_index on disponibilidad
+(nNumero, nOrigen, nDestino, fSalida, hSalida);
+
+CREATE INDEX itinerario_index on itinerario
+(nItinerario, nTramo);
+
+CREATE INDEX registropasopuntos_index on registropasopuntos
+(nCorrida, nConsecutivo);
+
+CREATE INDEX tarifastramos_index on tarifastramos
+(nOrigen, nDestino, nTipoServicio, fAplicacion);

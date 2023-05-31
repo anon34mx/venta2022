@@ -202,7 +202,7 @@
                     <th>Tipo Servicio</th>
                     <th>Inicio</th>
                     <th>Fin</th>
-                    <th>Hora</th>
+                    <th>Salida</th>
                     <th>L</th>
                     <th>M</th>
                     <th>I</th>
@@ -234,7 +234,7 @@
                     <td>{{ $cp->servicio->aDescripcion }}</td>
                     <td class="nobreak">{{$cp->fInicio}}</td>
                     <td class="nobreak">{{$cp->fFin}}</td>
-                    <td>{{ $cp->hSalida }}</td>
+                    <td>{{ substr($cp->hSalida, 0, 5) }}</td>
                     <td>{{ ($cp->lLunes == 1 ? "🟢" :"🔘") }}</td>
                     <td>{{ ($cp->lMartes == 1 ? "🟢" :"🔘") }}</td>
                     <td>{{ ($cp->lMiercoles == 1 ? "🟢" :"🔘") }}</td>

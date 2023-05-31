@@ -42,7 +42,7 @@ class sesionesVentaController extends Controller
         $sesiones=$sesiones->paginate(20);
         //->get();
         $usuarios=$usuarios->get();
-        return view('sesionesVEnta.index',[
+        return view('sesionesVenta.index',[
             'sesiones' => $sesiones,
             'usuarios' => $usuarios,
             'oficinas' => $oficinas,

@@ -22,6 +22,7 @@ class Autobus extends Model
         'nNumeroEconomico',
         'nTipoServicio',
     ];
+    public $timestamps = false;
 
     // public function personas(){
     //     return $this->belongsTo(Personas::class, 'persona_nNumero', 'nNumeroPersona');

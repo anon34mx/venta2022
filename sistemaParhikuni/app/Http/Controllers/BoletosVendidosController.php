@@ -102,9 +102,8 @@ class BoletosVendidosController extends Controller
                     'nTerminal' => @session("terminal"),
                 ]);
 
-                dd($boleto);
-                exit;
                 // Apartar la disponibilidad
+                // REVISAR
                 $rs=collect(
                     DB::SELECT("SELECT apartar_asiento(?,?,?,?,?,?) as asientos",[
                         $corridaDisponible->nNumero, $corridaDisponible->nOrigen, $corridaDisponible->nDestino, 0, Auth::user()->id, 'V', $nvoBoleto->nNumero
@@ -149,7 +148,7 @@ class BoletosVendidosController extends Controller
         $ventas=$corridaOriginal->boletosEnGrupo();
         
         // #1 Cambiar estado de corrida
-        $corridaOriginal->cambiarEstado('B');
+        // $corridaOriginal->cambiarEstado('B');
         
         // #2 Analizar cada venta para esa corrida
         foreach ($ventas as $venta) {
@@ -161,21 +160,22 @@ class BoletosVendidosController extends Controller
             ->get();
             // dd($boletos);
             if(sizeof($boletos) === 0){
-                return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]));
+                return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]))
+                    ->withErrors('No se encontraron pasajeros (?).');
             }
 
             $fechaHoraMinBuscar=\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', @$corridaOriginal->fSalida.' '.$corridaOriginal->hSalida)->addSeconds(1);//->format('Y-m-d H:i');
             $fechaHoraMaxBuscar=\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', @$corridaOriginal->fSalida.' '.$corridaOriginal->hSalida)->addHour(2);//->format('Y-m-d H:i');
             
             // #4 Encontrar siguiente corrida disponible
-            $siguienteCorrida=collect($CorridasDisponibles->filtrar(null, // corrida
-                $boletos[0]->nOrigen, $boletos[0]->nDestino, // origen,destino
-                $fechaHoraMinBuscar->format('Y-m-d'), $fechaHoraMaxBuscar->format('Y-m-d'), //fechaInicio, fechaFin
-                [$venta->viajanJuntos], // pasajeros
-                $fechaHoraMinBuscar->format('H:i:s'), $fechaHoraMaxBuscar->format('H:i:s'), //horaMin, horaMax
-                null,1,'siguiente'))
-                ->first(); //usarPromo, limite, tipoDeBusqueda
-            
+            $siguienteCorrida=collect($CorridasDisponibles->proximaTransferencia(
+                $corridaOriginal->nNumero, $boletos[0]->nOrigen, $boletos[0]->nDestino,
+                $fechaHoraMinBuscar->format('Y-m-d'), $fechaHoraMinBuscar->format('H:i:s'),
+                $fechaHoraMaxBuscar->format('Y-m-d'), $fechaHoraMaxBuscar->format('H:i:s'),
+                $venta->viajanJuntos
+                )
+            )->first(); //usarPromo, limite, tipoDeBusqueda
+            // dd("siguiente corrida disponible", $siguienteCorrida);
             if($siguienteCorrida === null){
                 return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]))
                     ->withErrors('No se encontró una corrida próxima. Asigna a los pasajeros manualmente.');
@@ -239,17 +239,24 @@ class BoletosVendidosController extends Controller
                     'nTerminal' => @session('terminal'),
                 ]);
                 //Apartar
+                $rs=null;
                 try{
                     $rs=collect(
-                        DB::SELECT('SELECT apartar_asiento(?,?,?,?,?,?,?) as asientos',[
-                            $siguienteCorrida->corrida, $boleto->nOrigen, $boleto->nDestino,
-                            array_values($asientosDisp)[0], Auth::user()->id, 'VE', $nvoBoleto->nNumero
-                        ])
-                    )->first()->asientos;
+                        DisponibilidadAsientos::apartarAsiento(
+                            $siguienteCorrida->corrida,
+                            $boleto->nOrigen,
+                            $boleto->nDestino,
+                            array_values($asientosDisp)[0],
+                            "V"
+                        )
+                    )->first();
+                    // dd($rs);
                 }catch(\Exception $e){
                     // DB::rollback();
                     throw $e;
                 }
+                // dd($rs, $siguienteCorrida->corrida, $boleto->nOrigen, $boleto->nDestino,
+                //     array_values($asientosDisp)[0], Auth::user()->id, 'VE', $nvoBoleto->nNumero);
                 
                 $asientosDisp=array_splice( $asientosDisp,1,sizeof($asientosDisp));
                 //registrar intercambio
@@ -261,7 +268,14 @@ class BoletosVendidosController extends Controller
                 $boleto->update([
                     'aEstado' => 'CA'
                 ]);
+                DB::raw('DELETE FROM `disponibilidadasientos` WHERE nBoleto=:boleto',[
+                    $boleto->nNumero
+                ]);
+                DB::table('disponibilidadasientos')->where("nBoleto", $boleto->nNumero)->delete();
+                // dd("",$boleto->nNumero);
             }
+
+            return "oki";
         }
     }
 }
