@@ -42,7 +42,7 @@ use DB,PDF,DNS1D,DNS2D, QrCode;
  * 6.1  - Ver boletos
  * 6.2  - Enviar boletos
 */
-date_default_timezone_set('America/Mexico_City');
+date_default_timezone_set('Etc/GMT+6');
 class VentaInternaController extends Controller
 {
     public function __construct(){
@@ -139,7 +139,6 @@ class VentaInternaController extends Controller
     }
     // paso 1
     public function asientosIda(Request $request){
-        
         $disp=Disponibilidad::find(session('ida_disponibilidad'));
         $cordis=CorridasDisponibles::find(session('ida_corrida'));
         $asientos=new DisponibilidadAsientos();
@@ -204,6 +203,10 @@ class VentaInternaController extends Controller
     }
     // paso 2
     public function apartarIda(Request $request){
+        if($request->asiento == null){
+            return back();
+        }
+
         $disponibilidad=Disponibilidad::find(session('ida_disponibilidad'));
         $pasajeros=array();
         $dispAsiento='';
@@ -417,6 +420,7 @@ class VentaInternaController extends Controller
         $pasajeros=json_decode(session('ida_pasajeros'));
         $promociones=@$request->except('_token')['promoIda'];
         $tarifas=$disp->tarifas();
+        $boletosAux='';
         
         if(@session('cmpra_viajeRedondo')){
             $reg_cordis=CorridasDisponibles::find(session('reg_corrida'));
@@ -457,6 +461,7 @@ class VentaInternaController extends Controller
                 }else{
                     $boleto=$this->registrarBoleto(false,session('cmpra_IDventa'), $cordis, $disp, $tarifas, 'NA', $pasajeros[$i]);
                 }
+                $boletosAux.=$boleto->nNumero.",";
                 $pasajeros[$i] = (object) array_merge((array) $pasajeros[$i], (array) array(
                     'boleto'=>$boleto->nNumero,
                     'IDpromo'=>@$promociones[$i] ?: null,
@@ -476,12 +481,14 @@ class VentaInternaController extends Controller
                     }else{
                         $boleto=$this->registrarBoleto(true,session('cmpra_IDventa'), $reg_cordis, $reg_disp, $reg_tarifas, 'NA', $reg_pasajeros[$i]);
                     }
+                    $boletosAux.=$boleto->nNumero.",";
                     $reg_pasajeros[$i] = (object) array_merge((array) $reg_pasajeros[$i], (array) array(
                         'boleto'=>$boleto->nNumero,
                         'IDpromo'=>@$promociones[$i] ?: null,
                         )
                     );
                     session( ['reg_pasajeros'=>json_encode($reg_pasajeros)] );
+                    session( ['cmpra_boletos'=>strlen($boletosAux, 0, -1)] );
                     session()->save();
                 }
             }
@@ -501,6 +508,7 @@ class VentaInternaController extends Controller
         $costo=null;
         $iva=null;
         $total=null;
+        $boletosAux="";
 
         $promoAplicada=Promociones::where('nNumero', '=', $promo)
             ->whereRaw('fFin>=current_date')->get()->first();
@@ -531,7 +539,7 @@ class VentaInternaController extends Controller
             'nMontoBase' => $costo,
             'nMontoDescuento' => $descuentoAplicado,
             'nIva' => $iva,
-            'aEstado' => 'VE',
+            'aEstado' => 'PP',
             'nTerminal' => 3,
         ]);
         $dispUpdt=DisponibilidadAsientos::registrarBoleto($pasajero->disponibilidad, $boleto->nNumero, $corrida->fSalida.' '.$corrida->hSalida);
@@ -542,6 +550,11 @@ class VentaInternaController extends Controller
         $venta=Venta::find(session('cmpra_IDventa'));
 
         if($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado <= 0){
+            // se acredita cada boleto como pagado
+            $boletos=BoletosVendidos::where("nVenta", "=", session('cmpra_IDventa'))
+            ->update([
+                "aEstado" => "VE"
+            ]);
             // Ya está pagado
             session()->forget('ida');
             session()->forget('cmpra_pasoVenta');
@@ -681,15 +694,19 @@ class VentaInternaController extends Controller
     }
 
     function boletosPreview(Venta $venta, $formato){
-        $boletos = new BoletosVendidos();
-        $boletos=$boletos->where('nVenta','=',$venta->nNumero)->get();
-        return view('PDF.boleto.preview',[
-            'venta' => $venta,
-            'formato' => $formato,
-            'boletos' => $boletos,
-            'corridaIda' => CorridasDisponibles::find($venta->nCorridaIda),
-            'corridaReg' => CorridasDisponibles::find($venta->nCorridaRegreso),
-        ]);
+        if($venta->calcularAdeudo()->total - $venta->calcularAdeudo()->abonado <= 0){
+            $boletos = new BoletosVendidos();
+            $boletos=$boletos->where('nVenta','=',$venta->nNumero)->get();
+            return view('PDF.boleto.preview',[
+                'venta' => $venta,
+                'formato' => $formato,
+                'boletos' => $boletos,
+                'corridaIda' => CorridasDisponibles::find($venta->nCorridaIda),
+                'corridaReg' => CorridasDisponibles::find($venta->nCorridaRegreso),
+            ]);
+        }else{
+            abort(404);
+        }
     }
     function enviarBoletos(){
         //

@@ -42,6 +42,10 @@
         'resources/js/jquery-ui-1.13.2/jquery-ui.min.js',
         'resources/js/jquery-ui-1.13.2/jquery-ui.min.css',
         'resources/js/controlador_admin.js',
+        
+        'resources/libs/jquery-screamer-master/screamer.jquery.js',
+        'resources/libs/jquery-screamer-master/screamer.jquery.min.css',
+        'resources/libs/jquery-screamer-master/screamer.theme.min.css',
     ])
 </head>
 

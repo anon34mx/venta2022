@@ -14,11 +14,20 @@ class DisponibilidadAsientos extends Model
 
     public static function ocupados($id_disp){
         $retorno=array();
-        $sql="SELECT DISTINCT(nAsiento), aEstadoAsiento FROM `disponibilidad` as disp
+        // $sql="SELECT DISTINCT(nAsiento), aEstadoAsiento FROM `disponibilidad` as disp
+        //     INNER JOIN disponibilidadasientos as disa
+        //     ON disa.nDisponibilidad=disp.nNumero
+        //     where nNumero=:id
+        //     ORDER BY nAsiento ASC";
+        $sql='SELECT
+            DISTINCT(disa.nAsiento), aEstadoAsiento 
+            FROM `disponibilidad` as disp
             INNER JOIN disponibilidadasientos as disa
             ON disa.nDisponibilidad=disp.nNumero
-            where nNumero=:id
-            ORDER BY nAsiento ASC";
+            INNER JOIN boletosvendidos as bol ON disa.nBoleto=bol.nNumero
+            where disp.nNumero=:id
+            and bol.aEstado=("VE" OR "PA")
+            ORDER BY disa.nAsiento ASC';
         $rs=DB::select($sql, [
                 'id' => $id_disp
             ]

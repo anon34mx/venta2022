@@ -364,3 +364,85 @@ CREATE INDEX registropasopuntos_index on registropasopuntos
 
 CREATE INDEX tarifastramos_index on tarifastramos
 (nOrigen, nDestino, nTipoServicio, fAplicacion);
+
+-- ################
+CREATE TABLE boletosTransferidos(
+  id int unsigned not null auto_increment,
+  corrida_anterior bigint(20) unsigned,
+  boleto bigint(20) unsigned,
+
+  PRIMARY KEY(id),
+
+  FOREIGN KEY (corrida_anterior)
+  REFERENCES corridasdisponibles(nNumero)
+  ON UPDATE CASCADE ON DELETE RESTRICT,
+
+  FOREIGN KEY (boleto)
+  REFERENCES corridasdisponibles(nNumero)
+  ON UPDATE CASCADE ON DELETE RESTRICT
+  
+);
+
+
+
+-- ####################################
+CREATE TABLE serviciosABordo(
+    id smallint unsigned not null auto_increment,
+    descripcion varchar(30) not null,
+    imagen text,
+
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE tiposervicioAbordo(
+    tiposervicio_id int(10) unsigned not null,
+    servicioabordo_id smallint unsigned not null,
+
+    FOREIGN KEY (tiposervicio_id)
+    REFERENCES tiposervicio(nNumero)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+
+    FOREIGN KEY (servicioabordo_id)
+    REFERENCES serviciosABordo(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+INSERT INTO `serviciosabordo`(`descripcion`, `imagen`) VALUES
+('Aire acondicinado',''),
+('Audio',''),
+('Baños separados','Banos Separados.png'),
+('Cafetera',''),
+('Pantallas',''),
+('Ubicación',''),
+('Venta a bordo',''),
+('Wifi','');
+INSERT INTO `serviciosabordo`(`descripcion`, `imagen`) VALUES
+('Baño hombres','Bano_h.png'),
+('Baño mujeres','Bano_m.png');
+
+
+INSERT INTO `tiposervicioAbordo`(`tiposervicio_id`, `servicioabordo_id`)
+VALUES
+-- Platinum
+(1, 2),
+(1, 4),
+(1, 6),
+(1, 8),
+(1, 10),
+(1, 11),
+-- Ultra
+(2, 2),
+(2, 4),
+(2, 6),
+-- Express 
+(3, 2),
+(3, 4),
+(3, 6),
+-- Premium class
+(4, 2),
+(4, 4),
+(4, 6),
+-- Business class
+(5, 2),
+(5, 4),
+(5, 6);

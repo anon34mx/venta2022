@@ -1,6 +1,7 @@
 <?php
-
 namespace App\Http\Middleware;
+
+date_default_timezone_set('Etc/GMT+6');
 
 use Closure;
 use Illuminate\Http\Request;
@@ -21,8 +22,9 @@ class ventaInterna
     public function handle(Request $request, Closure $next){
         // dd(@session("ida")["asientosID"]);
         if(session()->has("cmpra_tiempoCompra")){
-            $fhSesion=Carbon::createFromTimestamp(session("cmpra_tiempoCompra"))->toDateTimeString(); 
+            $fhSesion=Carbon::createFromTimestamp(session("cmpra_tiempoCompra")); //->toDateTimeString(); 
             $fhActual=Carbon::now();
+
             if( $fhActual->gte($fhSesion) ){
                 // dd("timeout");
                 return redirect(route('venta.interna.cancelarCompra', [

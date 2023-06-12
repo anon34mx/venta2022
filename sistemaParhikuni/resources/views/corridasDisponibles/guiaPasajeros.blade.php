@@ -27,12 +27,14 @@
             <td>Autobus</td>
             <td>Conductor</td>
             <td>Corrida</td>
+            <td>Boletos</td>
             <td>Origen - Destino</td>
         </tr>
         <tr>
             <td><b>{{@$corridaDisponible->autobus->nNumeroEconomico}}</b></td>
             <td><b>{{@$corridaDisponible->conductor->persona->aApellidos != null ? @$corridaDisponible->conductor->persona->aApellidos: "N/A"}}</b></td>
             <td><b>{{@$corridaDisponible->nNumero}}</b></td>
+            <td>{{sizeof($corridaDisponible->guiapasajeros)}}</td>
             <td>
                 <b>{{@$itinerario[0]->origen}} -> {{@$itinerario[sizeOf($itinerario)-1]->destino}}</b>
                 <span style="display: block;">
@@ -45,18 +47,23 @@
         <table class="table table-stripped table-parhi text-align-center" id="table">
             <thead>
                 <tr>
+                    <th>Boleto</th>
                     <th>Asiento</th>
                     <th>Nombre</th>
                     <th>Tipo</th>
                     <th>Origen</th>
                     <th>Destino</th>
                     <th>Precio</th>
+                    <th>Transferido</th>
                 </tr>
             </thead>
             <tbody>
                 @if(sizeof($corridaDisponible->guiapasajeros)>0)
                     @foreach($corridaDisponible->guiapasajeros as $boleto)
                         <tr>
+                            <td>
+                                {{$boleto->nNumero}}
+                            </td>
                             <td>
                                 {{$boleto->nAsiento}}
                             </td>
@@ -74,6 +81,9 @@
                             </td>
                             <td class="text-right">
                                 ${{number_format($boleto->nMontoBase, 2)}}
+                            </td>
+                            <td>
+                                {{$boleto->corrida_anterior!=null ? "*" : ""}}
                             </td>
                         </tr>
                     @endforeach

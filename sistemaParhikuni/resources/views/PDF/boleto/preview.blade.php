@@ -66,12 +66,12 @@
             </div>
         </div>
     </div>
-    <div class="col-12 text-center">
+    <div class="col-12 text-center mb-4">
         <button id="reimprimir" class="btn btn-primary ">Reimprimir</button>
     </div>
     <embed id="embededTicket"
     src="data:application/pdf;base64,"
-    type="application/pdf" width="80%" height="600px" />
+    type="application/pdf" width="100%" height="600px" />
 </div>
 <script>
     document.addEventListener("DOMContentLoaded",function(){

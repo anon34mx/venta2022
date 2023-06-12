@@ -14,7 +14,6 @@ window.IntTiempoRestante = null;
 window.agregarTramoNevo=()=>{
     var opc = $('#tramos option:selected');
     if ($(opc).val()==''){
-        // alert('selecciona un tramo');
         $('#tramos').addClass('is-invalid');
     }else{
         var origenDestino = $(opc).val().split('_');
@@ -57,7 +56,6 @@ window.agregarTramoNevoItinerario = () => {
     var opc = $('#tramos option:selected');
     var data;
     if ($(opc).val() == '') {
-        // alert('selecciona un tramo');
         $('#tramos').addClass('is-invalid');
     } else {
         data = JSON.parse($(opc).attr('data'));
@@ -107,26 +105,25 @@ window.toggleCheckboxesByClass = function(target, clase){
 
 // LIMBO
 window.getProxCorridas = function(corridaOG,origen,destino){
-    // console.log(corridaOG, origen, destino);
     $.ajax({
         url: route('corrida.getProxCorridas', [corridaOG, origen, destino]),
         success:function(response){
             $('#tbl-corridas tbody').empty();
             response=JSON.parse(response),
             response.forEach(corrida => {
-                var inpt = $(`
-                            <div class="form-check">
-                                <input id="sel-${corrida.nNumero}" type="radio"
-                                class="nvaCorrida form-check-input"
-                                name="nvaCorrida" value="${corrida.nNumero}" required
-                                target="#corrida"
-                                onchange="mirrorInput(this)">
-                                
-                                <label for="sel-${corrida.nNumero}">${corrida.nNumero}</label>
-                            </div>
-                                `).on("click",()=>{
-                                    cargarDiagrama(corrida.nNumero, corrida.nOrigen, corrida.nDestino);
-                                });
+                var inpt = null;
+                inpt=$(`<div class="form-check">
+                            <input id="sel-${corrida.nNumero}" type="radio"
+                            class="nvaCorrida form-check-input"
+                            name="nvaCorrida" value="${corrida.nNumero}" required
+                            target="#corrida"
+                            onchange="mirrorInput(this);cargarDiagrama(`+ corrida.nNumero + `, ` + corrida.nOrigen + `, ` + corrida.nDestino +`);">
+                            
+                            <label for="sel-${corrida.nNumero}">${corrida.nNumero}</label>
+                        </div>
+                            `).on("click",()=>{
+                                // cargarDiagrama(corrida.nNumero, corrida.nOrigen, corrida.nDestino);
+                            });
 
                 $('#tbl-corridas tbody').append(`
                     <tr id="corr-${corrida.nNumero}">
@@ -175,19 +172,48 @@ window.cargarDiagrama = function (corrida,origen,destino){
         },
         success:function(response){
             response=JSON.parse(response);
+            // response.ocupados=Object.keys(response.ocupados)
             setTimeout(() => {
                 $('#tbl-diagrama').html(response.diagrama);
 
-                // console.log(response.ocupados);
                 var listaAsientos ='<option value="">Seleccione</option>';
-                for (let i = 0; i < response.asientos; i++) {
-                    if (typeof response.ocupados[i+1] === 'undefined') {
-                        // console.log(i+1);
-                        listaAsientos += '<option value="' + (i + 1) + '">' + (i + 1) +'</option>';
-                    }
-                }
+                response.libres.forEach(asientoLibre => {
+                    listaAsientos += '<option value="' + asientoLibre + '" >' + asientoLibre + '</option>';
+                });
+                listaAsientos += '<option value="0" readonly>Paquetería</option>';
                 $("#asientosDisp").html(listaAsientos);
                 $("#tbl-datosPasajeros .contAsiento select").html($("#asientosDisp option").clone());
+
+                var sinNumAsiento = $(".selecPTransferencia:checked");
+                for (var i = 0; i < sinNumAsiento.length; i++){
+                    var fila = $(sinNumAsiento[i]).parent().parent();
+                    var asientoAnt = $(fila).find(".nAsiento").val();
+                    var tipoPasaj = $(fila).find(".tipoPasajero").html();
+                    var asientoNvo=0;
+                    var boleto = $(fila).find(".nBoleto").html();
+                    var index=0;
+                    
+                    console.log("asiento", asientoAnt);
+                    console.log(tipoPasaj);
+                    if (tipoPasaj=="PQ"){ // es paquete
+                        $('#tbl-datosPasajeros #pasajero-' + boleto + ' .pasajeroAsiento ').prop("disabled", true);
+                    }else{ // es pasajero
+                        index = response.libres.indexOf(asientoAnt)
+                        if (index > -1){
+                            // console.log("asiento " + parseInt(asientoAnt) + " libre");
+                        }else{
+                            asientoNvo = response.libres[0];
+                            response.libres = response.libres.slice(1, response.libres.length)
+                            // console.log("Asignar en " + asientoNvo);
+                        }
+
+                    }
+                    $("#tbl-diagrama").append("<tr></tr><tr></tr>")
+                    selectAsientoTransferir(
+                        $('#tbl-datosPasajeros #pasajero-' + boleto + ' .pasajeroAsiento ').val(asientoNvo).attr("readonly","readonly")
+                    );
+                    mirrorInput($('#tbl-datosPasajeros #pasajero-' + boleto + ' .pasajeroAsiento ').val(asientoNvo).attr("readonly", "readonly"));
+                }
             }, 1);
         }
     });
@@ -201,6 +227,8 @@ window.selecPTransferencia = function(){
         // console.log($(this).attr("nOrigen"), $(this).attr("nDestino"));
         getProxCorridas(nCorrida, $(this).attr("nOrigen"), $(this).attr("nDestino"));
     }else{
+        var x=$("#tbl-datosPasajeros").find("#pasajero-"+this.value)
+        $(x).remove();
         try {
             var select = $(".selecPTransferencia:checked");
             if (select.length == 0) {
@@ -217,8 +245,8 @@ window.agregarTransferencia = function(boleto){
     var row = $.parseHTML(`
             <tr id="pasajero-${boleto}" class="pt-1 pb-1 pasajeroContainer" asiento="${boleto}" pasajero="${boleto}">
                 <td class="contAsiento px-2">
-                <select class="pasajeroAsiento px-2 form-control form-control-sm " onchange="selectAsientoTransferir(this);mirrorInput(this)" required target="#pasajero-${boleto} .asiento">
-                <option value="">Seleccione</option>
+                <select type="number" class="pasajeroAsiento px-2 form-control form-control-sm " onchange="selectAsientoTransferir(this);mirrorInput(this)" required target="#pasajero-${boleto} .asiento" readonly>
+                    <option value="">Seleccione</option>
                 </select>
                 <input class="asiento" type="text" name="asiento[]" readonly hidden>
                 </td>
@@ -247,7 +275,6 @@ window.selectAsientoTransferir = function(select){
     $(".apartado").removeClass("apartado");
     
     for(var i=0; i<ocupados.length; i++){
-        // console.log(i, ocupados[i].value);
         $('.contasiento option[value="' + ocupados[i].value + '"]').prop('disabled', true);
         $('#asiento-' + (ocupados[i].value + "").padStart(2, '0')).addClass("apartado");
     }

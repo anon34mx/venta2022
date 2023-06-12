@@ -44,6 +44,7 @@ window.getRecorrido = function (corridaDisponible, origen, destino) {
     $.ajax({
         "url": `/corridas/disponibles/${corridaDisponible}/recorrido/${origen}/${destino}`,
         success: function (response) {
+            $("#exampleModalLong #exampleModalLongTitle").html("Itinerario");
             $("#exampleModalLong .modal-body").html(response);
             $("#exampleModalLong").modal('show');
         }
@@ -117,11 +118,16 @@ window.validarFiltros=()=>{
     }
 
     if(errorMsg!=""){
-        alert(errorMsg);
+        $().screamer({  // alert(errorMsg);
+            message: errorMsg,  // alert message
+            title: 'Error',    // alert title
+            button: 'Ok',   // button text
+            theme: 'screamer-red',  // see more in screamer.theme.min.css
+            overlayClose: true // click on the overlay to close the alert
+        });
         return false;
-    }else{
-        return true;
     }
+    return true;
 }
 // Etapa 2 asientos
 window.selecAsiento=function(){
@@ -157,7 +163,13 @@ window.selecAsiento=function(){
                 selecTipoPasajero(this);
             });
         }else{
-            alert("Máximo de pasajeros");
+            $().screamer({
+                message: "Máximo de pasajeros",
+                title: 'Error',
+                button: 'Ok',
+                theme: 'screamer-red',
+                overlayClose: true
+            });
         }
     }
 }
@@ -194,7 +206,13 @@ window.selecAsientoReg=function(){
             $("#tipoNombrePasajeroCont").fadeIn();
             $("#tipoNombrePasajero").focus()
         }else{
-            alert("maximo de pasajeros");
+            $().screamer({
+                message: "Máximo de pasajeros",
+                title: 'Error',
+                button: 'Ok',
+                theme: 'screamer-red',
+                overlayClose: true
+            });
         }
     } else if ($(this).hasClass("apartado")){
         quitarPasajeroR(this.attributes.numero.value);
@@ -276,7 +294,18 @@ window.validarPasajerosAsientos=()=>{
     var pasajeros = $(".pasajeroContainer");
     var msgError = "";
     var errorNombres=false, errorAsientos=false;
-   for(var i=0; i<pasajeros.length; i++){
+    var p = $("#tbl-datosPasajeros tbody tr");
+    if (p.length == 0) {
+        $().screamer({
+            message: "Selecciona todos los asientos",
+            title: 'Error',
+            button: 'Ok',
+            theme: 'screamer-red',
+            overlayClose: true
+        });
+        return false;
+    }
+    for(var i=0; i<pasajeros.length; i++){
        if (!validarNombre($(pasajeros[i]).find(".pasajeroNombre").val()) && errorNombres==false){
            msgError+="* Escriba un nombre y un apellido para cada pasajero.\n"
            errorNombres=true;
@@ -287,11 +316,25 @@ window.validarPasajerosAsientos=()=>{
        }
     };
     if(msgError != ""){
-        alert(msgError);
+        $().screamer({
+            message: msgError,
+            title: 'Error',
+            button: 'Ok',
+            theme: 'screamer-red',
+            overlayClose: true
+        });
         return false;
     }else{
         return true;
     }
+}
+window.validarPasajeros = function(){
+    var p=$("#tbl-datosPasajeros tbody tr");
+    if(p.length==0){
+        return false;
+    }
+
+    return true;
 }
 // recibe segundos
 window.convertirSegundosaTiempo = (tiempo) => {
@@ -380,7 +423,7 @@ window.llenarTarjeta = function(datos) {
 }
 window.consultarBoletos=function(IDventa){
     $("#reimprimir").prop("disabled", true).html("Cargando...");
-quitarPasajero
+// quitarPasajero
 
     $("#embededTicket").attr("src", "");
     $.ajax({
@@ -460,7 +503,13 @@ $(document).ready(()=>{
         }
 
         if(totalPasajeros>10){
-            alert("Máximo 10 pasajeros");
+            $().screamer({
+                message: "Máximo 10 pasajeros",
+                title: 'Error',
+                button: 'Ok',
+                theme: 'screamer-red',
+                overlayClose: false
+            });
         }else{
             if(nxtVal<min){
                 $(inputActual).val(min);

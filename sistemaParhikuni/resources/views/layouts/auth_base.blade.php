@@ -20,6 +20,12 @@
         'resources/sass/app.scss',
         'resources/js/app.js',
         'resources/css/parhikuni.css',
+
+        'resources/js/jquery-ui-1.13.2/jquery-ui.min.js',
+        'resources/js/jquery-ui-1.13.2/jquery-ui.min.css',
+        'resources/libs/jquery-screamer-master/screamer.jquery.js',
+        'resources/libs/jquery-screamer-master/screamer.jquery.min.css',
+        'resources/libs/jquery-screamer-master/screamer.theme.min.css',
         ])
 </head>
 <body class="bg-res-red">
@@ -94,7 +100,12 @@
                    <img alt="" style=""
                        src="{{ Vite::asset('resources/images/logo_parhikuni.png') }}">
                </div>
+               <!-- 
+                   Aarón Aguilera
+                   a.non34
+                -->
             </footer>
     </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </body>
 </html>

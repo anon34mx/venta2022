@@ -220,6 +220,7 @@ class CorridasDisponiblesController extends Controller
             return redirect(route('corridas.disponibles.guiaPasajeros', $corridaDisponible))->with('status', 'Corrida despachada');
         }
     }
+    
     public function cancelarCorrida(CorridasDisponibles $corrida, $oficina){
         $pasajeros=new BoletosVendidos();
         $pasajeros->where('nCorrida', '=', $corrida->nNumero)->update([
@@ -236,21 +237,9 @@ class CorridasDisponiblesController extends Controller
     }
     
     public function guiaPasajeros(CorridasDisponibles $corridaDisponible){
-        // if($request->mode=='Descargar'){
-        //     $pdf = PDF::loadView('corridasDisponibles.guiaPasajeros', ["corridaDisponible" => $corridaDisponible]);
-        //     return $pdf->download('articles.pdf');
-        // }elseif($request->mode=="Ver pdf"){
-        //     $pdf = PDF::loadView('corridasDisponibles.guiaPasajeros', ["corridaDisponible" => $corridaDisponible]);
-        //     $pdf->render();
-        //     return $pdf->stream();
-        // }else{
-        //     return view("corridasDisponibles.guiaPasajeros",[
-        //         "corridaDisponible" => $corridaDisponible
-        //     ]);
-        // }
         return view('corridasDisponibles.guiaPasajeros',[
-                'corridaDisponible' => $corridaDisponible
-            ]);
+            'corridaDisponible' => $corridaDisponible
+        ]);
     }
 
     public function puntosDeControl(CorridasDisponibles $corridaDisponible){
@@ -294,35 +283,15 @@ class CorridasDisponiblesController extends Controller
                 $html.=$this->renderPuntoRecorrido($tramo->origenNombre, $tramo->hSalida);
                 $html.=$this->renderPuntoRecorrido($tramo->destinoNombre, $tramo->hLlegada);
             }
-            /*
-                if($cont==0){
-                    echo($tramo->origenNombre);
-                    echo($tramo->hSalida);
-                    echo '<br>';
-                }
-                elseif($cont==$lon){
-                    echo($tramo->destinoNombre);
-                    echo($tramo->hLlegada);
-                    echo '<br>';
-                }else{
-                    echo($tramo->origenNombre);
-                    echo($tramo->hLlegada);
-                    echo '<br>';
-
-                    echo($tramo->destinoNombre);
-                    echo($tramo->hLlegada);
-                    echo '<br>';
-                }
-            */
             $cont++;
         }
-        return '<div class=\"row col-12\">'.$html.'</div>';
+        return '<div class="row col-12">'.$html.'</div>';
     }
 
     private function renderPuntoRecorrido($oficina, $hora){
-        return '<div class=\"row col-6\">
-            <div class=\"col-12\">$oficina</div>
-            <div class=\"col-12\">$hora</div>
+        return '<div class="row col-6">
+            <div class="col-12">'.$oficina.'</div>
+            <div class="col-12">'.$hora.'</div>
         </div><br>';
     }
 

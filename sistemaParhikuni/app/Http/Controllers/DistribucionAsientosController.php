@@ -98,15 +98,15 @@ class DistribucionAsientosController extends Controller
             ]
         );
 
-        $asientosOcupados=[];
+        $asientosOcupados=array();
+        $asientoslibres=array();
+
         foreach ($rs_ocupados as $asiento) {
-            $asientosOcupados[$asiento->nAsiento]=true;
+            array_push($asientosOcupados, $asiento->nAsiento);
         }
 
         $dist=$this->showPorCorrida($request->corrida);
-        $diag="";
-        //Vite::asset(\'resources/images/diagramaAutobus/Conductor.png\')
-        // dd(Vite::asset('resources/images/diagramaAutobus/Conductor.png'));
+        $diag='';
         $diag.='<table border="1" id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
                 max-width: 300px;
                 margin: auto;">
@@ -128,10 +128,16 @@ class DistribucionAsientosController extends Controller
                     $diag.='<div class="pasillo">__</div>';
                 }
                 elseif($espacio=='PU'){
-                    $diag.='<div class="asiento_nmr">[PU]</div>';
+                    $diag.='<div class="asiento_nmr">
+                            <img alt="" style="" width="34"
+                            class="logo-color mx-auto my-0" src="'.Vite::asset('resources/images/diagramaAutobus/Conductor.png').'">
+                        </div>';
                 }
                 elseif($espacio=='BH'){
-                    $diag.='<div class="asiento_nmr">'.$espacio.'</div>';
+                    $diag.='<div class="asiento_nmr">
+                            <img alt="" style="" width="34"
+                            class="logo-color mx-auto my-0" src="'.Vite::asset('resources/images/diagramaAutobus/Conductor.png').'">
+                        </div>';
                 }
                 elseif($espacio=='BM'){
                     $diag.='<div class="asiento_nmr">'.$espacio.'</div>';
@@ -139,10 +145,21 @@ class DistribucionAsientosController extends Controller
                 elseif($espacio=='CA'){
                     $diag.='<div class="asiento_nmr">'.$espacio.'</div>';
                 }
+                elseif($espacio=='BU'){
+                    $diag.='<div class="asiento_nmr">
+                            <img alt="" style="" width="34"
+                            class="logo-color mx-auto my-0" src="'.Vite::asset('resources/images/diagramaAutobus/Conductor.png').'">
+                        </div>';
+                }
                 else{
                     $numAsiento=substr($espacio,0,2);
                     $tv=strpos($espacio,'T')>0 ? "tv": "";
-                    $ocupado=isset($asientosOcupados[intval($numAsiento)]) ? "ocupado" : "";
+                    $ocupado="";
+                    if(array_search(intval($numAsiento), $asientosOcupados)>-1){
+                        $ocupado="ocupado";
+                    }else{
+                        array_push($asientoslibres, intval($numAsiento));
+                    }
 
                     $diag.='<div id="asiento-'.$numAsiento.'" class="asiento '.$tv.' '.$ocupado.'" numero="'.$numAsiento.'">
                                 <span>'.$numAsiento.'</span>
@@ -156,9 +173,11 @@ class DistribucionAsientosController extends Controller
         }
         $diag.='</table >';
 
+        // array_push($asientoslibres, 0);
         echo $retorno=json_encode([
             "diagrama"=> $diag,
             "ocupados" => $asientosOcupados,
+            "libres" => $asientoslibres,
             "asientos" => $dist->nAsientos,
         ]);
     }

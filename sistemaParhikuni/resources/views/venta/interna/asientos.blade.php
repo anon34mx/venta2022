@@ -76,7 +76,7 @@ $contAuxPasajeros=0;
             </div>
             <!--  -->
 
-            <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3 mx-auto">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4 mx-auto">
                 <table id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
                     max-width: 300px;
                     margin: auto;
@@ -102,13 +102,25 @@ $contAuxPasajeros=0;
                                     @if($col=="00")
                                         <div class="pasillo"></div>
                                     @elseif($col=="PU")
-                                        <div class="asiento_nmr">[PU]</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/puerta.png') }}" alt="Baño de hombres">
+                                        </div>
+                                    @elseif($col=="BU")
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Baños Unisex.png') }}" alt="Baño de hombres">
+                                        </div>
                                     @elseif($col=="BH")
-                                        <div class="asiento_nmr">{{$col}}</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Bano_h.png') }}" alt="Baño de hombres">
+                                        </div>
                                     @elseif($col=="BM")
-                                        <div class="asiento_nmr">{{$col}}</div>
-                                    @elseif($col=="CA")
-                                        <div class="asiento_nmr">{{$col}}</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Bano_m.png') }}" alt="Baño de mujeres">
+                                        </div>
+                                        @elseif($col=="CA")
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Cafeteria.png') }}" alt="Cafetera">
+                                        </div>
                                     @else
                                         @php
                                         $numAsiento=substr($col,0,2);
@@ -124,9 +136,9 @@ $contAuxPasajeros=0;
                                                 </div>
                                             @else
                                                 <div id="asiento-{{$numAsiento}}" class="asiento ocupado" numero="{{$numAsiento}}">
-                                                    <span>{{$numAsiento}}x</span>
+                                                    <span>{{$numAsiento}}</span>
                                                     <br>
-                                                    <sub>notv</sub>
+                                                    <sub></sub>
                                                 </div>
                                             @endif
                                             @php
@@ -143,7 +155,7 @@ $contAuxPasajeros=0;
                                                 <div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
                                                     <span>{{$numAsiento}}</span>
                                                     <br>
-                                                    <sub>notv</sub>
+                                                    <sub></sub>
                                                 </div>
                                             @endif
                                         @endif
@@ -161,11 +173,18 @@ $contAuxPasajeros=0;
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="5">serbisios</td>
+                        <td colspan="5">
+                            <div class="py-1" style="display: flex;justify-content: space-around;margin: 0 15px;border: 3px solid black;padding: 0 44px;">
+                                @foreach($cordis->servicio->serviciosAbordo() as $sab)
+                                    <img src="{{Vite::asset('resources/images/diagramaAutobus/'.$sab->imagen)}}" width="40"
+                                        alt="{{$sab->descripcion}}" style="display:block;">
+                                @endforeach
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
-            <div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-8 mx-0 mx-xl-auto px-0">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-7 col-xl-7 mx-0 mx-xl-auto px-0">
                 <div class="col-12 mx-0 px-0 row">
                     <div class="col-10 col-md-4 row px-0 mx-auto mx-md-0 border border-secondary">
                         <div class="col-12 text-center ocupado">ocupado</div>
@@ -178,9 +197,9 @@ $contAuxPasajeros=0;
                     </div>
 
                 </div>
-                <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post" class="">
+                <form id="pasajerosAsientos" action="{{route('venta.interna.apartar')}}" method="post">
                     @csrf
-                    <table id="tbl-datosPasajeros" class="tbl-datosPasajeros rounded-top table-striped">
+                    <table id="tbl-datosPasajeros" class="tbl-datosPasajeros rounded-top table-striped" onsubmit="return validateForm();">
                         <thead>
                             <tr>
                                 <th class="col-3">Tipo</th>

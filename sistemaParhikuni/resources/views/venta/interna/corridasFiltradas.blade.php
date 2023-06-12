@@ -357,7 +357,6 @@ $fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
                         <thead>
                             <tr>
                                 <th>id</th>
-                                <th>serv</th>
                                 <th>Salida</th>
                                 <th>Llegada</th>
                                 <th>Escalas</th>
@@ -414,24 +413,36 @@ $fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
                                 }
                             @endphp
 
-                            @if($corrida->estadoCorrida=='B' || $corrida->estadoCorrida=='C' || $corrida->estadoCorrida=='T' || $corrida->estadoCorrida=='L')
-                                <tr class="bg-danger text-danger">
-                            @elseif($corrida->estadoCorrida=="S" || $corrida->estadoCorrida=="R")
-                                <tr class="bg-warning text-warning">
-                            @else
-                                <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
-                            @endif
-                                    <td>{{$corrida->corrida}}-{{($corrida->disp)}}
-                                        <br>
-                                        {{$corrida->estadoCorrida}}
-                                        <br>
-                                        {{$fechaBuscada->gte(\Carbon\Carbon::now())}}
-                                    </td>
-                                    <td>
-                                        <div class="circ-serv bg-clase-{{($corrida->claveServicio)}}" title="{{($corrida->claseServicio)}}"></div>
-                                    </td>
+                            @php
+                                $auxEdo="";
+                                if($corrida->estadoCorrida=="D"){
+                                    @endphp
+                                    <tr id="disp-{{$corrida->disp}}" class="" onclick="seleccionarCorrida(this,'{{$corrida->corrida}}','{{$corrida->disp}}')">
+                                        @php
+                                }else{
+                                    $auxEdo="text-light bg-secondary";
+                                    @endphp
+                                    <tr class="bg-danger">
+                                    @php
+                                }
 
-                                    <td class="origen">
+                            @endphp
+                                    <td class="py-2 {{$auxEdo}}">
+                                        {{$corrida->corrida}}-{{($corrida->disp)}}
+                                        <br>
+                                        <div class="circ-serv bg-clase-{{($corrida->claveServicio)}}" title="{{($corrida->claseServicio)}}"></div>
+                                        {{($corrida->claseServicio)}}
+                                        <br>
+                                        <sub class="mt-1">
+                                            <br>
+                                            {{$corrida->edoUwu}}
+                                        </sub>
+                                    </td>
+                                    <!-- <td>
+                                        <div class="circ-serv bg-clase-{{($corrida->claveServicio)}}" title="{{($corrida->claseServicio)}}"></div>
+                                    </td> -->
+
+                                    <td class="py-2 {{$auxEdo}} origen">
                                         <b>
                                             {{$corrida->origen}}
                                             <br>
@@ -442,7 +453,7 @@ $fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
                                             {{$fechoraHoraSalida->format("d/m/Y")}}
                                         </sub>
                                     </td>
-                                    <td class="destino">
+                                    <td class="py-2 {{$auxEdo}} destino">
                                         {{$corrida->destino}}
                                         <br>
                                         {{$fechaHoraLlegada->format("H:i:s")}}
@@ -451,13 +462,16 @@ $fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
                                             {{$fechoraHoraSalida->format("d/m/Y")}}
                                         </sub>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-success btn-samall" onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >
-                                            <i class="fa-solid fa-map-location-dot"></i>
-                                            Itinerario
-                                        </button>
+                                    <td class="py-2 {{$auxEdo}}">
+                                        @if($auxEdo=='')
+                                            <button class="btn btn-success btn-samall"
+                                                onclick="event.preventDefault();getRecorrido({{$corrida->corrida}},{{$corrida->nOrigen}}, {{$corrida->nDestino}})" >
+                                                <i class="fa-solid fa-map-location-dot"></i>
+                                                Itinerario
+                                            </button>
+                                        @endif
                                     </td>
-                                    <td
+                                    <td class="py-2 {{$auxEdo}}"
                                         @php 
                                             if($corrida->totalAsientos - $corrida->ocupados <= 5){
                                                 echo 'class="text-danger"';
@@ -472,7 +486,7 @@ $fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
                                         /
                                         <span class="totalAsientos">{{$corrida->totalAsientos}}</span>
                                     </td>
-                                    <td class="tarifa">$<span>{{number_format($corrida->tarifaBase + $corrida->iva,2)}}</span></td>
+                                    <td class="py-2 tarifa {{$auxEdo}}">$<span>{{number_format($corrida->tarifaBase + $corrida->iva,2)}}</span></td>
                                 </tr>
                             @endforeach
                         </tbody>

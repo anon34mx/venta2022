@@ -117,7 +117,8 @@ input[type="radio"].estilo1:checked+label {
 }
 .table-parhi-osc thead{
 	position: sticky;
-	top: -1px;
+	/* top: -1px; */
+	top: 69px;
 	z-index: 1;
 	background-color: var(--parh-bg-rojo-osc);
 }
@@ -182,9 +183,7 @@ table{
 #printed{
 	display: none;
 }
-#content{
-	/* background-color: var(--parh-bg-cont); */
-}
+#content{}
 #sidebar{
 	height: 100vh;
 	position: sticky;
@@ -238,9 +237,6 @@ table{
 
 .login .logo-bnco{
 	display: none;
-}
-.btn-collap label span{
-	
 }
 .btn-collap input{
 	display: none;
@@ -300,9 +296,7 @@ ul.list-desp .list-cont li{
 ul.list-desp .list-cont li label{
 	text-align: left;
 }
-ul.list-desp .list-cont li:hover{
-	/* background-color: green; */
-}
+
 /* .flow-content{
 	display: flex;
 	flex-wrap: wrap;
@@ -329,9 +323,6 @@ ul.list-desp .list-cont li:hover{
 }
 
 
-#pasajeros{
-	
-}
 .tiempoRestanteCont{
 	pointer-events: none;
 }
@@ -385,10 +376,6 @@ ul.list-desp .list-cont li:hover{
 	border:2px solid black;
 	border-radius: 8px;
 	/* transform: rotate(180deg); */
-}
-.asiento.tv{
-	/* content: url("../images/asientos/asientolibreTV.png"); */
-	/* background-color: blue; */
 }
 
 .asiento.apartado{
@@ -581,11 +568,8 @@ input[type="radio"]{
 	border-radius: 10px 10px 0px 0px;
 }
 .circ-serv{
-	display: block;
-	border: 2px solid black;
-	border-radius: 100%;
-	width: 20px;
-	height: 20px;
+	width: inherit;
+	height: 4px;
 }
 .linea-recorrido .inicio{
 	display: block;
@@ -615,25 +599,29 @@ input[type="radio"]{
 
 .tbl-diagrama-bus tr:nth-child(2)>td{
 	/* #asientos-ida tr:nth-last-child(3)>td { */
-	/* border-top: 3px solid black !important; */
+	border-top: 3px solid black !important;
 }
 .tbl-diagrama-bus tr:nth-child(2)>td:nth-child(3){
 	border-top: 3px solid transparent !important;
 }
 .tbl-diagrama-bus tr td:nth-child(1),
 .tbl-diagrama-bus tr td:nth-child(4){
-	/* border-left: 2px solid black; */
+	border-left: 3px solid black;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 .tbl-diagrama-bus tr td:nth-child(5),
 .tbl-diagrama-bus tr td:nth-child(2){
-	/* border-right: 2px solid black; */
+	border-right: 3px solid black;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 
 .tbl-diagrama-bus tr:nth-last-child(3)>td {
-	/* border-bottom: 2px solid black; */
+	border-bottom: 3px solid black;
 }
 .tbl-diagrama-bus tr:nth-last-child(3)>td:nth-child(3){
-	/* border-bottom: 2px solid transparent; */
+	border-bottom: 2px solid transparent;
 }
 .tbl-diagrama-bus tr:first-child > td,
 .tbl-diagrama-bus tr:nth-last-child(1) > td,

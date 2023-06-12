@@ -17,33 +17,26 @@
             line-height:1;
             font-family: "sans-serif";
             pointer-events:none;
-            /* outline: 2px solid tomato; */
         }
         html{
-            /* background: lightgray; */
         }
         body{
             width: 101mm;
             height:300mm;
             max-width: 101mm;
             max-height:300mm;
-            /* background:gray; */
         }
-        /*  */
         div{
-            /* background:blue; */
         }
 
         .cont{
             width: 100%;
             min-height:1cm;
         }
-        /*  */
         #titulo{
             display:block;
             width: 101mm;
             height: 1cm;
-            /* background:cyan; */
         }
         #titulo #logo{
             width: 50%;
@@ -63,7 +56,6 @@
             height: 1cm;
             float:right;
             text-align:right;
-            /* background:red; */
             margin-left:3mm;
             margin-top:2mm;
         }
@@ -72,7 +64,6 @@
             font-size: 24px;
             width:4.5cm;
             height: 0.8cm;
-            /* background:green; */
             margin-top:0.2cm;
         }
 
@@ -87,6 +78,20 @@
             position:absolute;
             left:50%;
             transform: translateX(-50%);
+        }
+        #datosventa{
+            width:100%
+        }
+        #datosventa tr td{
+            width:50%;
+        }
+        #datosventa tr td:nth-child(1){
+            text-align:right;
+            padding-right:5px;
+        }
+        #datosventa tr td:nth-child(2){
+            padding-left:5px;
+            font-weight:bold;
         }
         </style>
 </head>
@@ -105,19 +110,49 @@
     <div class="qr">
         <img src="data:image/png;base64, {{$venta->codbar}}" alt="barcode"/>
     </div>
-    <p style="text-align:center;">
-        FOLIO 1234
-        <br>
-        ORIGEN ORIGEN
-        <br>
-        DESTINO DESTINO
-        <br>
-        FECHA&nbsp;&nbsp;__/__/__
-        <br>
-        REGRESO&nbsp;&nbsp;__/__/__
-        <br><br>
-        Boletos {{sizeof($boletos)}}
-    </p>
+    @php
+        $fSalida=\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $boletos[0]->fSalida." ".$boletos[0]->hSalida);
+        $bols=sizeof($boletos);
+    @endphp
+    <table id="datosventa">
+        <tr>
+            <td>FOLIO</td>
+            <td>{{$venta->nNumero}}</td>
+        </tr>
+        <tr>
+            <td>ORIGEN</td>
+            <td>{{$boletos[0]->origen->aNombre}}</td>
+        </tr>
+        <tr>
+            <td>DESTINO</td>
+            <td>{{$boletos[0]->destino->aNombre}}</td>
+        </tr>
+        <tr>
+            <td>FECHA</td>
+            <td>{{$fSalida->format("Y-m-d")}}</td>
+        </tr>
+        <tr>
+            <td>REGRESO</td>
+            <td>{{$fSalida->format("H:i")}}</td>
+        </tr>
+        <tr>
+            <td>BOLETOS</td>
+            <td>{{sizeof($boletos)}}</td>
+        </tr>
+        <tr>
+            <td>ASIENTOS</td>
+            <td>
+                @for($i=0; $i <$bols ; $i++)
+                    @if($i<$bols-1)
+                        {{$boletos[$i]->nAsiento.","}}
+                    @else
+                        {{$boletos[$i]->nAsiento}}
+                    @endif
+                @endfor
+            </td>
+        </tr>
+    </table>
+        
     <br>
     <br>
     <div style="font-size:12px;padding: 0 2mm;">
@@ -125,7 +160,7 @@
             
         </center>
     </div>
-    <div style="font-size:12px;padding: 0 2mm;">
+    <div style="font-size:12px;padding: 0 2mm; text-align: justify;">
         <b>1</b>. Sírvase conservar este boleto hasta el término de su viaje ya que le da derecho al
         seguro del viajero y a 25 kilos de equipaje sin costo, condicionado al volumen de carga y
         a la capacidad del autobús.
@@ -166,9 +201,5 @@
     <div style="text-align:right;margin-top:2mm; padding:0 3mm;font-size:12px;">
         IMPRESO {{date("Y-m-d h:i:s")}}
     </div>
-    <!-- <div class="cont">
-        asd asd as dasd a- asdsa asdsa asdsa asdsa asdsa. asdsa asdsa asdsa asdsa asdsa asdsa asdsa asdsa asdsa asdsa 
-        <br>
-    </div> -->
 </body>
 </html>

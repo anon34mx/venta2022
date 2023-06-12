@@ -42,14 +42,12 @@
                         <tr id="asiento-{{$boleto->nNumero}}">
                             <td>
                                 <input id="boleto[{{$boleto->nNumero}}]" class="boleto selecPTransferencia"
-                                    type="checkbox" name="boletoAnterior[]" value="{{$boleto->nNumero}}"
+                                    type="checkbox" name="boleto[]" value="{{$boleto->nNumero}}"
                                     nOrigen="{{ $boleto->nOrigen }}" nDestino="{{ $boleto->nDestino }}"
-                                    onchange="$('#cantidad').val($(`input[name='boletoAnterior[]']:checked`).length);">
+                                    onchange="$('#cantidad').val($(`input[name='boleto[]']:checked`).length);">
                                 <label for="boleto[{{$boleto->nNumero}}]">Seleccionar</label>
                             </td>
-                            <td>
-                                {{ $boleto->nNumero }}
-                            </td>
+                            <td class="nBoleto">{{ $boleto->nNumero }}</td>
                             <td class="">
                                 {{ $boleto->origen->aNombre }}
                                 <br>
@@ -66,16 +64,12 @@
                                 {{ $boleto->aPasajero }}
                             </td>
                             <td class="">
-                                @php
-                                @endphp
-                                
                                 {{$fechahora=\Carbon\Carbon::parse($boleto->fSalida." ".$boleto->hSalida)->format("d/m/Y H:i")}}
                             </td>
-                            <td class="tipoPasajero">
-                                {{ $boleto->aTipoPasajero }}
-                            </td>
+                            <td class="tipoPasajero">{{ $boleto->aTipoPasajero }}</td>
                             <td class="">
-                                {{ $boleto->nAsiento }}
+                                <div>{{ $boleto->nAsiento }}</div>
+                                <input class="nAsiento" type="text" readonly value="{{ $boleto->nAsiento }}" hidden>
                             </td>
                             <td class="">
                                 ${{ $boleto->nMontoBase }}
@@ -165,7 +159,7 @@
     <script>
         var nCorrida={{$corridaDisponible->nNumero?:0}};
     </script>
-    <select id="asientosDisp" id="asientosDisp" style="display:none;" name="asiento[]" >
+    <select id="asientosDisp" style="display:none;" name="asiento[]">
         <option value="">Seleccione</option>
     </select>
 </div>

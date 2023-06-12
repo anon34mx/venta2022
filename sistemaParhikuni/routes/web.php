@@ -198,16 +198,16 @@ Route::post('/promociones/{promocion}/update', [App\Http\Controllers\Promociones
     ->name('promociones.update');//->middleware('permission:corridas.vacaciones');
 
 // BOLETOS VENDIDOS
-Route::get('/boletos/limbo/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
+Route::get('/boletos/transferir/{corridaDisponible}', [App\Http\Controllers\BoletosVendidosController::class, 'showLimbo'])
     ->name('boletos.limbo.show')
     ->middleware('permission:boletos.limbo.show');
-Route::post('/boletos/limbo/{corridaDisponible}/porCorrida', [App\Http\Controllers\BoletosVendidosController::class, 'porCorrida'])
+Route::post('/boletos/tranferir/{corridaDisponible}/porCorrida', [App\Http\Controllers\BoletosVendidosController::class, 'porCorrida'])
     ->name('boletos.limbo.reasignar')
     ->middleware('permission:boletos.limbo.reasignar');
-Route::post('/boletos/limbo/{corridaOriginal}/reasignarAutomatico', [App\Http\Controllers\BoletosVendidosController::class, 'reasignarAutomatico'])
+Route::post('/boletos/transferir/{corridaOriginal}/reasignarAutomatico', [App\Http\Controllers\BoletosVendidosController::class, 'reasignarAutomatico'])
     ->name('boletos.reasignarAutomatico');
     // ->middleware('permission:boletos.limbo.reasignar');
-Route::post('/boletos/limbo/{corridaOriginal}/reasignarManual', [App\Http\Controllers\BoletosVendidosController::class, 'reasignarManual'])
+Route::post('/boletos/transferir/{corridaOriginal}/reasignarManual', [App\Http\Controllers\BoletosVendidosController::class, 'reasignarManual'])
     ->name('boletos.reasignarManual');  //GUARDAR
     // ->middleware('permission:boletos.limbo.reasignar');
 
