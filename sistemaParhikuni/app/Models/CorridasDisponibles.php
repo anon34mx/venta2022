@@ -465,7 +465,7 @@ class CorridasDisponibles extends Model
     }
 
     // para transferencia [a ver si despues la junto con la anterior]
-    public static function getProxCorridas($fSalida, $hSalida, $nTipoServicio, $nOrigen, $nDestino){
+    public static function getProxCorridas($corrida, $fSalida, $hSalida, $nTipoServicio, $nOrigen, $nDestino){
         $fechaHoraMinBuscar=\Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $fSalida." ".$hSalida)->addSeconds(1);//->format("Y-m-d H:i");
         $posiblesCorridas = collect (DB::select('SELECT cordis.*
             ,disa.nAsientos as asientos
@@ -489,6 +489,9 @@ class CorridasDisponibles extends Model
                 ON disa.nNumero=aut.nDistribucionAsientos
             WHERE
             cordis.fSalida>=:fSalidaInicio
+            AND cordis.nNumero!=:corrida
+            -- AND cordis.hSalida>=:hSalida
+            AND cordis.hSalida>=IF(cordis.fSalida=:fSalidaInicio2, :hSalida, "00:00:00")
             AND cordis.fSalida<=DATE_ADD(:fSalidaFin, INTERVAL 2 DAY)
             AND cordis.aEstado!="C" AND cordis.aEstado!="B"
             AND cordis.nTipoServicio=:TipoServicio
@@ -497,10 +500,13 @@ class CorridasDisponibles extends Model
             HAVING disa.nAsientos - COUNT(bol.nNumero)>0
             ORDER BY cordis.fSalida ASC, cordis.hSalida ASC',[
                 "fSalidaInicio" => $fSalida,
+                "fSalidaInicio2" => $fSalida,
                 "fSalidaFin" => $fSalida,
                 "TipoServicio" => $nTipoServicio,
                 "nOrigen" => $nOrigen,
                 "nDestino" => $nDestino,
+                "corrida" => $corrida,
+                "hSalida" => $hSalida,
             ]));
             echo json_encode($posiblesCorridas);
     }
@@ -546,7 +552,7 @@ class CorridasDisponibles extends Model
         
                     where
                     cordis.fSalida>=IF( :fechaIni < CURRENT_DATE, CURRENT_DATE, :fechaIni2 )
-                    and disp.hSalida>IF( :horaIni = CURRENT_DATE, :horaIni2,  "00:00:00")
+                    and disp.hSalida>IF( :horaIni = CURRENT_TIME, :horaIni2,  "00:00:00")
         
                     and cordis.fSalida<=:fechaFin and disp.hSalida<=:horaFin
         
@@ -590,37 +596,48 @@ class CorridasDisponibles extends Model
         )->first()->enProceso;
     }
 
-    // public function disponibilidadAsientosPro($origen, $destino, $modo){
-    //     $asientos=array();
-    //     $rs=DB::select(
-    //         DB::raw('SELECT dist.nAsientos as asientos from corridasdisponibles cordis
-    //             INNER JOIN autobuses aut ON aut.nNumeroAutobus=cordis.nNumeroAutobus
-    //             INNER JOIN distribucionasientos dist ON dist.nNumero=aut.nDistribucionAsientos
-    //             WHERE cordis.nNumero=:nCorrida
+    public static function disponibilidadAsientosPro($corrida, $origen, $destino, $modo){
+        // dd($corrida, $origen, $destino, $modo);
+        $asientos=array();
+        $rs=DB::select(
+            DB::raw('SELECT dist.nAsientos as asientos from corridasdisponibles cordis
+                INNER JOIN autobuses aut ON aut.nNumeroAutobus=cordis.nNumeroAutobus
+                INNER JOIN distribucionasientos dist ON dist.nNumero=aut.nDistribucionAsientos
+                WHERE cordis.nNumero=:nCorrida
 
-    //             UNION
+                UNION
 
-    //             (SELECT
-    //             disa.nAsiento as Ocupados
-    //             FROM `disponibilidadasientos` disa
-    //             INNER JOIN disponibilidad disp
-    //                 ON disp.nNumero=disa.nDisponibilidad
-    //             WHERE disp.nCorridaDisponible=:nCorrida2
-    //             AND disp.nOrigen=:nOrigen and disp.nDestino=:nDestino
-    //             GROUP BY disa.nAsiento
-    //             ORDER BY disa.nAsiento)
-    //         '),[
-    //             'nCorrida' => $this->nNumero,
-    //             'nCorrida2' => $this->nNumero,
-    //             'nOrigen' => $origen,
-    //             'nDestino' => $destino,
-    //         ]
-    //     );
-    //     // dd($rs[0]->asientos -1 );
-    //     if($modo=="libres"){
-    //         for($i=0; $i<$rs[0]->asientos; $i++){
-    //             echo $i."__".@$rs[$i]->asientos."<br>";
-    //         }
-    //     }
-    // }
+                (SELECT
+                disa.nAsiento as Ocupados
+                FROM `disponibilidadasientos` disa
+                INNER JOIN disponibilidad disp
+                    ON disp.nNumero=disa.nDisponibilidad
+                WHERE disp.nCorridaDisponible=:nCorrida2
+                AND disp.nOrigen=:nOrigen and disp.nDestino=:nDestino
+                GROUP BY disa.nAsiento
+                ORDER BY disa.nAsiento)
+            '),[
+                'nCorrida' => $corrida,
+                'nCorrida2' => $corrida,
+                'nOrigen' => $origen,
+                'nDestino' => $destino,
+            ]
+        );
+        if($modo=="libres"){
+            array_push($asientos, intval(@$rs[0]->asientos)); //cuantos asientos son
+            for($i=1; $i<=$rs[0]->asientos; $i++){
+                $encontrado=false;
+                for($a=1; $a<sizeof($rs);$a++){
+                    if($i==$rs[$a]->asientos){
+                        $encontrado=true;
+                        break;
+                    }
+                }
+                if(!$encontrado){
+                    array_push($asientos, $i);
+                }
+            }
+            return ($asientos);
+        }
+    }
 }

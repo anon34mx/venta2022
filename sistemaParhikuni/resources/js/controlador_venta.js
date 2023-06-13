@@ -256,6 +256,9 @@ window.quitarPasajero=function(fila){
     $("#asiento-" + fila.attributes.asiento.value).removeClass("apartado");
     $("#asiento-" + fila.attributes.asiento.value+" input").prop("checked", false);
     $(fila).remove();
+    // $("#tbl-corridas .nvaCorrida").first().prop("checked", true)
+    $("#tbl-diagrama").empty();
+    $(".pasajeroAsiento").val("");
     try {
         pasajeros[tipoS]["usados"]++;
         if (pasajeros[tipoS]["usados"] > 0) {

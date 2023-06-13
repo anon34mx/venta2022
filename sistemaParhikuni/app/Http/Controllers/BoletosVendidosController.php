@@ -97,9 +97,7 @@ class BoletosVendidosController extends Controller
     }
     public function reasignarManual(CorridasDisponibles $corridaOriginal, Request $request){
         $boleto=null;
-        $asientosDisp=null;
         $corridaNva=null;
-        // dd($request->all());
 
         # 1 Encontrar nueva corrida
         $corridaNva=CorridasDisponibles::find($request->nvaCorrida);
@@ -126,7 +124,8 @@ class BoletosVendidosController extends Controller
                             $boleto->nOrigen,
                             $boleto->nDestino,
                             $request->asiento[$i],
-                            "V"
+                            "V",
+                            $boleto->nNumero
                         )
                     )->first();
                 }catch(\Exception $e){
@@ -157,14 +156,18 @@ class BoletosVendidosController extends Controller
     public function reasignarAutomatico(CorridasDisponibles $corridaOriginal){
         $CorridasDisponibles=new CorridasDisponibles();
         $ventas=$corridaOriginal->boletosEnGrupo();
+        $asientosDisp=null;
+        $siguienteCorrida=null;
+        $resultados=array();
+        $contAux=0;
         
         #1 Analizar cada venta para esa corrida
         foreach ($ventas as $venta) {
             #2 Obtener boletos
             $boletos=BoletosVendidos::where('nCorrida','=', $corridaOriginal->nNumero)
-            ->where('nVenta','=',$venta->nVenta)
-            ->whereRaw('(aEstado = "LM" OR aEstado = "VE")')
-            ->get();
+                ->where('nVenta','=',$venta->nVenta)
+                ->whereRaw('(aEstado = "LM" OR aEstado = "VE")')
+                ->get();
             if(sizeof($boletos) === 0){
                 return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]))
                     ->withErrors('No se encontraron pasajeros (?).');
@@ -186,93 +189,61 @@ class BoletosVendidosController extends Controller
                 return redirect(route('boletos.limbo.show', ['corridaDisponible'=>$corridaOriginal]))
                     ->withErrors('No se encontró una corrida próxima. Asigna a los pasajeros manualmente.');
             }
-            #4 Encontrar los asientos que está disponibles
-            $asientosOcupados=DB::select(
-                DB::raw('SELECT
-                disa.nAsiento
-                FROM `disponibilidadasientos` disa
-                INNER JOIN disponibilidad disp
-                    ON disp.nNumero=disa.nDisponibilidad
-                WHERE disp.nCorridaDisponible=:nCorrida
-                AND disp.nOrigen=:nOrigen and disp.nDestino=:nDestino
-                GROUP BY disa.nAsiento
-                ORDER BY disa.nAsiento'),[
-                    'nCorrida' => $siguienteCorrida->corrida,
-                    'nOrigen' => $boletos[0]->nOrigen,
-                    'nDestino' => $boletos[0]->nDestino,
-                ]
-            );
-
-            #5 Encontrar asientos disponibles
-            $asientosDisp=array();
-            for ($i=1; $i <= $siguienteCorrida->totalAsientos; $i++) { 
-                $found=false;
-                for($c=0;$c<sizeof($asientosOcupados);$c++){
-                    if($asientosOcupados[$c]->nAsiento === $i){
-                        $found=true;
-                        break;
-                    }
-                }
-
-                if(!$found){
-                    $asientosDisp[$i]=$i;
-                }
-            }
-            
+            $asientosDisp=CorridasDisponibles::disponibilidadAsientosPro($siguienteCorrida->corrida, $boletos[0]->nOrigen, $boletos[0]->nDestino, "libres");
             # array_values($asientosDisp)[0] // SIGUIENTE ASIENTO
             foreach ($boletos as $boleto) {
                 //Boletos
-                $nvoBoleto=BoletosVendidos::create([
-                    'nVenta' => $boleto->nVenta,
-                    'nCorrida' => $siguienteCorrida->corrida,
-                    'lRegreso' => $boleto->lRegreso,
-                    'fSalida' => $siguienteCorrida->fSalida,
-                    'hSalida' => $siguienteCorrida->hSalida,
-                    'nOrigen' => $boleto->nOrigen,
-                    'nDestino' => $boleto->nDestino,
-                    'aTipoPasajero' => $boleto->aTipoPasajero,
-                    'aPasajero' => $boleto->aPasajero,
-                    'nAsiento' => array_values($asientosDisp)[0], //$boleto->nAsiento,
-                    'aTipoVenta' => $boleto->aTipoVenta,// INTERCAMBIO
-                    'nMontoBase' => 0,
-                    'nMontoDescuento' => 0,
-                    'nIva' => 0,
-                    'aEstado' => 'VE',
-                    'nTerminal' => @session('terminal'),
+                $boleto->update([
+                    "nCorrida" => $siguienteCorrida->corrida,
+                    "nAsiento" => array_values($asientosDisp)[0],
                 ]);
+                $contAux=sizeof($resultados);
+                $resultados[$contAux]["boleto"]=$boleto->nNumero;
+                $resultados[$contAux]["original"]=$corridaOriginal->nNumero;
+                $resultados[$contAux]["asignada"]=$siguienteCorrida->corrida;
                 //Apartar
-                $rs=null;
+                $disp=null;
                 try{
-                    $rs=collect(
+                    $disp=collect(
                         DisponibilidadAsientos::apartarAsiento(
                             $siguienteCorrida->corrida,
                             $boleto->nOrigen,
                             $boleto->nDestino,
                             array_values($asientosDisp)[0],
-                            "V"
+                            "V",
+                            $boleto->nNumero
                         )
                     )->first();
                 }catch(\Exception $e){
                     throw $e;
                 }
-                
                 $asientosDisp=array_splice( $asientosDisp,1,sizeof($asientosDisp));
+                
                 //registrar intercambio
-                BoletosCancelados::create([
-                    'nBoletoVendido' => $boleto->nNumero,
-                    'nBoletoNuevo' => $nvoBoleto->nNumero,
+                BoletosTransferidos::create([
+                    "corrida_anterior" => $corridaOriginal->nNumero,
+                    "boleto" => $boleto->nNumero,
                 ]);
-                //dar de baja boleto anterior
-                $boleto->update([
-                    'aEstado' => 'CA'
-                ]);
-                DB::raw('DELETE FROM `disponibilidadasientos` WHERE nBoleto=:boleto',[
-                    $boleto->nNumero
-                ]);
-                DB::table('disponibilidadasientos')->where("nBoleto", $boleto->nNumero)->delete();
+                
+                // Des-apartar asientos
+                DB::raw('DELETE from disponibilidadasientos 
+                    where id IN (
+                        SELECT
+                        disa.id
+                        FROM `disponibilidadasientos` disa
+                        INNER JOIN disponibilidad disp
+                        on disa.nDisponibilidad=disp.nNumero
+                        WHERE disp.nCorridaDisponible=:nCorrida
+                        and disa.nAsiento=:nAsiento
+                    )',[
+                        "nAsiento" => $boleto->nNumero,
+                        "nCorrida" => $corridaOriginal->nNumero,
+                    ]
+                );
             }
-
-            return "oki";
         }
+        return redirect(route('corridas.disponibles.guiaPasajeros',[
+            "corridaDisponible" => $corridaOriginal
+        ]))->with("status", "Transferidos");
     }
 }

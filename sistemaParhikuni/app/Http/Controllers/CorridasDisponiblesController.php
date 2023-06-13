@@ -297,6 +297,6 @@ class CorridasDisponiblesController extends Controller
 
     public function getProxCorridas(CorridasDisponibles $corrida, $nOrigen, $nDestino){
         // dd($corrida);
-        CorridasDisponibles::getProxCorridas($corrida->fSalida, $corrida->hSalida, $corrida->nTipoServicio, $nOrigen, $nDestino);
+        CorridasDisponibles::getProxCorridas($corrida->nNumero, $corrida->fSalida, $corrida->hSalida, $corrida->nTipoServicio, $nOrigen, $nDestino);
     }
 }
