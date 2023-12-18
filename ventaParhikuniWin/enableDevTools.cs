@@ -33,6 +33,7 @@ namespace ventaParhikuniWin
             webView21.CoreWebView2.Settings.AreDevToolsEnabled = true;
             webView21.CoreWebView2.Reload();
             Console.WriteLine(CreateMD5(password.Text));
+            // FINAL
             if (CreateMD5(password.Text) == "14934A812F0C9BA5EF9539B182341E50")
             {
                 Console.WriteLine("Habilitar consola");

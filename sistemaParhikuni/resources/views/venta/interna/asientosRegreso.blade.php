@@ -56,7 +56,7 @@ $contAuxPasajeros=0;
 
         <div class="col-9 row px-0 mx-0">
             <div class="col-12 px-0 mx-0">
-                <div class="col-10 row float-right mx-0 px-0 "> <!--  -->
+                <div class="col-10 row float-right mx-0 px-0 ">
                     <div class="text-center py-1 col-3 pasosDeCompra">
                         <b>Viaje</b>
                     </div>
@@ -74,9 +74,9 @@ $contAuxPasajeros=0;
             <div class="row col-12 mx-0 px-0 bg-gris">
                 <b>Selección de asientos (regreso)</b>
             </div>
-<!--  -->
 
             <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3 mx-0">
+<!--                 
                 <table id="asientos-reg" class="tbl-diagrama-bus mx-auto mt-2" style="
                     max-width: 300px;
                     margin: auto;
@@ -102,13 +102,25 @@ $contAuxPasajeros=0;
                                     @if($col=="00")
                                         <div class="pasillo"></div>
                                     @elseif($col=="PU")
-                                        <div class="asiento_nmr">[PU]</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/puerta.png') }}" alt="Baño de hombres">
+                                        </div>
+                                    @elseif($col=="BU")
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Baños Unisex.png') }}" alt="Baño de hombres">
+                                        </div>
                                     @elseif($col=="BH")
-                                        <div class="asiento_nmr">{{$col}}</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Bano_h.png') }}" alt="Baño de hombres">
+                                        </div>
                                     @elseif($col=="BM")
-                                        <div class="asiento_nmr">{{$col}}</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Bano_m.png') }}" alt="Baño de mujeres">
+                                        </div>
                                     @elseif($col=="CA")
-                                        <div class="asiento_nmr">{{$col}}</div>
+                                        <div class="pasillo">
+                                            <img width="100%" src="{{ Vite::asset('resources/images/diagramaAutobus/Cafeteria.png') }}" alt="Cafetera">
+                                        </div>
                                     @else
                                         @php
                                         $numAsiento=substr($col,0,2);
@@ -162,6 +174,9 @@ $contAuxPasajeros=0;
                             <td colspan="5">serbisios</td>
                         </tr>
                 </table>
+ -->
+
+                {!!$diagrama!!}
             </div>
             <div class="col-12 col-sm-6 col-md-7 col-lg-8 col-xl-8 mx-0 mx-xl-auto px-0">
                 <div class="col-12 mx-0 px-0 row">
@@ -270,7 +285,16 @@ $contAuxPasajeros=0;
             @endfor
         </select>
         <br>
+        <button onclick="selecAsientoPasaReg();"
+            class="mx-2 btn btn-sm btn-parhi-primary float-right">ok</button>
         <button onclick="cancelSelecAsientoReg();"
-            class="btn btn-sm btn-parhi-primary float-right">cancelar</button>
+            class="mx-2 btn btn-sm btn-danger float-right">cancelar</button>
     </div>
 </div>
+
+<script>
+    var totalPasajeros={{ sizeof($pasajeros) }};
+    document.addEventListener("DOMContentLoaded", function(event){
+        $(".asiento.regreso").on("click", selecAsientoReg);
+    });
+</script>

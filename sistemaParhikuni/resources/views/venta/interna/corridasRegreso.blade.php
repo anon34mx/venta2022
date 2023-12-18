@@ -17,37 +17,51 @@
                     name="fechaDeSalida" value="{{$fechaDeSalida}}">
             </div>
         </div>
-        <div class="col-6 col-sm-12 row mx-0 my-1">
-            <div class="">Horario</div>
+        <div class="col-12 col-sm-12 row mx-0 my-1">
+            <div class="col-12">
+                Horario
+                <span class="horarioTxt">
+                    @if(@Request::get('horario') == "Madr")
+                        madrugada
+                    @elseif(@Request::get('horario') == "Maña")
+                        mañana
+                    @elseif(@Request::get('horario') == "Tard")
+                        tarde
+                    @elseif(@Request::get('horario') == "Noch")
+                        noche
+                    @else
+                        todo el día
+                    @endif
+                </span>
+            </div>
             <div class="px-0 col-12">
-                <input class="form-control" type="time" id="hInicio" name="hInicio" value="{{@Request::get('hInicio')}}" hidden>
-                <input class="form-control" type="time" id="hFin" name="hFin" value="{{@Request::get('hFin')}}" hidden>
+                <input class="form-control" hidden type="time" id="hInicio" name="hInicio" value="{{@Request::get('hInicio')}}" >
+                <input class="form-control" hidden type="time" id="hFin" name="hFin" value="{{@Request::get('hFin')}}" >
             </div>
         </div>
         <div class="col-12 col-sm-12 row mx-0 my-1">
             <div class="col-6 col-sm-12 row px-0 mx-auto selectH">
-                <img id="busH" src="{{ Vite::asset('resources/images/bus_selec.png') }}" alt=""
-                    style="width: 60px;
-                        position: absolute;
-                        bottom: 6px;
-                        left: {{@Request::get('inptbusH') ?: '100%'}};
-                        display: block;
-                        z-index: 5;
-                        pointer-events: none;
-                        transition:0.5s;">
                 <input id="inptbusH" name="inptbusH" value="{{@Request::get('inptbusH')}}" hidden>
 
                 <input id="horarioMadr" class="" value="Madr" type="radio" name="horario"{{@Request::get('horario')=='Madr' ? 'checked':''}} hidden >
-                <label for="horarioMadr" class="col-3" onclick="cambiarHorario('Madr', new Event(''), 'lbl-horario');autobusHora(0)"> </label>
+                <label for="horarioMadr" class="col-3 madr" onclick="cambiarHorario('Madr', new Event(''), 'lbl-horario');autobusHora(0)" title="Madrugada">
+                    <img src="{{ Vite::asset('resources/images/venta/Madrugada.png') }}" alt="">
+                </label>
 
                 <input id="horarioMaña" class="" value="Maña" type="radio" name="horario"{{@Request::get('horario')=='Maña' ? 'checked':''}} hidden>
-                <label for="horarioMaña" class="col-3" onclick="cambiarHorario('Maña', new Event(''), 'lbl-horario');autobusHora(25)"> </label>
+                <label for="horarioMaña" class="col-3 maña" onclick="cambiarHorario('Maña', new Event(''), 'lbl-horario');autobusHora(25)" title="Mañana">
+                    <img src="{{ Vite::asset('resources/images/venta/Día.png') }}" alt="">
+                </label>
 
                 <input id="horarioTard" class="" value="Tard" type="radio" name="horario"{{@Request::get('horario')=='Tard' ? 'checked':''}} hidden>
-                <label for="horarioTard" class="col-3" onclick="cambiarHorario('Tard', new Event(''), 'lbl-horario');autobusHora(50)"> </label>
+                <label for="horarioTard" class="col-3 tard" onclick="cambiarHorario('Tard', new Event(''), 'lbl-horario');autobusHora(50)" title="Tarde">
+                    <img src="{{ Vite::asset('resources/images/venta/Tarde.png') }}" alt="">
+                </label>
 
                 <input id="horarioNoch" class="" value="Noch" type="radio" name="horario"{{@Request::get('horario')=='Noch' ? 'checked':''}} hidden>
-                <label for="horarioNoch" class="col-3" onclick="cambiarHorario('Noch', new Event(''), 'lbl-horario');autobusHora(75)"> </label>
+                <label for="horarioNoch" class="col-3 noch" onclick="cambiarHorario('Noch', new Event(''), 'lbl-horario');autobusHora(75)" title="Noche">
+                    <img src="{{ Vite::asset('resources/images/venta/Noche.png') }}" alt="">
+                </label>
 
             </div>
             <input id="horarioCompleto" class="" value="Completo" type="radio"

@@ -152,6 +152,111 @@ window.getProxCorridas = function(corridaOG,origen,destino){
         }
     });
 }
+window.getFiltrarCorridas = function (corrida = null, origen = null, destino = null, fechaSalida = null, fechaMax = null, pasajeros = null,
+    hInicio = "00:00:00", hFin = null, usarPromocion = null, limit = 999, tipoBusqueda = "exacta") {
+        var body={
+            "corrida" : corrida ,
+            "origen" : origen ,
+            "destino" : destino ,
+            "fechaSalida" : fechaSalida ,
+            "fechaMax" : fechaMax ,
+            "cantidadPasajeros" : pasajeros ,
+            "hInicio" : hInicio ,
+            "hFin" : hFin ,
+            "usarPromocion" : usarPromocion ,
+            "limit" : limit ,
+            "tipoBusqueda" : tipoBusqueda,
+        };
+    const promise = fetch(route("corridas.disponibles.filtradas"),{
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify(body),
+        headers:{
+            "Content-type":"application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-Token": $('input[name="_token"]').val()
+        }
+    }).then(response => response.text())
+    .then(data=>{
+        $("#cordis tbody").empty();
+        data=JSON.parse(data);
+        var tHeads = $("#cordis thead tr th");
+
+        
+
+        data.forEach(element => {
+            console.log(element);
+            if (element.edoUwu =="Disponible"){
+                var str_html = `<tr onclick="seleccionarCorrida(this,'${element.corrida}','${element.disp}')" class="selectable pb-2">`;
+
+                for (var i = 0; i < tHeads.length; i++) {
+                    // console.log( $(tHeads[i]).attr("data") );
+                    // break;
+                    switch ($(tHeads[i]).attr("data")) {
+                        case "claveServicio":
+                            str_html += `<td>${element.claveServicio || 'NA'}</td>`;
+                            break;
+                        case "corrida":
+                            str_html += `<td>${element.corrida}</td>`;//_${element.disp}
+                            break;
+                        case "origen":
+                            str_html += `<td>${element.origen}</td>`;
+                            break;
+                        case "destino":
+                            str_html += `<td>${element.destino}</td>`;
+                            break;
+                        case "fhSalida":
+                            str_html += `<td>${element.hSalida.substring(0,5)}h<br><span><sub>${element.fSalida}</sub></span></td>`;
+                            break;
+                        case "fSalida":
+                            str_html += `<td>${element.fSalida.substring(0, 5)}h</td>`;
+                            break;
+                        case "hSalida":
+                            str_html += `<td>${element.hSalida.substring(0, 5) }</td>`;
+                            break;
+                        case "fhLlegada":
+                            str_html += `<td>${element.hLlegada.substring(0,5)}h<br><span><sub>${element.fLlegada}</sub></span></td>`;
+                            break;
+                        case "hLlegada":
+                            str_html += `<td>${element.hLlegada.substring(0,5)}h</td>`;
+                            break;
+                        case "fLlegada":
+                            str_html += `<td>${element.fLlegada}</td>`;
+                            break;
+                        case "tarifaBase":
+                            str_html += `<td>$ ` + parseFloat(element.tarifaBase || 0).toFixed(2) +`</td>`;
+                            break;
+                        case "tarifaPaq":
+                            str_html += `<td>$ ` + parseFloat(element.tarifaPaq || 0).toFixed(2) +`</td>`;
+                            break;
+                    }
+                }
+                /*
+                if ($("#cordis thead .fLlegada").length > 0){
+                    str_html += `<td>${element.fLlegada}</td>`;
+                }
+                if ($("#cordis thead .hLlegada").length > 0){
+                    str_html += `<td>${element.hLlegada}</td>`;
+                }
+                if ($("#cordis thead .hLlegada").length > 0){
+                    str_html += `<td>${element.hLlegada}</td>`;
+                }
+                if ($("#cordis thead .tarifaPaq").length > 0){
+                    str_html += `<td>${element.tarifaPaq}</td>`;
+                }
+                if ($("#cordis thead .claveServicio").length > 0){
+                    
+                }
+                */
+                str_html += `</tr>`;
+                // <td>${element.tarifaBase}</td>
+                $("#cordis tbody").append(str_html);
+            }
+        });
+    });
+
+}
 window.seleccionarAsignarLimbo = function(){
     var boletos=$('.boleto:checked');
     var inpSel=$('#inpSel');
@@ -283,21 +388,237 @@ window.selectAsientoTransferir = function(select){
 window.removerTransferencia = function(boleto){
 }
 
+window.buscarRemitente = function(btn){
+    // $('#modl-busc-rem').modal("show")
+    let _datos = $("#remitente_datos_gen input").filter(function () { return this.value != ""; }).serialize();
+    const promise = fetch(route("paqueteria.buscarRemitente"), {
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify(_datos),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-Token": $('input[name="_token"]').val()
+        }
+    }).then(response => response.text())
+    .then(data => {
+        console.log(btn);
+        $('#modl-busc-rem').modal("show")
+        $($(btn).attr("data-target") + " .modal-body").html(data);
+    })
+}
+window.usarRemitente = function (cont){
+    var spans=$(cont).find("span");
+    for(var i=0; i< spans.length; i++){
+        console.log(spans[i]);
+        $($(spans[i]).attr("target")).val($(spans[i]).html());
+    }
+    $('#modl-busc-rem').modal("hide");
+    $("#busqPaqProductos").attr("list", "");
+}
+window.getListContenidoPaquete = await function(inpt){
+    var lblSearch = $(inpt).parent().find(".inputSearchLbl");
+    var datalist = $(inpt).attr("list");
+    $(lblSearch).css("opacity",100);
+    const promise = fetch(route("paqueteria.listaProductosSAT",[
+        inpt.value
+    ]), {
+        method: "GET",
+        credentials: "same-origin",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-Token": $('input[name="_token"]').val()
+        }
+    })
+    .then(response => response.text())
+    .then(data => {
+        $("#"+datalist).empty();
+        // data = JSON.stringify(data, true);
+        data = data.toString();
+        data = JSON.parse(data);
+        (async function () {
+            for await (const producto of data) {
+                console.log(producto);
+                $("#"+datalist).append(
+                    '<option value="' + producto.id + '">' + producto.texto +'</option>'
+                );
+            }
+        })();
+        $(lblSearch).css("opacity", 0);
+        $("#busqPaqProductos").attr("list", "ccp_productos_list");
+    }).then(()=>{
+        $("#busqPaqProductos").attr("list", "ccp_productos_list");
+    })
+}
+window.contenidoPaquete = function(inpt){
+    var found = $("#ccp_productos_list option[value='" + inpt.value + "']")
+    console.log(found);
+    if (found.length <= 0){
+        console.log("no existe")
+    }
+    else{
+        console.log($(found).val());
+        console.log($(found).html());
+        $(inpt).val($(found).html());
+        $("#idPaqProducto").val($(found).val());
+    }
+        
+}
+
+window.getMunicipiosEstado= function (contenedor){
+    // var estado = $("#estadosMexico option[value='" + $(contenedor + " .estado").val() + "'] .id").text();
+    let _datos = {
+        "estado": $("#estadosMexico option[value='" + $(contenedor + " .estado").val() + "'] .id").text(),
+        "municipio": $(contenedor + " .municipio").val(),
+    }
+    const promise = fetch(route("geo.MunicipiosEstado"), {
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify(_datos),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-Token": $('input[name="_token"]').val()
+        }
+    }).then(response => response.text())
+    .then(data => {
+        data=JSON.parse(data);
+        console.log(data)
+        $("#listaMunicipios").empty();
+        data.forEach(element => {
+            // #listaMunicipios
+            $("#listaMunicipios").append(`<option value="${element.nombre}"><span class="id">${element.clave}</span></option>`);
+        });
+    });
+}
+
+window.domicilio = function(contenedor) {
+    var html = "";
+
+    $(contenedor + " .hlp-txt").html("Cargando opciones...");
+    $(contenedor + " .autocompletes").fadeIn();
+    $(contenedor + " .autocompleteDomicilio").empty();
+    html += `<span><span class="btn btn-sm float-right" onclick="$('` + contenedor + ` .autocompleteDomicilio').empty();"> x</span></span>`;
+    
+    let _datos ={
+        "asentamiento": $(contenedor + " .asentamiento").val(),
+        "estado": $(contenedor+" .estado").val(),
+        "municipio": $(contenedor +" .municipio").val(),
+    }
+    console.log(_datos);
+    const promise = fetch(route("paqueteria.asentamientos"), {
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify(_datos),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-Token": $('input[name="_token"]').val()
+        }
+    })
+        .then(response => response.text())
+        .then(data => {
+            $(contenedor + " .hlp-txt").html("");
+            $(contenedor + " .autocompleteDomicilio").html("")
+            data = JSON.parse(data, true);
+            for (var i = 0; i < data.length; i++) {
+                // console.log(data[i]);
+                html += `<div id='${i}' class="autocompletes py-2">
+                        <span target="tipoAsentamiento">${data[i].tipoAsentamiento}</span>:
+                        <span target="asentamiento">${data[i].asentamiento}</span><br>
+                        CP:
+                        <span target="cp">${data[i].cp}</span><br>
+                        Ciudad:
+                        <span target="ciudad">${data[i].ciudad}</span><br>
+                        Municipio:
+                        <span target="municipio">${data[i].municipio}</span><br>
+                        Estado:
+                        <span target="estado">${data[i].estado}</span><br>
+                    </div>`;
+            }
+            $(contenedor + " .autocompletes").fadeIn();
+            $(contenedor + " .autocompleteDomicilio").html(html);
+            $(".autocompletes").on("click", function () {
+                applyAutocomplete(contenedor, this)
+            });
+        });
+}
+window.fillSelectDestinos=function(select, origen,  comp){
+    const promise = fetch(route('corridas.disponibles.destinos', { origen, comp }),{
+        method: "GET",
+        credentials: "same-origin",
+        // body: JSON.stringify(_datos),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-Token": $('input[name="_token"]').val()
+        }
+    })
+    .then(response => response.text())
+    .then(data => {
+        data = JSON.parse(data);
+        $(select).empty();
+        $(select).append(`<option value="">Destino</option>`);
+        data.forEach(element => {
+            $(select).append(`<option value="${element.nDestino}">${element.destino}</option>`);
+        });
+    })
+}
+window.applyAutocomplete = function (contenedor, row) {
+    // console.log(row);
+    var spans = $(row).find("span");
+    for (let i = 0; i < spans.length; i++) {
+        var target = spans[i].attributes.target.value;
+        $(contenedor + ` .${target}`).val(spans[i].innerHTML);
+    }
+
+    $(".autocompleteDomicilio").empty()
+}
+
 //  proms
 $(document).ready(function(){
+    $(".autocompletes").on("click", function () {
+        applyAutocomplete(this)
+    });
+    $(".btn_buscar_corridas").on("click", function () {
+        // console.log($(this).attr("servicio"));
+        /*
+        (corrida = null, origen = null, destino = null, fechaSalida = null, fechaMax = null, pasajeros = null,
+        hInicio = "00:00:00", hFin = null, usarPromocion = null, limit = 999, tipoBusqueda = "exacta", claseServ=null) 
+        */
+        getFiltrarCorridas(null, $("#corr_origen").val() || null, $("#corr_destino").val() || null, $("#corr_fechaMin").val() || null, $("#corr_fechaMax").val() || null, $("#corr_cantPasajeros").val() || null, $("#horaSalida").val() || null, $("#horaSalidaMax").val() || "23:59:59", $("#usarPromocionF").val() || null, $("#limitCorridas").val() || 10, $("#tipoFiltro").val() || "proximas", $(this).attr("servicio") || null)
+    });
+    $(".inputmask").inputmask();
+    $(".telefono").inputmask({
+        mask: ['999 99 99', '999 999 99 99']
+    });
     $("#fechaDeFin, #fechaDeInicio").on("change", function(event){
         validarFechas($("#fechaDeInicio"), $("#fechaDeFin"));
     });
-
     $("#aplicarPromoA").on("change", function(){
         $(".aplicarPor").fadeOut(1);
         $(".aplicarPor input, .aplicarPor select").removeAttr("required").val("")
         $(`.${this.value}`).fadeIn(1);
         $(`.${this.value} input, .${this.value} select`).attr("required","required");
     });
-
     $(".selecPTransferencia").click(selecPTransferencia);
-
+    $(".selector-origen").on("change", function(){
+        fillSelectDestinos($("#corr_destino"), $("#corr_origen option:selected").val(), false)
+    });
+    $("#busqPaqProductos").on("change", function () {
+        contenidoPaquete(this);
+    });
+    $("#busqPaqProductos").on("keyup", function () {
+        if(this.value.length > 3){
+            getListContenidoPaquete(this);
+        }
+    });
     // $(".nvaCorrida").click(function(){
     //     console.log(this);
     // });

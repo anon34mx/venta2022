@@ -42,6 +42,8 @@
         'resources/js/jquery-ui-1.13.2/jquery-ui.min.js',
         'resources/js/jquery-ui-1.13.2/jquery-ui.min.css',
         'resources/js/controlador_admin.js',
+        'resources/js/jquery.flexselect-0.9.0/jquery.flexselect.js',
+        'resources/js/jquery.flexselect-0.9.0/jquery.flexselect.js',
         
         'resources/libs/jquery-screamer-master/screamer.jquery.js',
         'resources/libs/jquery-screamer-master/screamer.jquery.min.css',
@@ -151,6 +153,18 @@
                 @endcan
                 <li>
                     <a href="{{route('venta.interna.corridas')}}">Venta de boletos</a>
+                </li>
+                <li>
+                    <!-- <a href="{{route('paqueteria.index')}}">Paquetería</a> -->
+                    <a href="#PersonalSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Personal</a>
+                    <ul class="collapse list-unstyled" id="PersonalSubmenu">
+                        <li>
+                            <a href="{{route('personal.conductores.index')}}">Transacción</a>
+                        </li>
+                        <li>
+                            <a href="{{route('personal.conductores.index')}}">Recolección</a>
+                        </li>
+                    </ul>
                 </li>
                 <li>
                     <a href="#">About</a>
@@ -333,8 +347,8 @@
         //     console.log(event.preventDefault());
         // })
         
-        bindKeyCombo('ctrl > y, r', () =>
-            console.log('You pressed "ctrl" then "y", released both, and are pressing "r"'))        
+        // bindKeyCombo('ctrl > y, r', () =>
+        //     console.log('You pressed "ctrl" then "y", released both, and are pressing "r"'))        
     </script>
     <script type="text/javascript">
         $(document).ready(function () {

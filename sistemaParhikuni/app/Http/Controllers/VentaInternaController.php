@@ -144,6 +144,7 @@ class VentaInternaController extends Controller
         $asientos=new DisponibilidadAsientos();
         $fVenta=Carbon::createFromFormat('Y-m-d H:i:s', $disp->fSalida.' '.$disp->hSalida);
         $fActual=Carbon::now();
+        $asientosOcupados=null;
         if( $fActual->gte($fVenta) ){
             return redirect(route('venta.interna.cancelarCompra', [
                 'cancelada' => 'La corrida ya salió'
@@ -192,13 +193,16 @@ class VentaInternaController extends Controller
             ->selectRaw('aClave, aDescripcion')
             ->get();
 
+        $asientosOcupados=$asientos->ocupados($disp->nNumero);
+        // dd($asientosOcupados);
         return view('venta.interna.asientos',[
             'disponibilidad'=>$disp,
             'cordis'=>$cordis,
-            'asientosOcupados'=>$asientos->ocupados($disp->nNumero),
+            'asientosOcupados'=>$asientosOcupados,
             'totalPasajeros' => $totalPasajeros,
             'tiposPasajeros' =>  $tiposPasajeros,
             'pasajerosSolic' => $pasajeros,
+            "diagrama"=>$cordis->renderDiagramaYocupacion($asientosOcupados)
         ]);
     }
     // paso 2
@@ -280,7 +284,7 @@ class VentaInternaController extends Controller
             ],
             $horaMin, $request->hFin, session('cmpra_usarPromocion')
         );
-
+        // dd($cordis);
         return view('venta.interna.corridasRegreso',[
             'corridas' => $cordis->paginate(25),
             // 'origen' => Oficinas::find($request->origen),
@@ -313,13 +317,16 @@ class VentaInternaController extends Controller
         $cordis=CorridasDisponibles::find(session('reg_corrida'));
         $disp=Disponibilidad::find(session('reg_disponibilidad'));
         $asientos=new DisponibilidadAsientos();
+        
+        $asientosOcupados=$asientos->ocupados(session('reg_disponibilidad'));
         $pasajeros=json_decode(session('ida_pasajeros'));
         // dd($disp);
         return view('venta.interna.asientosRegreso',[
             'disponibilidad'=>$disp,
             'cordis'=>$cordis,
-            'asientosOcupados'=>$asientos->ocupados(session('reg_disponibilidad')),
+            'asientosOcupados'=>$asientosOcupados,
             'pasajeros' => $pasajeros,
+            "diagrama"=>$cordis->renderDiagramaYocupacion($asientosOcupados, "regreso"),
         ]);
     }
     public function apartarReg(Request $request){
@@ -421,7 +428,7 @@ class VentaInternaController extends Controller
         $promociones=@$request->except('_token')['promoIda'];
         $tarifas=$disp->tarifas();
         $boletosAux='';
-        
+
         if(@session('cmpra_viajeRedondo')){
             $reg_cordis=CorridasDisponibles::find(session('reg_corrida'));
             $reg_disp=Disponibilidad::find(session('reg_disponibilidad'));
@@ -487,15 +494,15 @@ class VentaInternaController extends Controller
                         'IDpromo'=>@$promociones[$i] ?: null,
                         )
                     );
-                    session( ['reg_pasajeros'=>json_encode($reg_pasajeros)] );
-                    session( ['cmpra_boletos'=>strlen($boletosAux, 0, -1)] );
-                    session()->save();
                 }
             }
         }
-        session([
+        session( [
+            'reg_pasajeros'=>json_encode($reg_pasajeros),
+            'cmpra_boletos'=>substr($boletosAux, 0, -1),
             'cmpra_pasoVenta' => 5
         ]);
+        session()->save();
         return redirect(route('venta.interna.pago'));
     }
     // paso 3.1.1

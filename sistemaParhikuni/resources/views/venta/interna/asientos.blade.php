@@ -56,7 +56,7 @@ $contAuxPasajeros=0;
 
         <div class="col-9 row pr-0">
             <div class="col-12 px-0 mx-0">
-                <div class="col-10 row float-right mx-0 px-0 "> <!--  -->
+                <div class="col-10 row float-right mx-0 px-0 ">
                     <div class="text-center py-1 col-3 pasosDeCompra">
                         <b>Viaje</b>
                     </div>
@@ -74,9 +74,9 @@ $contAuxPasajeros=0;
             <div class="row col-12 mx-0 px-0 bg-gris">
                 <b>Selección de asientos</b>
             </div>
-            <!--  -->
 
             <div class="col-12 col-sm-6 col-md-6 col-lg-5 col-xl-4 mx-auto">
+            <!--
                 <table id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
                     max-width: 300px;
                     margin: auto;
@@ -183,6 +183,8 @@ $contAuxPasajeros=0;
                         </td>
                     </tr>
                 </table>
+            -->
+            {!! $diagrama !!}
             </div>
             <div class="col-12 col-sm-6 col-md-6 col-lg-7 col-xl-7 mx-0 mx-xl-auto px-0">
                 <div class="col-12 mx-0 px-0 row">
@@ -209,7 +211,6 @@ $contAuxPasajeros=0;
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- endif -->
                             <datalist id="listaPasajeros">
                                 @php
                                 $pasajeros=json_decode(session("pasajeros"));
@@ -276,6 +277,7 @@ $contAuxPasajeros=0;
         @endforeach
     </select>
 </div>
+
 <!-- Modal -->
 <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -301,5 +303,8 @@ $contAuxPasajeros=0;
     var pasajeros={!! json_encode($pasajerosSolic) !!};
     var totalPasajeros={{ $totalPasajeros }};
     var tiposPasajeros={!! json_encode($tiposPasajeros) !!}
+    document.addEventListener("DOMContentLoaded", function(event){
+        $("#asientos-ida .asiento").click(selecAsiento);
+    });
 </script>
 @endsection

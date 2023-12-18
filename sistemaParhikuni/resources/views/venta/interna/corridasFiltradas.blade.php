@@ -263,15 +263,6 @@ $fechaBuscada=\Carbon\Carbon::parse($fechaDeSalida." 00:00:00");
         </div>
         <div class="col-12 col-sm-12 row mx-0 my-1">
             <div class="col-6 col-sm-12 row px-0 mx-auto selectH">
-                <!-- <img id="busH" src="{{ Vite::asset('resources/images/bus_selec.png') }}" alt=""
-                    style="width: 60px;
-                        position: absolute;
-                        bottom: 6px;
-                        left: {{@Request::get('inptbusH') ?: '100%'}};
-                        display: block;
-                        z-index: 5;
-                        pointer-events: none;
-                        transition:0.5s;"> -->
                 <input id="inptbusH" name="inptbusH" value="{{@Request::get('inptbusH')}}" hidden>
 
                 <input id="horarioMadr" class="" value="Madr" type="radio" name="horario"{{@Request::get('horario')=='Madr' ? 'checked':''}} hidden >

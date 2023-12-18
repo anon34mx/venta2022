@@ -20,4 +20,5 @@ class OficinasController extends Controller
     public function destinos($origen, $comp){
         return (Oficinas::destinos($origen, $comp));
     }
+
 }

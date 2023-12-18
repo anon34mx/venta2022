@@ -155,7 +155,8 @@ namespace ventaParhikuniWin
         public async void InitBrowser()
         {
             await Initizated();
-            Cambiarpagina("/ventaInterna");
+            //Cambiarpagina("/ventaInterna");
+            Cambiarpagina("http://localhost/kuniticket/?origen=MORE&id_kiosko=1");
         }
         // Mis funciones c:
         private void CoreWebView2_NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
@@ -167,7 +168,8 @@ namespace ventaParhikuniWin
         {
             try
             {
-                webView21.CoreWebView2.Navigate("http://"+servidorweb + puertoWeb + pagina);
+                //webView21.CoreWebView2.Navigate("http://"+servidorweb + puertoWeb + pagina);
+                webView21.CoreWebView2.Navigate(pagina);
             }
             catch (Exception)
             {

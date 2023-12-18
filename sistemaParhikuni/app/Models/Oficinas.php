@@ -41,10 +41,11 @@ class Oficinas extends Model
                 ->join("oficinas as ori", "ori.nNumero", "=", "od.nOrigen")
                 ->join("oficinas as des", "des.nNumero", "=", "od.nDestino")
                 ->whereRaw("ori.lDisponible=1 AND des.lDisponible=1")
-                ->whereRaw("od.nOrigen=".$origen);
+                ->whereRaw("od.nOrigen=".$origen." OR ori.aClave='$origen'");
             // if($origen!=0 && $origen!="todos"){
             // }
         }
+        // dd($origenesDestinos->toSql());
         $origenesDestinos=$origenesDestinos->get();
 
         if($comprimir=="true"){

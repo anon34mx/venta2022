@@ -25,6 +25,7 @@ use Auth;
 use Carbon\Carbon;
 use PDF;
 
+date_default_timezone_set('Etc/GMT+6');
 class CorridasDisponiblesController extends Controller
 {
     public $elementsPerPage=15;
@@ -295,8 +296,123 @@ class CorridasDisponiblesController extends Controller
         </div><br>';
     }
 
+    public function renderDiagramaYocupacion($asientosOcupados){
+        $contAuxAsien=0;
+        $sizeAsientos=sizeof($asientosOcupados);
+
+        $html='<table id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
+                    max-width: 300px;
+                    margin: auto;
+                    ">
+                    <tr>
+                        <td>
+                            <img alt="" style="" width="34"
+                                class="logo-color mx-auto my-0" src="{{ Vite::asset("resources/images/diagramaAutobus/Conductor.png") }}">
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>';
+
+            foreach(explode("|" ,$cordis->autobus->distribucionAsientos->aDistribucion) as $row){
+                $html.='<tr>';
+                    foreach(explode(",",$row) as $col){
+                        $html.='<td>';
+                            if($col=="00")
+                                $html.='<div class="pasillo"></div>';
+                            elseif($col=="PU")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="{{ Vite::asset("resources/images/diagramaAutobus/puerta.png") }}" alt="Baño de hombres">
+                                </div>';
+                            elseif($col=="BU")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="{{ Vite::asset("resources/images/diagramaAutobus/Baños Unisex.png") }}" alt="Baño de hombres">
+                                </div>';
+                            elseif($col=="BH")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="{{ Vite::asset("resources/images/diagramaAutobus/Bano_h.png") }}" alt="Baño de hombres">
+                                </div>';
+                            elseif($col=="BM")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="{{ Vite::asset("resources/images/diagramaAutobus/Bano_m.png") }}" alt="Baño de mujeres">
+                                </div>';
+                                elseif($col=="CA")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="{{ Vite::asset("resources/images/diagramaAutobus/Cafeteria.png") }}" alt="Cafetera">
+                                </div>';
+                            else{
+                                $numAsiento=substr($col,0,2);
+                                $ocupado=0;
+    
+                                if( $asientosOcupados[$numAsiento]){
+                                    if(strpos($col,"T")>0){
+                                        $html.='<div id="asiento-{{$numAsiento}}" class="asiento tv ocupado" numero="{{$numAsiento}}">
+                                            <span>{{$numAsiento}}</span>
+                                            <br>
+                                            <sub>tv</sub>
+                                        </div>';
+                                    }else{
+                                        $html.='<div id="asiento-{{$numAsiento}}" class="asiento ocupado" numero="{{$numAsiento}}">
+                                            <span>{{$numAsiento}}</span>
+                                            <br>
+                                            <sub></sub>
+                                        </div>';
+                                    }
+                                    $contAuxAsien=$contAuxAsien+1;
+                                }
+                                else{
+                                    if(strpos($col,"T")>0)
+                                        $html.='<div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
+                                            <span>{{"$numAsiento"}}</span>
+                                            <br>
+                                            <sub>tv</sub>
+                                        </div>';
+                                    else{
+                                        $html.='<div id="asiento-{{$numAsiento}}" class="asiento" numero="{{$numAsiento}}">
+                                            <span>{{$numAsiento}}</span>
+                                            <br>
+                                            <sub></sub>
+                                        </div>';
+                                    }
+                                }
+                            }
+                        $html.='</td>';
+                    }
+                $html.='</tr>';
+            }
+            
+            $html.='<tr>
+                <td colspan="5">
+                    <img src="{{ Vite::asset("resources/images/servicios/".$cordis->servicio->aClave.".png") }}" alt="">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div class="py-1" style="display: flex;justify-content: space-around;margin: 0 15px;border: 3px solid black;padding: 0 44px;">';
+            foreach($cordis->servicio->serviciosAbordo() as $sab){
+                $html.='<img src="{{Vite::asset("resources/images/diagramaAutobus/".$sab->imagen)}}" width="40"
+                    alt="{{$sab->descripcion}}" style="display:block;">';
+            }
+            $html.='</div>
+                </td>
+            </tr>
+        </table>';
+    }
+
     public function getProxCorridas(CorridasDisponibles $corrida, $nOrigen, $nDestino){
         // dd($corrida);
         CorridasDisponibles::getProxCorridas($corrida->nNumero, $corrida->fSalida, $corrida->hSalida, $corrida->nTipoServicio, $nOrigen, $nDestino);
+    }
+    public function filtradas(Request $request){
+        // dd($request->all());
+        // ($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null,
+        // $hInicio="00:00:00", $hFin=null, $usarPromocion=null, $limit=999, $tipoBusqueda="exacta")
+        $cordis=new CorridasDisponibles();
+        $rs=$cordis->filtrar($request->corrida, $request->origen, $request->destino, $request->fechaSalida, $request->fechaMax, $request->cantidadPasajeros,
+            $request->hInicio, $request->hFin, $request->usarPromocion, $request->limit, @$request->tipoBusqueda ?: "exacta", $request->claseServ
+            );
+        // dd($rs[0]);
+        echo json_encode($rs);
     }
 }

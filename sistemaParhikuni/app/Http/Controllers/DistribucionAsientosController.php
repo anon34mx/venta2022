@@ -161,7 +161,7 @@ class DistribucionAsientosController extends Controller
                         array_push($asientoslibres, intval($numAsiento));
                     }
 
-                    $diag.='<div id="asiento-'.$numAsiento.'" class="asiento '.$tv.' '.$ocupado.'" numero="'.$numAsiento.'">
+                    $diag.='<div id="asiento-'.$numAsiento.'" class="asiento '.$tv.' '.$ocupado.'" numero="'.$numAsiento.'" onclick="selecAsientoReg()">
                                 <span>'.$numAsiento.'</span>
                                 <br>
                                 <sub>tv</sub>
@@ -173,7 +173,6 @@ class DistribucionAsientosController extends Controller
         }
         $diag.='</table >';
 
-        // array_push($asientoslibres, 0);
         echo $retorno=json_encode([
             "diagrama"=> $diag,
             "ocupados" => $asientosOcupados,

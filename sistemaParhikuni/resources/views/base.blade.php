@@ -111,12 +111,31 @@
             </span>
         </div>
         <div class="col-2">
-            Filtrar
-            <i class="fa-solid fa-filter"></i>
+            <span class="btn-collap col-auto float-right" title="Buscar">
+                <label class="btn btn-sm btn-parhi-primary">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>siguiente</span>
+                </label>
+                <input id="volver" class="btn">
+            </span>
         </div>
         <div class="col-2">
-            <i class="fa-solid fa-filter-circle-xmark"></i>
-            Quitar filtros
+            <span class="btn-collap col-auto float-right" title="Buscar">
+                <label class="btn btn-sm btn-parhi-primary">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>Filtrar</span>
+                </label>
+                <input id="filtrar" class="btn">
+            </span>
+        </div>
+        <div class="col-2">
+            <span class="btn-collap col-auto float-right" title="Buscar">
+                <label class="btn btn-sm btn-parhi-primary">
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                    <span>Quitar filtros</span>
+                </label>
+                <input id="filtrar" class="btn">
+            </span>
         </div>
     </div>
 
@@ -147,6 +166,23 @@
         </div>
     </div>
 
+
+    <div class="col-12">
+        <h4>
+            <div id="ancla" style="
+            /* display: none; */
+            width:0px;
+            heigth:0px;
+            position: absolute;
+            top: -70px;
+            color:red;
+        "></div>
+            Titulo con ancla:
+        </h4>
+        <a href="#ancla">Ir a titulo con ancla</a>
+        <br><br><br><br><br>
+    </div>
+
     <div class="col-12">
         <h5>Tablas</h5>
         <div style="
@@ -154,7 +190,7 @@
             height: 180px;
             overflow: auto;
         ">
-            <table class="mt-2 table table-striped table-parhi">
+            <table class="mt-0 table table-striped table-parhi">
                 <thead style="
                     position: sticky;
                     top: -1px;
@@ -199,6 +235,16 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="col-12 my-3 mx-0  row">
+        <h5>Autocompletar varios input</h5>
+        <div class="col-6 my-11">
+            <input type="text" class="form-control form-control-sm" placeholder="Busqueda">
+        </div>
+        <div class="col-12 my-11">
+            <input type="text" class="form-control form-control-sm" placeholder="Busqueda">
         </div>
     </div>
 </div>

@@ -16,7 +16,7 @@ use App\Models\RegistroPasoPuntos;
 use App\Models\Itinerario;
 use App\Models\TarifasTramo;
 use DB, Carbon;
-use Auth;
+use Auth, Vite;
 
 class CorridasDisponibles extends Model
 {
@@ -299,6 +299,7 @@ class CorridasDisponibles extends Model
     public function boletos(){
         return $this->hasMany(BoletosVendidos::class, 'nCorrida', 'nNumero')
             ->where("aEstado", "!=", "CA")
+            ->where("aEstado", "!=", "PP")
             ->where("aTipoPasajero", "!=", "PQ");
             // ->where("aEstado", "!=", "VE");
     }
@@ -353,18 +354,16 @@ class CorridasDisponibles extends Model
 
     //Para buscar corridas
     public function filtrar($corrida=null, $origen=null, $destino=null, $fechaSalida=null, $fechaMax=null, $pasajeros=null,
-    $hInicio="00:00:00", $hFin=null, $usarPromocion=null, $limit=999, $tipoBusqueda="exacta"){
+        $hInicio='00:00:00', $hFin=null, $usarPromocion=null, $limit=999, $tipoBusqueda='exacta'){
+        
         $totalPasajeros=0;
-        foreach($pasajeros as $owo){
-            $totalPasajeros+=$owo;
+        if(gettype($pasajeros)=='array'){
+            foreach($pasajeros as $owo){
+                $totalPasajeros+=$owo;
+            }
         }
-        /*
-        (SELECT
-                COUNT(DISTINCT(nAsiento))
-                FROM `disponibilidadasientos` disa
-                WHERE disa.nDisponibilidad=disp.nNumero) as ocupados,
-        */
-        $res=$this::from("corridasdisponibles as cordis")
+        // dd(gettype($pasajeros));
+        $res=$this::from('corridasdisponibles as cordis')
             ->selectRaw("cordis.nNumero as 'corrida',
                 cordis.aEstado, IFNULL(hist.aEstadoNuevo, 'D') as 'estadoCorrida',
                 (SELECT aEstado FROM corridas_estados where id=IFNULL(hist.aEstadoNuevo, 'D')) as edoUwu,
@@ -377,73 +376,105 @@ class CorridasDisponibles extends Model
                 iti.nItinerario as itinerario, iti.nConsecutivo,
                 reg.despachado, reg.fLlegada as checkin, reg.fSalida as checkout,
                 (tatr.nMontoBaseRuta*1.".env("IVA").") as tarifaBase,
+                (taPq.nMontoBaseRuta*1.".env("IVA").") as tarifaPaq,
                 tser.descuentosMax
                 ,(
                     SELECT count(prmsds.nBoletoVendido) FROM `boletosvendidos_promociones` prmsds
                     INNER JOIN boletosvendidos bol2 ON bol2.nNumero=prmsds.nBoletoVendido WHERE bol2.nCorrida=cordis.nNumero
                 ) as promosUsadas
             ")
-            ->join("autobuses as autobus", "autobus.nNumeroAutobus", "=", "cordis.nNumeroAutobus")
-            ->join("distribucionasientos as dist", "dist.nNumero", "=", "autobus.nDistribucionAsientos")
-            ->join("tiposervicio as tser", "tser.nNumero", "=", "autobus.nTipoServicio")
-            ->join("itinerario as iti", "iti.nItinerario", "=", "cordis.nItinerario")
-            ->join("tramos as tr", "tr.nNumero", "=", "iti.nTramo")
-            ->join("disponibilidad as disp", function($join){
-                $join->on("disp.nCorridaDisponible", "=", "cordis.nNumero");
-                $join->on("disp.nOrigen", "=", "tr.nOrigen");
+            ->join('autobuses as autobus', 'autobus.nNumeroAutobus', '=', 'cordis.nNumeroAutobus')
+            ->join('distribucionasientos as dist', 'dist.nNumero', '=', 'autobus.nDistribucionAsientos')
+            ->join('tiposervicio as tser', 'tser.nNumero', '=', 'autobus.nTipoServicio')
+            ->join('itinerario as iti', 'iti.nItinerario', '=', 'cordis.nItinerario')
+            ->join('tramos as tr', 'tr.nNumero', '=', 'iti.nTramo')
+            ->join('disponibilidad as disp', function($join){
+                $join->on('disp.nCorridaDisponible', '=', 'cordis.nNumero');
+                $join->on('disp.nOrigen', '=', 'tr.nOrigen');
             })
-            ->join("oficinas as ori", "ori.nNumero", "=", "disp.nOrigen")
-            ->join("oficinas as des", "des.nNumero", "=", "disp.nDestino")
-            ->leftJoin("registropasopuntos as reg", function($join){
-                $join->on("reg.nCorrida", "=", "cordis.nNumero");
-                $join->on("iti.nConsecutivo", "=", "reg.nConsecutivo");
+            ->join('oficinas as ori', 'ori.nNumero', '=', 'disp.nOrigen')
+            ->join('oficinas as des', 'des.nNumero', '=', 'disp.nDestino')
+            ->leftJoin('registropasopuntos as reg', function($join){
+                $join->on('reg.nCorrida', '=', 'cordis.nNumero');
+                $join->on('iti.nConsecutivo', '=', 'reg.nConsecutivo');
             })
-            ->leftJoin("disponibilidadasientos as disa", function($join){
-                $join->on("disa.nDisponibilidad", "=", "disp.nNumero");
+            ->leftJoin('disponibilidadasientos as disa', function($join){
+                $join->on('disa.nDisponibilidad', '=', 'disp.nNumero');
             });
-            $res->leftJoin("boletosvendidos as bol", function($join){
-                $join->on("bol.nCorrida", "=", "cordis.nNumero");
-                $join->on("bol.aTipoPasajero", "!=", DB::raw("'PQ'"));
-                $join->on("bol.nNumero", "=", "disa.nBoleto")
+            $res->leftJoin('boletosvendidos as bol', function($join){
+                $join->on('bol.nCorrida', '=', 'cordis.nNumero');
+                $join->on('bol.aTipoPasajero', '!=', DB::raw('"PQ"'));
+                $join->on('bol.nNumero', '=', 'disa.nBoleto')
                     ->whereRaw( DB::raw('bol.aEstado="VE" OR bol.aEstado="AP"') );
             });
             if($usarPromocion==true){
                 $res->havingRaw("promosUsadas+$totalPasajeros <= descuentosMax");
             }
-            $res->leftJoin("tarifastramos as tatr", function($join){
-                $join->on("tatr.nOrigen", "=", "disp.nOrigen");
-                $join->on("tatr.nDestino", "=", "disp.nDestino");
-                $join->on("tatr.nTipoServicio", "=", "cordis.nTipoServicio");
-                $join->on("tatr.fAplicacion", "<=", DB::raw("current_date"));
+            $res->leftJoin('tarifastramos as tatr', function($join){
+                $join->on('tatr.nOrigen', '=', 'disp.nOrigen');
+                $join->on('tatr.nDestino', '=', 'disp.nDestino');
+                $join->on('tatr.nTipoServicio', '=', 'cordis.nTipoServicio');
+                $join->on('tatr.fAplicacion', '<=', DB::raw('current_date'));
+            });
+            $res->leftJoin('tarifastramos as taPq', function($join){
+                $join->on('taPq.nOrigen', '=', 'disp.nOrigen');
+                $join->on('taPq.nDestino', '=', 'disp.nDestino');
+                $join->on('taPq.nTipoServicio', '=', DB::raw('(SELECT nNumero FROM `tiposervicio` WHERE aClave="PQ")'));
+                $join->on('taPq.fAplicacion', '<=', DB::raw('current_date'));
             })
-            ->leftJoin("corridas_disponibles_historial as hist", "hist.id", "=", DB::raw("
+
+            ->leftJoin('corridas_disponibles_historial as hist', 'hist.id', '=', DB::raw('
                 (SELECT id FROM `corridas_disponibles_historial` where corrida_disponible=cordis.nNumero and nNumeroOficina=disp.nOrigen ORDER BY created_at DESC LIMIT 1)
-            "));
+            '));
             if($corrida!=null){
-                $res->whereRaw("cordis.nNumero=".$corrida);
+                $res->whereRaw('cordis.nNumero='.$corrida);
             }
-            if($tipoBusqueda=="exacta"){
+            if($tipoBusqueda=='exacta'){
                 //fecha inicio (fecha fin es el mismo dia)
                 if($fechaSalida==null){
-                    $res->whereRaw("cordis.fSalida=current_date");
-                    if($hInicio!=""){
-                        $res->whereRaw("disp.hSalida>='".$hInicio."'");
-                    }
+                    $res->whereRaw('cordis.fSalida=current_date');
                 }else{
                     $res->whereRaw("cordis.fSalida=IF( '$fechaSalida' < CURRENT_DATE, CURRENT_DATE, '$fechaSalida' )");
+                }
+                $res->whereRaw('disp.hSalida>="'.$hInicio.'"');
+            }
+            elseif($tipoBusqueda=="proximas"){
+                # Buscar las siguientes corridas, aunque sean al otro día
+                    $res->whereRaw("cordis.fSalida>='$fechaSalida'");
+                    $res->whereRaw("cordis.hSalida>= IF(cordis.fSalida=current_date, '$hInicio', '00:00:00')");
+                    // dd($res->toSql());
+            }
+            elseif($tipoBusqueda=="rango"){
+                //fecha inicio (fecha fin es el mismo dia)
+                if($fechaSalida==null){
                     if($hInicio!=""){
-                        $res->whereRaw("disp.hSalida>='".$hInicio."'");
+                        // $res->whereRaw("disp.hSalida>='".$hInicio."'");
+                        $res->whereRaw("CONVERT(CONCAT(cordis.fSalida, ' ' , disp.hSalida), DATETIME) >= CONCAT(current_date, ' ', '".$hInicio."')");
+                    }else{
+                        // $res->whereRaw("cordis.fSalida=current_date");
+                        $res->whereRaw("CONVERT(CONCAT(cordis.fSalida, ' ' , disp.hSalida), DATETIME) >= CONCAT(".$fechaSalida.", ' ', '".$hInicio."')");
+                    }
+                }else{
+                    if($hInicio!=""){
+                        // $res->whereRaw("CONVERT( CONCAT(cordis.fSalida, ' ', disp.hSalida), DATETIME) >='".$fechaSalida." ".$hInicio."'");
+                        $res->whereRaw("CONVERT( CONCAT(cordis.fSalida, ' ', disp.hSalida), DATETIME) >= CONCAT('".$fechaSalida."', ' ', '".$hInicio."')");
+                    }else{
+                        $res->whereRaw("CONVERT( CONCAT(cordis.fSalida, ' ', disp.hSalida), DATETIME) >= CONCAT('".$fechaSalida."', ' ', CURRENT_TIME)");
                     }
                 }
                 // hora inicio
                 // hora fin
             }
-            elseif($tipoBusqueda=="absoluta"){
-                # PARA admin/dev muestra lo más posible
-            }
+
+            // if(gettype($claseServ)=="string"){
+            //     // $claseServ=implode(",", $claseServ);
+            //     $res->whereRaw("tser.aClave IN ('$claseServ')");
+            //     dd($res->toSql());
+            //     dd($claseServ);
+            // }
 
             if($origen!=null && $origen!="todos"){
-                $res->whereRaw("disp.nOrigen=".$origen);
+                $res->whereRaw("disp.nOrigen='".$origen."'");
             }
             if($destino!=null){
                 $res->whereRaw("disp.nDestino=".$destino);
@@ -459,7 +490,6 @@ class CorridasDisponibles extends Model
             if($limit!=null){
                 $res->take($limit);
             }
-        // dd($res->toSql());
         $res=$res->get();
         return $res;
     }
@@ -597,7 +627,6 @@ class CorridasDisponibles extends Model
     }
 
     public static function disponibilidadAsientosPro($corrida, $origen, $destino, $modo){
-        // dd($corrida, $origen, $destino, $modo);
         $asientos=array();
         $rs=DB::select(
             DB::raw('SELECT dist.nAsientos as asientos from corridasdisponibles cordis
@@ -639,5 +668,122 @@ class CorridasDisponibles extends Model
             }
             return ($asientos);
         }
+    }
+
+    public function renderDiagramaYocupacion($asientosOcupados, $direcc="ida"){
+        $contAuxAsien=0;
+        $sizeAsientos=sizeof($asientosOcupados);
+        $event= ""; // ($direcc=="ida") ? "selecAsiento()" : "selecAsientoReg()";
+
+
+        $html='<table id="asientos-ida" class="tbl-diagrama-bus mx-auto mt-2" style="
+                    max-width: 300px;
+                    margin: auto;
+                    ">
+                    <tr>
+                        <td>
+                            <img alt="" style="" width="34"
+                                class="logo-color mx-auto my-0" src="'.@Vite::asset('resources/images/diagramaAutobus/Conductor.png').'">
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>';
+
+            foreach(explode("|" ,$this->autobus->distribucionAsientos->aDistribucion) as $row){
+                $html.='<tr>';
+                    foreach(explode(",",$row) as $col){
+                        $html.='<td>';
+                            if($col=="00")
+                                $html.='<div class="pasillo"></div>';
+                            elseif($col=="PU")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="'.Vite::asset("resources/images/diagramaAutobus/puerta.png").'" alt="Baño de hombres">
+                                </div>';
+                            elseif($col=="BU")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="'.Vite::asset("resources/images/diagramaAutobus/Baños Unisex.png").'" alt="Baño de hombres">
+                                </div>';
+                            elseif($col=="BH")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="'.Vite::asset("resources/images/diagramaAutobus/Bano_h.png").'" alt="Baño de hombres">
+                                </div>';
+                            elseif($col=="BM")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="'.Vite::asset("resources/images/diagramaAutobus/Bano_m.png").'" alt="Baño de mujeres">
+                                </div>';
+                                elseif($col=="CA")
+                                $html.='<div class="pasillo">
+                                    <img width="100%" src="'.Vite::asset("resources/images/diagramaAutobus/Cafeteria.png").'" alt="Cafetera">
+                                </div>';
+                            else{
+                                $numAsiento=substr($col,0,2);
+                                $ocupado=0;
+    
+                                if(@$asientosOcupados[$numAsiento]){
+                                    if(strpos($col,"T")>0){
+                                        $html.='<div id="asiento-'.$numAsiento.'" class="asiento '.$direcc.' tv ocupado" numero="'.$numAsiento.'">
+                                            <span>'.$numAsiento.'</span>
+                                            <br>
+                                            <sub>tv</sub>
+                                        </div>';
+                                    }else{
+                                        $html.='<div id="asiento-'.$numAsiento.'" class="asiento '.$direcc.' ocupado" numero="'.$numAsiento.'">
+                                            <span>'.$numAsiento.'</span>
+                                            <br>
+                                            <sub></sub>
+                                        </div>';
+                                    }
+                                    $contAuxAsien=$contAuxAsien+1;
+                                }
+                                else{
+                                    if(strpos($col,"T")>0)
+                                        $html.='<div id="asiento-'.$numAsiento.'" class="asiento '.$direcc.' tv" numero="'.$numAsiento.'" onclick="'.$event.'">
+                                            <span>'."$numAsiento".'</span>
+                                            <br>
+                                            <sub>tv</sub>
+                                        </div>';
+                                    else{
+                                        $html.='<div id="asiento-'.$numAsiento.'" class="asiento '.$direcc.'" numero="'.$numAsiento.'" onclick="'.$event.'">
+                                            <span>'.$numAsiento.'</span>
+                                            <br>
+                                            <sub></sub>
+                                        </div>';
+                                    }
+                                }
+                            }
+                        $html.='</td>';
+                    }
+                $html.='</tr>';
+            }
+            
+            $html.='<tr>
+                <td colspan="5">
+                    <img src="'.Vite::asset("resources/images/servicios/".$this->servicio->aClave.".png") .'" alt="">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div class="py-1" style="display: flex;justify-content: space-around;margin: 0 15px;border: 3px solid black;padding: 0 44px;">';
+            foreach($this->servicio->serviciosAbordo() as $sab){
+                $html.='<img src="'.Vite::asset("resources/images/diagramaAutobus/".$sab->imagen).'" width="40"
+                    alt="'.$sab->descripcion.'" style="display:block;">';
+            }
+            $html.='</div>
+                </td>
+            </tr>
+        </table>';
+        // if($direc="regreso"){
+        //     $html.='<script>
+        //         // $(".asiento.regreso").on("click", selecAsientoReg);
+        //     </script>';
+        // }else{
+        //     $html.='<script>
+        //         // $("#asientos-ida .asiento").click(selecAsiento);
+        //         // document.getElementsByClassName(".asiento").addEventListener("click", selecAsiento)
+        //     </script>';
+        // }
+        return $html;
     }
 }

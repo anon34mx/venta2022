@@ -198,6 +198,7 @@ window.selecTipoPasajero=function(lista){
     }
 }
 window.selecAsientoReg=function(){
+    console.log(this);
     if (!$(this).hasClass("apartado") && $("#tipoNombrePasajeroCont").is(":hidden")) { // 
         if ($(".asiento.apartado").length < $("#pasajeros tr").length){
             window.asientoAnt = this.attributes.numero.value;
@@ -224,7 +225,7 @@ window.cancelSelecAsientoReg = function () {
     $(`#asiento-${asientoAnt}`).removeClass("apartado");
 }
 window.selecAsientoPasaReg=function(){
-    var id = $(this).find("option:selected");
+    var id = $('#tipoNombrePasajero').find("option:selected");
     if (id[0].value != "" && asientoAnt!=0){
         $(id).remove();
         $("#tipoNombrePasajeroCont").fadeOut();
@@ -238,7 +239,7 @@ window.selecAsientoPasaReg=function(){
                 <td><input readonly class="form-control form-control-sm asientoSel" name="asiento[]" value="${asientoAnt}"></td>
                 <td><input readonly class="form-control form-control-sm pasajero" name="nombre[]" value="`+ $(`#pasajeros [pasajero=${id[0].value}] .pasajero span`).html() +`"></td>
                 <td class="px-2">
-                    <button id="cancelar-${id[0].value}" onclick="event.preventDefault();quitarPasajeroR(${asientoAnt});"
+                    <button id="cancelar-${id[0].value}" onclick="event.preventDefault();quitarPasajeroR('${asientoAnt}');"
                         class="hidden"></button>
                     <label class="btn btn-sm btn-danger float-right" for="cancelar-${id[0].value}">
                         <i class="fa-solid fa-xmark"></i>
@@ -458,10 +459,10 @@ $(document).ready(()=>{
 
     window.tiempoRestante = $("#tiempoRestante").attr("initial");
 
-    $("#asientos-ida .asiento").click(selecAsiento);
+    // $("#asientos-ida .asiento").click(selecAsiento); //usar
+    // $(".asiento.regreso").on("click", selecAsientoReg);// usar
     // $("#asientos-reg .asiento").click(selecAsientoReg);
-    $(".asiento.regreso").on("click", selecAsientoReg);
-    $("#tipoNombrePasajero").on("change", selecAsientoPasaReg);
+    // $("#tipoNombrePasajero").on("change", selecAsientoPasaReg);
 
     $(".pasajeroAsiento, .pasajeroAsiento input").on("focus", function () {
         window.asientoAnt = this.value;

@@ -135,12 +135,6 @@ ON UPDATE CASCADE ON DELETE RESTRICT;
 {{ date('Y-m-d', strtotime($corridaProgramada->fInicio. ' + 1 days')) }}
 
 
-
-
-
-
-
-
 CREATE TABLE personas_estados(
     aClave varchar(2) not null,
     descripcion varchar(16), 
@@ -184,8 +178,6 @@ ALTER TABLE `registropasopuntos`
   ADD `despachado` DATETIME NOT NULL AFTER `nConsecutivo`;
 
 
--- #################################
-
 CREATE OR REPLACE TABLE origenesdestinos(
   nOrigen int(10) unsigned not null,
   nDestino int(10) unsigned not null,
@@ -215,7 +207,6 @@ ORDER BY ori.aNombre, des.aNombre
 ALTER TABLE corridas_disponibles_historial
   ADD COLUMN nConsecutivo smallint unsigned
 
--- ##################################################################
 
 -- CREAR procedimiento que crea la vista de itinerario-tramos que sirve de ayuda al 
 CREATE OR REPLACE PROCEDURE view_iti_tra_update()
@@ -317,9 +308,7 @@ ALTER TABLE venta
 ADD FOREIGN KEY (nCorridaRegreso)
 REFERENCES corridasdisponibles(nNumero)
 ON UPDATE CASCADE ON DELETE RESTRICT;
-----------------
-----------------
-----------------
+
 CREATE TABLE cliente_windows(
   id int unsigned not null auto_increment,
   version decimal(5,2) unsigned,
@@ -331,10 +320,6 @@ CREATE TABLE cliente_windows(
 );
 
 ALTER TABLE `terminales` ADD `hwid` TEXT NOT NULL AFTER `aDescripcion`;
-
--- #########################################
--- #########################################
--- #########################################
 
 -- Mejoró la carga de 3s a 1s
 
@@ -365,7 +350,7 @@ CREATE INDEX registropasopuntos_index on registropasopuntos
 CREATE INDEX tarifastramos_index on tarifastramos
 (nOrigen, nDestino, nTipoServicio, fAplicacion);
 
--- ################
+
 CREATE TABLE boletosTransferidos(
   id int unsigned not null auto_increment,
   corrida_anterior bigint(20) unsigned,
@@ -384,8 +369,6 @@ CREATE TABLE boletosTransferidos(
 );
 
 
-
--- ####################################
 CREATE TABLE serviciosABordo(
     id smallint unsigned not null auto_increment,
     descripcion varchar(30) not null,
@@ -415,8 +398,7 @@ INSERT INTO `serviciosabordo`(`descripcion`, `imagen`) VALUES
 ('Pantallas',''),
 ('Ubicación',''),
 ('Venta a bordo',''),
-('Wifi','');
-INSERT INTO `serviciosabordo`(`descripcion`, `imagen`) VALUES
+('Wifi',''),
 ('Baño hombres','Bano_h.png'),
 ('Baño mujeres','Bano_m.png');
 
@@ -446,3 +428,57 @@ VALUES
 (5, 2),
 (5, 4),
 (5, 6);
+
+
+-- https://www.digitalocean.com/community/tutorials/how-to-improve-database-searches-with-full-text-search-in-mysql-5-6-on-ubuntu-16-04
+CREATE TABLE remitentes(
+    id bigint unsigned not null auto_increment,
+    RFC varchar(13),
+    CURP varchar(18),
+    telefono1 varchar(12),
+    telefono2 varchar(12),
+
+    nombres varchar(30),
+    apellidos varchar(30),
+    correo varchar(40),
+
+    calle varchar(60),
+    numExt varchar(6),
+    numInt varchar(6),
+    colonia varchar(60),
+    CP varchar(6),
+    municipio varchar(60),
+    ciudad varchar(50),
+    estado varchar(34),
+    pais varchar(34),
+
+    PRIMARY KEY(id)
+);
+ALTER TABLE remitentes ADD FULLTEXT (nombres, apellidos, correo);
+ALTER TABLE remitentes ADD FULLTEXT (CURP);
+
+INSERT INTO `remitentes` (`id`, `RFC`, `CURP`, `telefono1`, `telefono2`, `nombres`, `apellidos`, `correo`, `calle`, `numExt`, `numInt`, `colonia`, `municipio`, `ciudad`, `estado`, `pais`, CP)
+VALUES
+(NULL, 'AUCJ941217S61', 'AUCJ941217HMNGSH06', '4432443657', '4432443656', 'JAHAZIEL AARON', 'AGUILERA CASTILLO', 'a.non34@hotmail.com', 'calle', '200', NULL, 'colonia ', 'MORELIA', 'MORELIA', 'MICHOACAN', 'MEXICO', "5XXXX"),
+(NULL, 'AUCJ941217S61', 'AUCJ941217HMNGSH06', '4432443657', '', 'JAHAZIEL AARON', 'AGUILERA CASTILLO', 'aaron.aguilera@parhikuni.mx', 'MARTIN MONGE', '113', NULL, 'Nva Valladolid', 'MORELIA', 'MORELIA', 'MICHOACAN', 'MEXICO', "58190"),
+(NULL, 'ABCD700101S61', 'ABCD700101HMNGSH06', '4433025068', '', 'JUAN', 'LOPEZ PEREZ', 'JLP@OUTLOOK.COM', 'JOAQUIN RIVADENEIRA', '503', NULL, 'JUSTO MENDOZA', 'MORELIA', 'MORELIA', 'MICHOACAN', 'MEXICO', "581XX"),
+
+SELECT * FROM remitentes WHERE
+CURP='AUCJ941217HMNGSH06' OR 
+RFC='AUCJ941217S61' OR
+correo='aaron.aguilera@parhikuni.mx' OR
+telefono1='4432443657' OR
+telefono2='4432443656' OR
+MATCH (nombres, apellidos, correo)
+AGAINST ('auCJ' IN NATURAL LANGUAGE MODE);
+
+
+ALTER TABLE asentamientos ADD FULLTEXT (d_asenta);
+ALTER TABLE ciudades ADD FULLTEXT (nombre);
+ALTER TABLE estado ADD FULLTEXT (nombre);
+ALTER TABLE municipios ADD FULLTEXT (nombre);
+
+--    ####################################
+--    ####################################
+--    ####################################
+-- CREATE TABLE tamañoPaquetes

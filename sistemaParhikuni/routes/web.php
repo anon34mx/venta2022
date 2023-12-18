@@ -155,7 +155,7 @@ Route::get('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\Co
 Route::post('/corridas/disponibles/{corridaDisponible}', [App\Http\Controllers\CorridasDisponiblesController::class, 'update'])
     ->name('corridas.disponibles.update')
     ->middleware('permission:corridas.disponibles.update');
-    // Registro paso puntos
+// Registro paso puntos
 Route::post('/corridas/disponibles/{corridaDisponible}/despachar', [App\Http\Controllers\CorridasDisponiblesController::class, 'despachar'])
     ->name('corridas.disponibles.despachar')
     ->middleware('permission:corridas.disponibles.despachar');
@@ -214,6 +214,8 @@ Route::post('/boletos/transferir/{corridaOriginal}/reasignarManual', [App\Http\C
 
 Route::get('/filtros', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtros'])
     ->name('corridas.disponibles.filtros');//->middleware('permission:corridas.disponibles.index');//pendiente
+Route::post('/CorridasDisponibles/filtradas', [App\Http\Controllers\CorridasDisponiblesController::class, 'filtradas'])
+    ->name('corridas.disponibles.filtradas');//->middleware('permission:corridas.disponibles.index');//pendiente
     
 //  VENTA INTERNA
     //  PASO 0
@@ -231,8 +233,6 @@ Route::get('/ventaInterna/asientos/ida', [App\Http\Controllers\VentaInternaContr
     //  PASO 2
 Route::post('/ventaInterna/apartarIda', [App\Http\Controllers\VentaInternaController::class, 'apartarIda'])
     ->name('venta.interna.apartar');
-
-
 Route::get('/ventaInterna/corridas/regreso', [App\Http\Controllers\VentaInternaController::class, 'corridasRegreso'])
     ->name('venta.interna.corridasRegreso')->middleware(['ventaInterna']);
 Route::post('/ventaInterna/corridas/regreso/guardar', [App\Http\Controllers\VentaInternaController::class, 'corridasRegresoGuardar'])
@@ -241,8 +241,6 @@ Route::get('/ventaInterna/asientos/regreso', [App\Http\Controllers\VentaInternaC
     ->name('venta.interna.asientosRegreso'); //->middleware(['ventaInterna']);
 Route::post('/ventaInterna/asientos/regreso/apartar', [App\Http\Controllers\VentaInternaController::class, 'apartarReg'])
     ->name('venta.interna.asientosRegreso.apartar'); //->middleware(['ventaInterna']);
-
-
     //  PASO 4
 Route::get('/ventaInterna/confirmacion', [App\Http\Controllers\VentaInternaController::class, 'confirmacion'])
     ->name('venta.interna.confirmacion')->middleware(['ventaInterna']);
@@ -310,7 +308,19 @@ Route::get('/personal/conductores/{conductor}/edit', [App\Http\Controllers\Condu
 Route::post('/personal/conductores/{conductor}/update', [App\Http\Controllers\ConductoresController::class, 'update'])
     ->name('personal.conductores.update');
     // ->middleware('permission:corridasDisponibles.index');
-    
+
+// PAQUETERIA
+Route::get('/paqueteria/', [App\Http\Controllers\PaqueteriaController::class, 'index'])
+    ->name('paqueteria.index');
+Route::get('/paqueteria/registrar', [App\Http\Controllers\PaqueteriaController::class, 'create'])
+    ->name('paqueteria.create');
+
+
+
+
+
+
+// ---  OTROS  ---
 Route::get('/logout', function(Request $request){
     try {
         //code...
@@ -325,10 +335,40 @@ Route::get('/logout', function(Request $request){
 })->name('logout');
     
 // API
-// Route::resource('/corrida/{corrida}/diagramaConOcupacion', [App\Http\Controllers\DistribucionAsientosController::class, 'getDiagramaOcupacion'])
-//     ->name('corrida.diagramaOcupacion')
-//     ->middleware(['auth','validBrowser']);
+Route::get('/estados', [App\Http\Controllers\geoController::class, 'estados']);
+Route::get('/estado/{estado_id}', [App\Http\Controllers\geoController::class, 'estado']);
+Route::get('/estado/{estado_id}/municipios', [App\Http\Controllers\geoController::class, 'estadoMunicipios']);
+
 Route::group(['prefix' => 'v1'], function(){
+    Route::post('GEO/MunicipiosEstado', [App\Http\Controllers\GeoController::class, 'getMunicipiosEstado'])
+        ->name('geo.MunicipiosEstado')
+        ->middleware(['auth']);
+
+    // Route::post('GEO/Asentamientos', [App\Http\Controllers\GeoController::class, 'getAsentamientos'])
+    //     ->name('geo.Asentamientos')
+    //     ->middleware(['auth']);
+    
+    Route::post('paqueteria/buscarRemitente', [App\Http\Controllers\PaqueteriaController::class, 'buscarRemitente'])
+        ->name('paqueteria.buscarRemitente')
+        ->middleware(['auth']);
+    Route::get('paqueteria/listaProductosSAT/{buscar}', [App\Http\Controllers\PaqueteriaController::class, 'listaProductosSAT'])
+        ->name('paqueteria.listaProductosSAT')
+        ->middleware(['auth']);
+
+    Route::post('GEO/asentamientos', [App\Http\Controllers\PaqueteriaController::class, 'asentamientos'])
+        ->name('paqueteria.asentamientos')
+        ->middleware(['auth']);
+
+
+
+    Route::post('paqueteria/asentamientos', [App\Http\Controllers\PaqueteriaController::class, 'asentamientos'])
+        ->name('paqueteria.asentamientos')
+        ->middleware(['auth']);
+
+    Route::get('paqueteria/corridas/{nOrigen}/{nDestino}', [App\Http\Controllers\PaqueteriaController::class, 'getCorridas'])
+        ->name('paqueteria.corridas.filtrar')
+        ->middleware(['auth']);
+
     Route::get('/corrida/{corrida}/proximas/{nOrigen}/{nDestino}', [App\Http\Controllers\CorridasDisponiblesController::class, 'getProxCorridas'])
         ->name('corrida.getProxCorridas')
         ->middleware(['auth','validBrowser']);
@@ -339,7 +379,7 @@ Route::group(['prefix' => 'v1'], function(){
 });
 
 
-    // DEBUG
+// DEBUG
 Route::get('/browser', function(){
     echo '<h5><center>Debug</center></h5><br>';
     echo '<pre>';
@@ -579,6 +619,7 @@ Route::get('/test', function(){
         }
     }
 });
+
 
 Route::get('/comm', function(Request $request){
     echo '<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>';
