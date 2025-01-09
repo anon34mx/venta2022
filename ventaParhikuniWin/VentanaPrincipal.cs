@@ -156,7 +156,8 @@ namespace ventaParhikuniWin
         {
             await Initizated();
             //Cambiarpagina("/ventaInterna");
-            Cambiarpagina("http://localhost/kuniticket/?origen=MORE&id_kiosko=1");
+            //Cambiarpagina("http://localhost/kuniticket/?origen=MORE&id_kiosko=1");
+            Cambiarpagina("http://127.0.0.1:8000/login");
         }
         // Mis funciones c:
         private void CoreWebView2_NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)

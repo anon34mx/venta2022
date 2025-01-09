@@ -212,7 +212,7 @@ input[type="radio"].estilo1:checked+label {
 
 
 *{
-	outline: 1px solid tomato;
+	/* outline: 1px solid tomato; */
 }
 html{
 	background: linear-gradient(45deg, #e1e5e2, #d7e4e4);
